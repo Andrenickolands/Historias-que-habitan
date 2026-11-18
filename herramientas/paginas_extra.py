@@ -111,8 +111,8 @@ nueva('coleccion.html', 'La mesa que recibe', 'Vajillas, cristalería y centros 
   <ul class="rejilla estanteria">
 ''' + tarjeta('[Recipiente con tapa de cerámica]', 'Cerámica · Hecho en China', '$99.900', dibujo=('tarro', '#F4F2EE'))
       + tarjeta('[Florero de vidrio transparente]', 'Vidrio · Hecho en China', '$69.900', dibujo=('florero', '#DDE6E8', True))
-      + tarjeta('[Juego de 6 copas]', '[Material] · [Origen]', '[Precio]')
-      + tarjeta('[Vajilla de 16 piezas]', '[Material] · [Origen]', '[Precio]') + '''  </ul>
+      + tarjeta('[Juego de 6 copas de vino]', 'Vidrio · Hecho en China', '$149.900', dibujo=('copa', '#DDE6E8', True))
+      + tarjeta('[Vajilla de 16 piezas blanca]', 'Porcelana · Hecho en China', '$389.900', dibujo=('plato', '#F4F2EE')) + '''  </ul>
   <div class="texto-cat">
     <section aria-labelledby="t-guia">
       <h2 id="t-guia">La guía de esta colección</h2>

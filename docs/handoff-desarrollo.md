@@ -26,7 +26,9 @@ Añadidas el 17/11/2026: `colecciones.html`, `coleccion.html`, `historias.html`,
 
 Añadidas el 17/11/2026 con las mismas plantillas: `porcelanas.html`, `flores-artificiales.html`, `mesa.html` con sus subcategorías (`mesa-vajillas.html`, `mesa-cristaleria.html`, `mesa-accesorios.html`), `centros-de-mesa.html`, `esculturas.html`, `decoracion.html` (con acceso a Lámparas), `coleccion-primer-hogar.html` y `coleccion-regalos.html`. Los filtros de cada categoría muestran solo los valores que tienen sus piezas. Los generadores están en `herramientas/`.
 
-Faltan por diseñar: las fichas de las demás piezas (usan la plantilla de `ficha-producto.html`), la ficha de una lámpara de un solo tono y los textos legales.
+Añadidas el 18/11/2026: una ficha por cada pieza del catálogo (`pieza-*.html`, 36) y por cada lámpara (`ficha-lampara.html`, `lampara-2.html` a `lampara-6.html`), todas desde la plantilla `ficha-producto.html`. Cada ficha trae su precio, su oferta con el descuento real, su estado agotado, su miga de pan, su origen y tres piezas de la misma categoría en «Piezas que combinan». Las lámparas de un solo tono ocultan el selector de tono. La pieza viaja de la repisa a su ficha y vuelve desde cualquier categoría o colección. También: `coleccion-protagonistas.html`, tres guías (`historia-pesebre.html`, `historia-anfora.html`, `historia-primer-jarron.html`), `cuenta.html` (ingreso con enlace al correo, pedidos, datos de envío, comunicaciones y cerrar sesión) y `404.html`. Las fichas tienen ahora el mismo menú y la misma navegación de escritorio que las demás páginas.
+
+**Diseño completo en prototipo.** Lo que falta ya no es diseño de pantallas: es contenido real, decisiones del negocio, construcción en la plataforma y pruebas con personas (secciones 2, 8 y 13).
 
 ## 2. Decisiones del negocio que bloquean
 

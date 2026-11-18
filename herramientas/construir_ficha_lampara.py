@@ -14,7 +14,7 @@ rep('<title>[EJEMPLO] Jarrón de cerámica blanca con asas · Historias que Habi
 rep('<h1>Jarrón de cerámica blanca con asas</h1>', '<h1>Lámpara de mesa con base de cerámica</h1>')
 rep('Jarrón de cerámica esmaltada de 28 cm, para ramas, flores artificiales o solo. Va bien en una mesa de entrada o en un aparador.',
     'Lámpara de mesa con base de cerámica y pantalla de tela. Tiene tres tonos de luz: cálida, neutra y fría.')
-rep('<li><a href="categoria.html">Jarrones y recipientes</a></li>', '<li><a href="lamparas.html">Lámparas</a></li>')
+rep('<li><a href="inicio.html">Inicio</a></li><li><a href="categoria.html">Jarrones y recipientes</a></li>', '<li><a href="inicio.html">Inicio</a></li><li><a href="lamparas.html">Lámparas</a></li>')
 rep('<ul class="fotos" id="fotos"', '<ul class="fotos luces" data-luz="off" data-tono="calida" id="fotos"')
 
 i = s.index('<li class="con-arte">')

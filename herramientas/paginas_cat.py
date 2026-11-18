@@ -37,6 +37,9 @@ def piezas_html(piezas):
 
 def categoria_pag(archivo, nombre, intro, piezas, elegir, faqs, migas_medio=(), subnav=None, despues_intro='', descripcion=''):
     tarjetas, valores = piezas_html(piezas)
+    for pz in piezas:
+        if 'pieza-' + slug(pz[0]) + '.html' in REG:
+            REG['pieza-' + slug(pz[0]) + '.html']['cat'] = (nombre, archivo, 'Mesa' if migas_medio else None)
     n = len(piezas)
     filtros = FILTROS
     for titulo, clave in FILTRO_ETIQUETAS:
@@ -122,7 +125,7 @@ categoria_pag('esculturas.html', 'Esculturas pequeñas',
                ('[Esfera sobre base]', 'Resina · ' + PA, '$139.900', ('Resina', 'Arena', 'Pequeño', 'Estudio'), ('esfera', '#D9C7AE')),
                ('[Ave de cerámica café]', 'Cerámica · ' + CH, '$119.900', ('Cerámica', 'Café', 'Pequeño', 'Sala'), ('figura', '#7A5C48'), {'antes': '$139.900'})],
               'Dónde poner una escultura pequeña',
-              [('¿Son piezas únicas?', 'No. Son piezas de nuestra selección, producidas en serie. En la ficha decimos su origen.'), EMBALAJE, ENVIOS])
+              [('¿Son piezas irrepetibles?', 'No. Son piezas de nuestra selección, producidas en serie. En la ficha decimos su origen.'), EMBALAJE, ENVIOS])
 
 categoria_pag('decoracion.html', 'Decoraciones del hogar',
               'Otras piezas para la casa que no caben en las demás categorías. ' + P % '[POR CONFIRMAR: qué incluye esta categoría]',
@@ -175,3 +178,7 @@ coleccion_pag('coleccion-regalos.html', 'Regalos que se guardan', 'espresso',
                ('Jarrón de cerámica blanca con asas', 'Cerámica · ' + CH, '$189.900', ('anfora', '#F1EEE8'), {'href': 'ficha-producto.html'})],
               '[GUÍA PENDIENTE] Cómo elegir un regalo para una casa que no conoce',
               [('La mesa que recibe', 'coleccion.html'), ('Primer hogar', 'coleccion-primer-hogar.html')])
+
+
+# Piezas protagonistas, guías, Mi cuenta y error
+exec(io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'paginas_mas.py'), encoding='utf-8').read())

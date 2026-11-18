@@ -67,6 +67,7 @@ def cabecera(actual):
         <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
         <li><a href="/por-mayor" data-proto>Por mayor</a></li>
         <li><a href="/seguimiento" data-proto>Seguir mi pedido</a></li>
+        <li><a href="cuenta.html">Mi cuenta</a></li>
         <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
       </ul>
     </nav>
@@ -80,7 +81,7 @@ PIE = '''<footer class="pie">
     <ul>
       <li><a href="/envios" data-proto>Envíos</a></li><li><a href="/cambios-y-garantia" data-proto>Cambios y garantía</a></li>
       <li><a href="/pieza-rota" data-proto>Reportar una pieza rota</a></li><li><a href="/seguimiento" data-proto>Seguir mi pedido</a></li>
-      <li><a href="/nosotros" data-proto>Nosotros</a></li><li><a href="/por-mayor" data-proto>Por mayor</a></li>
+      <li><a href="/nosotros" data-proto>Nosotros</a></li><li><a href="cuenta.html">Mi cuenta</a></li><li><a href="/por-mayor" data-proto>Por mayor</a></li>
       <li><a href="/politica-de-datos" data-proto>Tratamiento de datos</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
     </ul>
     <p>Historias que Habitan · Decoración y objetos para el hogar · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
@@ -99,11 +100,46 @@ PIE = '''<footer class="pie">
 '''
 
 
+# Registro de piezas: cada tarjeta con precio recibe su propia ficha (la genera fichas.py)
+import re
+REG = {}
+
+
+def slug(texto):
+    import unicodedata
+    t = unicodedata.normalize('NFD', texto.lower())
+    t = ''.join(c for c in t if unicodedata.category(c) != 'Mn')
+    return re.sub(r'[^a-z0-9]+', '-', t).strip('-')
+
+
+def numero(texto):
+    d = re.sub(r'\D', '', (texto or '').split('<')[0])
+    return int(d) if d else None
+
+
+def registrar(nombre, meta, precio, antes, sello, agotado, datos, dibujo):
+    if numero(precio) is None:
+        return None
+    archivo = 'pieza-' + slug(nombre) + '.html'
+    dm = dict(re.findall(r'data-(\w+)="([^"]*)"', datos or ''))
+    if archivo not in REG:
+        material, _, origen = meta.partition(' · ')
+        REG[archivo] = dict(archivo=archivo, nombre=nombre, precio=numero(precio), antes=numero(antes), sello=sello, agotado=agotado,
+                            material=material, origen=origen, dibujo=dibujo, color=None, tamano=None)
+    r = REG[archivo]
+    r['color'] = r['color'] or dm.get('color')
+    r['tamano'] = r['tamano'] or dm.get('tamano')
+    return archivo
+
+
 def tarjeta(nombre, meta, precio, antes=None, sello=False, agotado=False, datos='', href=None, dibujo=None):
+    if not href:
+        href = registrar(nombre, meta, precio, antes, sello, agotado, datos, dibujo)
     p = '<strong>%s</strong>' % precio
     if antes:
+        pct = round((1 - numero(precio) / numero(antes)) * 100) if numero(precio) and numero(antes) else 20
         p = ('<span class="oculto-visual">Ahora </span><strong>%s</strong><span class="oculto-visual">. Antes </span><s>%s</s>'
-             '<span class="oferta"><span class="oculto-visual">. Descuento del 20 %%. </span><span aria-hidden="true">−20 %%</span></span>') % (precio, antes)
+             '<span class="oferta"><span class="oculto-visual">. Descuento del %d %%. </span><span aria-hidden="true">−%d %%</span></span>') % (precio, antes, pct, pct)
     a = '<a href="%s">' % href if href else '<a href="/jarrones/ejemplo" data-proto>'
     return ('    <li class="tarjeta"%s>%s<div class="foto">%s%s</div><h3>%s</h3><p class="meta">%s</p><p class="precio">%s</p>%s</a></li>\n'
             % (datos, a, '<span class="sello">Exclusivo</span>' if sello else '',
@@ -639,27 +675,30 @@ for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
 print('incrustado')
 
 # El viaje de la pieza entre páginas: la lista debe estar pintada antes de la transición.
-CABEZA = """<link rel="expect" blocking="render" href="#%s">
-<script>
-/* Al volver de la ficha, la pieza regresa a su lugar en la repisa */
+CABEZA = """<script>
+/* Al volver de una ficha, la pieza regresa a su lugar en la repisa */
 addEventListener('pagereveal', e => {
   document.documentElement.dataset.transicion = e.viewTransition ? 'si' : 'no';
   const de = window.navigation && navigation.activation && navigation.activation.from;
-  if (!e.viewTransition || !de || !de.url.includes('ficha-producto')) return;
-  const arte = document.querySelector('.tarjeta a[href*="ficha-producto"] .arte'); if (!arte) return;
+  if (!e.viewTransition || !de) return;
+  const archivo = de.url.split('/').pop().split(/[?#]/)[0];
+  if (!/^(pieza-|ficha-|lampara-)/.test(archivo)) return;
+  const arte = document.querySelector('.tarjeta a[href="' + archivo + '"] .arte'); if (!arte) return;
   arte.style.viewTransitionName = 'pieza';
   e.viewTransition.finished.finally(() => arte.style.viewTransitionName = '');
 });
 </script>
 </head>"""
-for nombre, lista in (('inicio.html', 'piezas'), ('categoria.html', 'lista')):
+for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = io.open(dest + '/' + nombre, encoding='utf-8').read()
+    if 'class="rejilla' not in h:
+        continue
     assert h.count('</head>') == 1
-    io.open(dest + '/' + nombre, 'w', encoding='utf-8', newline='\n').write(h.replace('</head>', CABEZA % lista))
+    io.open(dest + '/' + nombre, 'w', encoding='utf-8', newline='\n').write(h.replace('</head>', CABEZA))
 print('viaje listo')
 
 # Enlaces reales entre las páginas del prototipo
-MAPA = [('/colecciones/primer-hogar', 'coleccion-primer-hogar.html'), ('/colecciones/regalos-que-se-guardan', 'coleccion-regalos.html'), ('/porcelanas', 'porcelanas.html'), ('/flores-artificiales', 'flores-artificiales.html'), ('/mesa', 'mesa.html'), ('/centros-de-mesa', 'centros-de-mesa.html'), ('/esculturas', 'esculturas.html'), ('/decoracion', 'decoracion.html'), ('/jarrones', 'categoria.html'), ('/colecciones', 'colecciones.html'), ('/politica-de-datos', 'politica-de-datos.html'), ('/terminos', 'terminos.html'), ('/politica-de-cookies', 'politica-de-cookies.html'), ('/carrito', 'carrito.html'), ('/colecciones/la-mesa-que-recibe', 'coleccion.html'), ('/historias/como-poner-la-mesa-para-recibir', 'historia.html'), ('/historias', 'historias.html'), ('/por-mayor', 'por-mayor.html'), ('/seguimiento', 'seguimiento.html'), ('/pieza-rota', 'pieza-rota.html'), ('/envios', 'envios.html'), ('/cambios-y-garantia', 'cambios-y-garantia.html'), ('/nosotros', 'nosotros.html'), ('/preguntas', 'preguntas.html')]
+MAPA = [('/historias/el-pesebre-en-casa', 'historia-pesebre.html'), ('/historias/la-forma-del-anfora', 'historia-anfora.html'), ('/historias/el-primer-jarron', 'historia-primer-jarron.html'), ('/colecciones/primer-hogar', 'coleccion-primer-hogar.html'), ('/colecciones/regalos-que-se-guardan', 'coleccion-regalos.html'), ('/porcelanas', 'porcelanas.html'), ('/flores-artificiales', 'flores-artificiales.html'), ('/mesa', 'mesa.html'), ('/centros-de-mesa', 'centros-de-mesa.html'), ('/esculturas', 'esculturas.html'), ('/decoracion', 'decoracion.html'), ('/jarrones', 'categoria.html'), ('/colecciones', 'colecciones.html'), ('/politica-de-datos', 'politica-de-datos.html'), ('/terminos', 'terminos.html'), ('/politica-de-cookies', 'politica-de-cookies.html'), ('/carrito', 'carrito.html'), ('/colecciones/la-mesa-que-recibe', 'coleccion.html'), ('/historias/como-poner-la-mesa-para-recibir', 'historia.html'), ('/historias', 'historias.html'), ('/por-mayor', 'por-mayor.html'), ('/seguimiento', 'seguimiento.html'), ('/pieza-rota', 'pieza-rota.html'), ('/envios', 'envios.html'), ('/cambios-y-garantia', 'cambios-y-garantia.html'), ('/nosotros', 'nosotros.html'), ('/preguntas', 'preguntas.html')]
 for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = io.open(dest + '/' + nombre, encoding='utf-8').read()
     for ruta, archivo in MAPA:
@@ -667,3 +706,6 @@ for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = h.replace('href="/carrito" aria-label="Carrito, 0 piezas" data-proto', 'href="carrito.html" aria-label="Carrito, 0 piezas" data-contador')
     io.open(dest + '/' + nombre, 'w', encoding='utf-8', newline='\n').write(h)
 print('enlaces listos')
+
+# Fichas de todas las piezas y lámparas
+exec(io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fichas.py'), encoding='utf-8').read())

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FBFAF9">
-<title>[EJEMPLO] Lámpara de mesa con base de cerámica · Historias que Habitan</title>
+<title>[EJEMPLO] [Lámpara de mesa con base de cerámica] · Historias que Habitan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
@@ -293,6 +293,39 @@ legend span{font-weight:400;color:var(--cafe-humo)}
 #pagar .icono{width:20px;height:20px;margin-right:var(--s2)}
 @media (prefers-reduced-motion:reduce){#lineas li{transition:none}}
 
+/* Menú de la tienda (mismo de las demás páginas) */
+.nav-escritorio{display:none}
+@media (min-width:960px){
+  .cabecera .ancho{min-height:72px}
+  .nav-escritorio{display:flex;gap:var(--s5);margin-right:var(--s5)}
+  .nav-escritorio a,.nav-escritorio button{font:inherit;background:none;border:0;padding:0;color:inherit;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+  .nav-escritorio a:hover,.nav-escritorio button:hover{text-decoration:underline;text-underline-offset:3px}
+  .solo-movil{display:none}
+}
+/* Paneles: menú lateral y hoja de filtros */
+#menu{border:0;padding:0;background:var(--hueso);color:var(--tinta);overscroll-behavior:contain;flex-direction:column}
+#menu[open]{display:flex}
+#menu::backdrop{background:rgba(49,38,32,.45)}
+.panel-cab{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s2) var(--s2) var(--s2) var(--s4);border-bottom:1px solid var(--perla)}
+.panel-cab h2{font-size:1.5rem;line-height:1.25}
+.panel-cab h2:focus{outline:none}
+.panel-cuerpo{flex:1;min-height:0;overflow-y:auto;padding:var(--s4)}
+.panel-pie{display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom));border-top:1px solid var(--perla)}
+.panel-pie .boton{flex:1}
+#menu{margin:0;width:min(88vw,380px);max-width:none;height:100dvh;max-height:100dvh}
+#menu[open]{animation:de-lado 300ms var(--curva)}
+@keyframes de-lado{from{transform:translateX(-100%)}}
+@keyframes subir{from{transform:translateY(100%)}}
+.buscar{display:flex;gap:var(--s2);margin-bottom:var(--s5)}
+.buscar input{flex:1;min-width:0;min-height:48px;padding:0 var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.menu-lista{list-style:none;margin:0 0 var(--s5);padding:0}
+.menu-lista a{display:flex;align-items:center;min-height:48px;text-decoration:none;border-bottom:1px solid var(--perla)}
+.menu-lista a:hover{background:var(--suave)}
+.menu-lista a[aria-current]{font-weight:500}
+.menu-titulo{font:500 .75rem/1.33 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--cafe-humo);margin:0 0 var(--s1)}
+.menu-lista.grande a{font:600 1.375rem/1.2 var(--titulo)}
+
+
 /* Luz de la lámpara: interruptor y tono. En producción cada estado es una foto real con el mismo encuadre. */
 .barra-luz{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s5);padding:var(--s3) var(--s4) 0}
 .interruptor{display:flex;align-items:center;gap:var(--s3)}
@@ -369,17 +402,62 @@ legend span{font-weight:400;color:var(--cafe-humo)}
 
 <header class="cabecera">
   <div class="ancho">
-    <button class="boton-icono" type="button" aria-label="Abrir menú" data-proto><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="boton-icono solo-movil" type="button" aria-label="Abrir el menú" data-abrir-menu><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <!-- [LOGO SVG PENDIENTE] -->
-    <a class="marca" href="/" translate="no">Historias que Habitan</a>
-    <a class="boton-icono" href="/buscar" aria-label="Buscar" data-proto><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
+    <a class="marca" href="inicio.html" translate="no">Historias que Habitan</a>
+    <nav class="nav-escritorio" aria-label="Principal">
+      <button type="button" data-abrir-menu>Tienda</button>
+      <a href="colecciones.html">Colecciones</a>
+      <a href="historias.html">Historias</a>
+      <a href="quiz-orientacion.html">Orientación</a>
+      <a href="por-mayor.html">Por mayor</a>
+    </nav>
+    <a class="boton-icono" href="buscar.html" aria-label="Buscar"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
     <a class="boton-icono" href="/carrito" id="carrito" aria-label="Carrito, 0 piezas" data-carrito><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="contador" id="contador" hidden>0</span></a>
   </div>
 </header>
 
+<dialog class="panel" id="menu" aria-labelledby="t-menu">
+  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-cuerpo">
+    <form class="buscar" role="search">
+      <label class="oculto-visual" for="q">Buscar en la tienda</label>
+      <input id="q" name="q" type="search" placeholder="Buscar: jarrón, vajilla…" autocomplete="off" enterkeyhint="search">
+      <button class="boton secundario" type="submit">Buscar</button>
+    </form>
+    <nav aria-label="Menú de la tienda">
+      <p class="menu-titulo" id="m-tienda">Tienda</p>
+      <ul class="menu-lista grande" aria-labelledby="m-tienda">
+        <li><a href="porcelanas.html">Porcelanas y figuras</a></li>
+        <li><a href="categoria.html">Jarrones y recipientes</a></li>
+        <li><a href="flores-artificiales.html">Flores artificiales</a></li>
+        <li><a href="mesa.html">Mesa</a></li>
+        <li><a href="centros-de-mesa.html">Centros de mesa</a></li>
+        <li><a href="esculturas.html">Esculturas pequeñas</a></li>
+        <li><a href="decoracion.html">Decoraciones del hogar</a></li>
+        <li><a href="lamparas.html" style="padding-left:var(--s4);font:400 1rem/1.5 var(--texto)">Lámparas</a></li>
+      </ul>
+      <p class="menu-titulo" id="m-col">Colecciones</p>
+      <ul class="menu-lista" aria-labelledby="m-col">
+        <li><a href="coleccion.html">La mesa que recibe</a></li>
+        <li><a href="coleccion-primer-hogar.html">Primer hogar</a></li>
+        <li><a href="coleccion-regalos.html">Regalos que se guardan</a></li>
+      </ul>
+      <ul class="menu-lista">
+        <li><a href="historias.html">Historias</a></li>
+        <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
+        <li><a href="por-mayor.html">Por mayor</a></li>
+        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
+        <li><a href="cuenta.html">Mi cuenta</a></li>
+        <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
+      </ul>
+    </nav>
+  </div>
+</dialog>
+
 <main id="contenido" class="ancho">
   <nav class="migas" aria-label="Ruta de navegación">
-    <ol><li><a href="inicio.html">Inicio</a></li><li><a href="lamparas.html">Lámparas</a></li></ol>
+    <ol><li><a href="inicio.html">Inicio</a></li><li><a href="decoracion.html">Decoraciones del hogar</a></li><li><a href="lamparas.html">Lámparas</a></li></ol>
   </nav>
 
   <div class="producto" id="producto">
@@ -414,32 +492,25 @@ legend span{font-weight:400;color:var(--cafe-humo)}
     </section>
 
     <div class="compra">
-      <h1>Lámpara de mesa con base de cerámica</h1>
-      <p class="respuesta">Lámpara de mesa con base de cerámica y pantalla de tela. Tiene tres tonos de luz: cálida, neutra y fría. <span class="pendiente">[TEXTO DE EJEMPLO]</span></p>
+      <h1>[Lámpara de mesa con base de cerámica]</h1>
+      <p class="respuesta"><span class="pendiente">[RESPUESTA BREVE PENDIENTE: qué es, para qué espacio y por qué elegirla]</span></p>
 
-      <p class="precio"><span class="oculto-visual" id="pre-ahora" hidden>Ahora </span><strong id="precio">$189.900</strong><span id="oferta-antes" hidden><span class="oculto-visual">. Antes </span><s id="precio-antes">$189.900</s></span><span class="sello-oferta" id="oferta-pct" hidden><span class="oculto-visual">. Descuento del 20 %. </span><span aria-hidden="true">−20 %</span></span><span>IVA incluido · El envío se calcula con su ciudad</span></p>
+      <p class="precio"><span class="oculto-visual" id="pre-ahora" hidden>Ahora </span><strong id="precio">$249.900</strong><span id="oferta-antes" hidden><span class="oculto-visual">. Antes </span><s id="precio-antes">$249.900</s></span><span class="sello-oferta" id="oferta-pct" hidden><span class="oculto-visual">. Descuento del 20 %. </span><span aria-hidden="true">−20 %</span></span><span>IVA incluido · El envío se calcula con su ciudad</span></p>
       <p class="vigencia" id="oferta-vigencia" hidden>Oferta del [fecha de inicio] al [fecha de fin]. <span class="pendiente">[POR CONFIRMAR: solo con una rebaja real y sus fechas]</span></p>
       <p class="estado" id="estado"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Disponible para despacho</span></p>
 
-      <details class="destacada">
-        <summary><span class="sello">Exclusivo</span><u>¿Qué significa?</u></summary>
-        <p>Así destacamos algunas piezas de nuestra selección. No quiere decir que la pieza sea única ni que queden pocas unidades. <span class="pendiente">[POR CONFIRMAR: formato de la etiqueta]</span></p>
-      </details>
 
       <form id="form-compra" novalidate>
-        <fieldset>
-          <legend>Color: <span id="color-elegido">Blanco hueso</span></legend>
+        <fieldset hidden>
+          <legend>Color: <span id="color-elegido">Color de la foto</span></legend>
           <div class="variantes">
-            <label class="variante"><input type="radio" name="color" value="Blanco hueso" checked><span>Blanco hueso</span></label>
-            <label class="variante"><input type="radio" name="color" value="Arena"><span>Arena</span></label>
-            <label class="variante"><input type="radio" name="color" value="Verde pino" disabled><span>Verde pino<small>Agotado</small></span></label>
+            <label class="variante"><input type="radio" name="color" value="Color de la foto" checked><span>Color de la foto</span></label>
           </div>
         </fieldset>
-        <fieldset>
-          <legend>Tamaño: <span id="tamano-elegido">Mediano, 28 cm</span></legend>
+        <fieldset hidden>
+          <legend>Tamaño: <span id="tamano-elegido">Estándar</span></legend>
           <div class="variantes">
-            <label class="variante"><input type="radio" name="tamano" value="Mediano, 28 cm" data-precio="189900" checked><span>Mediano<small>28 cm de alto</small></span></label>
-            <label class="variante"><input type="radio" name="tamano" value="Grande, 40 cm" data-precio="259900"><span>Grande<small>40 cm de alto</small></span></label>
+            <label class="variante"><input type="radio" name="tamano" value="Estándar" data-precio="249900" checked><span>Estándar<small>[medidas por confirmar]</small></span></label>
           </div>
         </fieldset>
 
@@ -481,7 +552,7 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         <li><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v11H4zM4 9l2-4h12l2 4M12 5v15"/></svg><span>Empaque de regalo y mensaje: se eligen en el carrito. <span class="pendiente">[POR CONFIRMAR: si se ofrece]</span></span></li>
       </ul>
       <p><a class="enlace-boton" href="#" id="whatsapp">Preguntar por esta pieza en WhatsApp</a></p>
-      <p style="margin:0"><a class="enlace-boton" href="coleccion-primer-hogar.html">Ver la colección Primer hogar</a></p>
+      <p style="margin:0"><a class="enlace-boton" href="lamparas.html">Ver más en Lámparas</a></p>
     </div>
   </div>
 
@@ -511,14 +582,14 @@ legend span{font-weight:400;color:var(--cafe-humo)}
       <summary><h2>Ficha técnica</h2><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9.500 6 6 6-6"/></svg></summary>
       <div>
         <dl class="tecnica">
-          <dt>Medidas</dt><dd>28 cm de alto × 18 cm de ancho. Boca de 9 cm. <span class="pendiente">[EJEMPLO]</span></dd>
-          <dt>Peso</dt><dd>1,4 kg <span class="pendiente">[EJEMPLO]</span></dd>
-          <dt>Material</dt><dd>Cerámica</dd>
-          <dt>Acabado</dt><dd>Esmalte mate</dd>
-          <dt>Cuidados</dt><dd>Limpie con un paño seco o apenas húmedo. No use esponjas abrasivas.</dd>
-          <dt>En la caja</dt><dd>1 lámpara con su pantalla y la tarjeta de la pieza. <span class="pendiente">[POR CONFIRMAR: si incluye bombillo]</span></dd>
+          <dt>Medidas</dt><dd><span class="pendiente">[POR CONFIRMAR]</span></dd>
+          <dt>Peso</dt><dd><span class="pendiente">[POR CONFIRMAR]</span></dd>
+          <dt>Material</dt><dd>[Material]</dd>
+          <dt>Acabado</dt><dd><span class="pendiente">[POR CONFIRMAR]</span></dd>
+          <dt>Cuidados</dt><dd><span class="pendiente">[POR CONFIRMAR con el proveedor]</span></dd>
+          <dt>En la caja</dt><dd><span class="pendiente">[POR CONFIRMAR]</span></dd>
           <dt>Luz</dt><dd>Tres tonos: cálida, neutra y fría. <span class="pendiente">[POR CONFIRMAR: bombillo, potencia y voltaje]</span></dd>
-          <dt>Origen</dt><dd>Hecho en China</dd>
+          <dt>Origen</dt><dd>[Origen]</dd>
           <dt>Garantía</dt><dd><span class="pendiente">[POR CONFIRMAR: plazo y cobertura]</span></dd>
         </dl>
       </div>
@@ -527,7 +598,7 @@ legend span{font-weight:400;color:var(--cafe-humo)}
     <details class="seccion" id="historia">
       <summary><h2>Hecho, diseño e historia</h2><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9.500 6 6 6-6"/></svg></summary>
       <div>
-        <span class="relato">Tipo de relato: por comenzar</span>
+        <span class="relato">Tipo de relato: <span class="pendiente">[POR CONFIRMAR]</span></span>
         <div class="nivel">
           <h3>Hecho <span>· dato verificable, con fuente</span></h3>
           <p><span class="pendiente">[HECHO PENDIENTE: solo se publica con fuente verificada]</span></p>
@@ -535,11 +606,11 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         </div>
         <div class="nivel">
           <h3>Diseño <span>· nuestra lectura de la forma</span></h3>
-          <p>La base toma la silueta de un jarrón y la pantalla abre la luz hacia abajo, sobre la mesa. <span class="pendiente">[TEXTO DE EJEMPLO]</span></p>
+          <p><span class="pendiente">[LECTURA DE DISEÑO PENDIENTE]</span></p>
         </div>
         <div class="nivel historia">
           <h3>Historia <span>· una propuesta, no un hecho</span></h3>
-          <p>Puede ser la luz que se enciende cuando llega visita. <span class="pendiente" style="font-style:normal">[TEXTO DE EJEMPLO]</span></p>
+          <p><span class="pendiente" style="font-style:normal">[PROPUESTA PENDIENTE]</span></p>
         </div>
       </div>
     </details>
@@ -612,7 +683,7 @@ legend span{font-weight:400;color:var(--cafe-humo)}
 
 <div class="barra-compra" id="barra-compra">
   <div>
-    <p><strong id="precio-barra">$189.900</strong><span id="variante-barra">Blanco hueso · Mediano</span></p>
+    <p><strong id="precio-barra">$249.900</strong><span id="variante-barra">IVA incluido</span></p>
     <button class="boton principal" type="submit" form="form-compra" id="agregar-barra">Agregar al carrito</button>
   </div>
 </div>
@@ -689,7 +760,7 @@ const form = $('form-compra');
 /* Oferta: el precio anterior es el precio real de venta, nunca uno inflado. [EJEMPLO: 20 %] */
 let oferta = false; const DESCUENTO = 20;
 const precioBase = () => +form.querySelector('[name=tamano]:checked').dataset.precio;
-const precioActual = () => oferta ? Math.round(precioBase() * (100 - DESCUENTO) / 10000) * 100 : precioBase();
+const precioActual = () => oferta ? (+form.querySelector('[name=tamano]:checked').dataset.oferta || Math.round(precioBase() * (100 - DESCUENTO) / 10000) * 100) : precioBase();
 function pintarPrecio(decir) {
   const p = pesos(precioActual());
   $('precio').textContent = $('precio-barra').textContent = p;
@@ -901,6 +972,16 @@ document.addEventListener('click', e => {
   }
   anunciar('Prototipo: esta página todavía no existe.');
 });
+
+/* Menú y buscador de la cabecera */
+{
+  const menu = $('menu');
+  document.querySelectorAll('[data-abrir-menu]').forEach(b => b.addEventListener('click', () => menu.showModal()));
+  menu.addEventListener('click', e => { if (e.target === menu || e.target.closest('[data-cerrar]')) menu.close(); });
+  menu.querySelector('.buscar').addEventListener('submit', e => { e.preventDefault(); const q = e.target.elements.q.value.trim(); location.href = 'buscar.html' + (q ? '?q=' + encodeURIComponent(q) : ''); });
+}
+/* Estado inicial de la pieza (oferta o agotada) cuando la ficha lo trae */
+if (document.body.dataset.estado) { $('ver-estado').value = document.body.dataset.estado; $('ver-estado').dispatchEvent(new Event('change')); }
 
 /* Luz de la lámpara: encender, apagar y elegir entre sus tres tonos */
 {
