@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBFAF9">
+<title>Encuentre la pieza que busca · Historias que Habitan</title>
+<meta name="description" content="Responda unas preguntas y le mostramos por dónde empezar en Historias que Habitan, decoración y objetos para el hogar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Tokens del manual de marca (secciones 07 a 09) */
+  --tinta:#312620; --cafe-humo:#705C51; --topo:#9A8778; --piedra:#BBB2A8;
+  --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6;
+  --error:#8E2B33; --error-fondo:#F5E3E4; --info:#3E5A73; --info-fondo:#E4EAF0;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --r-boton:2px; --r-tarjeta:6px;
+  --dur:200ms; --curva:cubic-bezier(.2,.7,.2,1);
+  --titulo:"Cormorant Garamond",Georgia,serif;
+  --texto:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-bottom:120px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--hueso);color:var(--tinta);font:400 1rem/1.5 var(--texto);touch-action:manipulation;-webkit-tap-highlight-color:rgba(49,38,32,.12)}
+a{color:var(--tinta);text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+.salto{position:absolute;left:var(--s4);top:-100px;background:var(--tinta);color:var(--hueso);padding:var(--s3) var(--s4);z-index:10}
+.salto:focus{top:var(--s2)}
+.oculto-visual{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+.cabecera{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);min-height:72px;padding:0 var(--s4);border-bottom:1px solid var(--perla);max-width:1200px;margin:0 auto}
+.marca{font:500 .8125rem/1.2 var(--texto);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;display:inline-flex;align-items:center;min-height:44px}
+.ayuda{font-size:.875rem;display:inline-flex;align-items:center;min-height:44px}
+
+main{max-width:560px;margin:0 auto;padding:var(--s5) var(--s4) 136px}
+.etiqueta{font:500 .75rem/1.33 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--cafe-humo);margin:0 0 var(--s2)}
+h1,h2{font-family:var(--titulo);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:2.25rem;line-height:1.17}
+h2{font-size:1.75rem;line-height:1.21}
+h1:focus,h2:focus{outline:none}
+.intro{font-size:1.125rem;line-height:1.56;margin:var(--s4) 0 0}
+.nota{color:var(--cafe-humo);font-size:.875rem;line-height:1.43;margin:var(--s3) 0 0}
+.cita{font:italic 500 1.375rem/1.27 var(--titulo);margin:var(--s6) 0 0;padding-top:var(--s5);border-top:1px solid var(--perla)}
+
+/* Progreso real: paso actual sobre el total de la rama */
+.progreso{margin-bottom:var(--s5)}
+.progreso p{font-size:.875rem;color:var(--cafe-humo);margin:0 0 var(--s2);font-variant-numeric:tabular-nums}
+.barra{height:4px;background:var(--perla);border-radius:2px;overflow:hidden}
+.barra span{display:block;height:100%;background:var(--tinta);transform-origin:left;transition:transform var(--dur) var(--curva)}
+
+fieldset{border:0;padding:0;margin:0;min-width:0}
+legend{padding:0;margin:0 0 var(--s2);width:100%}
+.pista{color:var(--cafe-humo);margin:0 0 var(--s5)}
+.opciones{display:grid;gap:var(--s3)}
+.opcion{position:relative;display:flex;gap:var(--s3);align-items:flex-start;min-height:56px;padding:var(--s4);border:1px solid var(--cafe-humo);border-radius:var(--r-tarjeta);background:var(--hueso);cursor:pointer;transition:background-color var(--dur) var(--curva),box-shadow var(--dur) var(--curva)}
+.opcion:hover{background:#F3F0ED}
+.opcion input{appearance:none;-webkit-appearance:none;flex:none;width:22px;height:22px;margin:1px 0 0;border:1.5px solid var(--cafe-humo);border-radius:50%;background:var(--hueso);display:grid;place-content:center}
+.opcion input[type=checkbox]{border-radius:3px}
+.opcion input::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--hueso);transform:scale(0);transition:transform var(--dur) var(--curva)}
+.opcion input[type=checkbox]::before{border-radius:1px}
+.opcion input:checked{background:var(--tinta);border-color:var(--tinta)}
+.opcion input:checked::before{transform:scale(1)}
+.opcion:has(input:checked){background:var(--oatmeal);box-shadow:inset 0 0 0 1px var(--tinta);border-color:var(--tinta)}
+.opcion:has(input:focus-visible){outline:2px solid var(--tinta);outline-offset:3px}
+.opcion input:focus-visible{outline:none}
+.opcion strong{display:block;font-weight:500}
+.opcion span span{display:block;color:var(--cafe-humo);font-size:.875rem;line-height:1.43;margin-top:2px}
+.opcion:has(input:checked) span span{color:var(--tinta)}
+
+.campo{margin-bottom:var(--s5)}
+.campo label{display:block;font-weight:500;margin-bottom:var(--s1)}
+.campo .ayuda-campo{display:block;color:var(--cafe-humo);font-size:.875rem;margin-bottom:var(--s2)}
+.campo input{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:var(--r-boton)}
+.campo input[aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.error{display:flex;gap:var(--s2);color:var(--error);background:var(--error-fondo);padding:var(--s2) var(--s3);margin:var(--s2) 0 0;font-size:.9375rem;border-radius:var(--r-boton)}
+.error::before{content:"!";font-weight:500;flex:none;width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;display:grid;place-content:center;font-size:.8125rem}
+.resumen-error{border:1px solid var(--error);background:var(--error-fondo);color:var(--error);padding:var(--s4);margin-bottom:var(--s5);border-radius:var(--r-tarjeta)}
+.resumen-error ul{margin:var(--s2) 0 0;padding-left:var(--s5)}
+.resumen-error a{color:var(--error)}
+.pendiente{display:inline-block;font-size:.8125rem;line-height:1.4;color:var(--info);background:var(--info-fondo);padding:2px var(--s2);border-radius:2px}
+
+.acciones{position:fixed;left:0;right:0;bottom:0;background:var(--hueso);border-top:1px solid var(--perla);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom))}
+.acciones div{max-width:560px;margin:0 auto;display:flex;gap:var(--s3)}
+.boton{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 var(--s5);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;text-align:center;border-radius:var(--r-boton);border:1px solid var(--tinta);cursor:pointer;transition:background-color var(--dur) var(--curva),color var(--dur) var(--curva)}
+.principal{background:var(--tinta);color:var(--hueso);flex:1}
+.principal:hover{background:#1F1814}
+.secundario{background:transparent;color:var(--tinta)}
+.secundario:hover{background:var(--oatmeal)}
+.enlace{background:none;border:0;padding:0 var(--s2);min-height:48px;font:inherit;color:var(--tinta);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+.usted{background:var(--oatmeal);padding:var(--s4);border-radius:var(--r-tarjeta);margin:var(--s5) 0}
+.usted ul{margin:var(--s2) 0 0;padding-left:var(--s5)}
+.piezas{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3);margin:var(--s4) 0 var(--s2);padding:0;list-style:none}
+.piezas li{aspect-ratio:4/5;background:var(--perla);display:grid;place-content:center;text-align:center;font-size:.75rem;color:var(--tinta);padding:var(--s2)}
+.lista{margin:var(--s3) 0 0;padding:0;list-style:none}
+.lista li{padding:var(--s3) 0;border-top:1px solid var(--perla)}
+.bloque{margin-top:var(--s6)}
+.bloque h3{font:600 1.375rem/1.27 var(--titulo);margin:0}
+.cta{display:grid;gap:var(--s3);margin-top:var(--s5)}
+.aviso{position:fixed;left:var(--s4);right:var(--s4);bottom:var(--s5);max-width:528px;margin:0 auto;background:var(--tinta);color:var(--hueso);padding:var(--s3) var(--s4);border-radius:var(--r-tarjeta);font-size:.9375rem}
+.casilla{display:flex;gap:var(--s3);align-items:flex-start;min-height:44px;cursor:pointer}
+.casilla input{flex:none;width:22px;height:22px;margin:2px 0 0;accent-color:var(--tinta)}
+
+/* WhatsApp flotante: mismo lugar en todas las páginas, por encima de la barra inferior y sin taparla */
+.wa-flotante{position:fixed;right:var(--s4);bottom:calc(96px + env(safe-area-inset-bottom));z-index:14;width:56px;height:56px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:grid;place-content:center;box-shadow:0 4px 16px rgba(49,38,32,.28);transition:background-color var(--dur) var(--curva)}
+.wa-flotante:hover{background:#1F1814}
+.wa-flotante svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width:720px){.wa-flotante{right:var(--s5);bottom:var(--s5)}}
+
+.paso{animation:entrar var(--dur) var(--curva)}
+@keyframes entrar{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .paso{animation:none}
+  *{transition-duration:0ms!important}
+}
+@media (min-width:720px){
+  main{padding-top:var(--s7)}
+  h1{font-size:3rem;line-height:1.125}
+  .acciones{position:static;border:0;padding:var(--s6) 0 0;background:none}
+  main{padding-bottom:var(--s7)}
+}
+</style>
+</head>
+<body>
+<a class="salto" href="#contenido">Saltar al contenido</a>
+<header class="cabecera">
+  <!-- [LOGO SVG PENDIENTE]: reemplazar por el logo vectorizado del design system -->
+  <a class="marca" href="/" translate="no">Historias que Habitan</a>
+  <a class="ayuda" href="#" data-wa="ayuda">Ayuda por WhatsApp</a>
+</header>
+
+<main id="contenido">
+  <noscript>
+    <h1>Encuentre la pieza que busca</h1>
+    <p class="intro">Este cuestionario necesita JavaScript. Puede ver las colecciones o escribirnos por WhatsApp y con gusto le orientamos.</p>
+  </noscript>
+  <form id="quiz" novalidate></form>
+  <p id="anuncio" class="oculto-visual" aria-live="polite"></p>
+</main>
+
+<a class="wa-flotante" href="#" data-wa="ayuda" aria-label="Ayuda por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0-7.3 12.85L3.5 20.5l4.3-1.1A8.5 8.5 0 1 0 12 3.5Z"/><path d="M9.2 8.6c-.3 2.9 2.3 5.8 5.3 6.2l1-1.3-1.7-1-.7.7c-.9-.4-1.7-1.2-2.1-2.1l.7-.7-1-1.7z"/></svg></a>
+
+<script>
+/* Prototipo de diseño. No envía datos a ningún servidor.
+   Pendientes: número de WhatsApp, rangos de precio, piezas reales, política de datos. */
+const WHATSAPP = ''; // [POR CONFIRMAR: número de la marca, formato 57XXXXXXXXXX]
+
+const P = {
+  proposito: { titulo: '¿Para qué busca hoy?', pista: 'Elija la opción que más se parezca.', opciones: [
+    ['casa', 'Para mi casa', 'Una pieza o varias para un espacio propio.'],
+    ['regalo', 'Para regalar', 'Una boda, un primer hogar, una fecha especial.'],
+    ['lucir', 'Para un espacio que quiero lucir', 'Oficina, estudio, consultorio o local.'],
+    ['negocio', 'Para mi negocio', 'Compra por mayor para vender o ambientar.']] },
+  espacio: { titulo: '¿Para qué espacio de su casa?', resumen: 'Espacio', opciones: [
+    ['mesa', 'La mesa y el comedor'], ['sala', 'La sala'],
+    ['entrada', 'La entrada o un rincón'], ['nose', 'Todavía no lo sé']] },
+  momento: { titulo: '¿En qué momento está su casa?', resumen: 'Momento', opciones: [
+    ['primer', 'Estoy armando mi primer hogar'],
+    ['renovar', 'Quiero renovar con pocas piezas'],
+    ['recibir', 'Voy a recibir invitados'],
+    ['especial', 'Cuido mi casa hace años y busco una pieza especial']] },
+  estilo: { titulo: '¿Qué le atrae más?', pista: 'No hay respuesta correcta: la belleza es personal.', resumen: 'Gusto', opciones: [
+    ['clasico', 'Clásico y con detalle'], ['sencillo', 'Sencillo y de líneas limpias'],
+    ['color', 'Con color y carácter'], ['mezcla', 'Me gusta mezclar']] },
+  ocasion: { titulo: '¿Cuál es la ocasión?', resumen: 'Ocasión', opciones: [
+    ['boda', 'Una boda'], ['hogar', 'Un primer hogar o una inauguración'],
+    ['cumple', 'Un cumpleaños o un agradecimiento'], ['navidad', 'Navidad']] },
+  destinatario: { titulo: '¿Para quién es el regalo?', resumen: 'Para', opciones: [
+    ['anfitrion', 'Alguien que disfruta recibir en casa'],
+    ['cuida', 'Alguien que cuida mucho su casa'],
+    ['pareja', 'Una pareja que empieza'],
+    ['nose', 'No conozco bien sus gustos']] },
+  lugar: { titulo: '¿Qué espacio quiere lucir?', resumen: 'Espacio', opciones: [
+    ['oficina', 'Una oficina'], ['estudio', 'Un estudio o consultorio'],
+    ['sala', 'La sala de mi casa'], ['local', 'Un local o recepción']] },
+  pieza: { titulo: '¿Qué imagina en ese espacio?', resumen: 'Busca', opciones: [
+    ['escultura', 'Una escultura o figura que se note'], ['jarron', 'Un jarrón grande'],
+    ['flores', 'Flores y un recipiente'], ['conjunto', 'Un conjunto de varias piezas']] },
+  presupuesto: { titulo: '¿Qué presupuesto tiene en mente?', pista: 'Los precios incluyen IVA. El costo de envío se muestra antes de pagar.',
+    pendiente: '[POR CONFIRMAR: rangos según los precios reales]', resumen: 'Presupuesto', opciones: [
+    ['a', 'Hasta $100.000'], ['b', 'Entre $100.000 y $300.000'],
+    ['c', 'Más de $300.000'], ['todo', 'Prefiero ver todo']] },
+  tipoNegocio: { titulo: '¿Qué tipo de negocio tiene?', resumen: 'Negocio', opciones: [
+    ['tienda', 'Tienda de decoración o regalos'], ['eventos', 'Floristería o eventos'],
+    ['horeca', 'Hotel, restaurante o café'], ['corporativo', 'Regalos corporativos'], ['otro', 'Otro']] },
+  categorias: { titulo: '¿Qué categorías le interesan?', pista: 'Puede marcar varias.', multiple: true, resumen: 'Categorías', opciones: [
+    ['porcelanas', 'Porcelanas y figuras'], ['jarrones', 'Jarrones y recipientes'],
+    ['flores', 'Flores artificiales'], ['mesa', 'Mesa: vajillas y cristalería'],
+    ['centros', 'Centros de mesa'], ['esculturas', 'Esculturas pequeñas']] },
+  volumen: { titulo: '¿Cada cuánto piensa comprar?', pista: 'Las cantidades mínimas y los precios se confirman en la cotización.',
+    pendiente: '[POR CONFIRMAR: mínimos y condiciones mayoristas]', resumen: 'Frecuencia', opciones: [
+    ['unica', 'Una sola compra'], ['temporada', 'Por temporada'],
+    ['mensual', 'Todos los meses'], ['nose', 'Aún no lo sé']] }
+};
+const RAMAS = {
+  casa: ['espacio', 'momento', 'estilo', 'presupuesto'],
+  regalo: ['ocasion', 'destinatario', 'presupuesto'],
+  lucir: ['lugar', 'pieza', 'presupuesto'],
+  negocio: ['tipoNegocio', 'categorias', 'volumen', 'datos']
+};
+const CAT = {
+  porcelanas: ['Porcelanas y figuras', 'porcelanas.html'], jarrones: ['Jarrones y recipientes', 'categoria.html'],
+  flores: ['Flores artificiales', 'flores-artificiales.html'], mesa: ['Mesa', 'mesa.html'],
+  centros: ['Centros de mesa', 'centros-de-mesa.html'], esculturas: ['Esculturas pequeñas', 'esculturas.html']
+};
+
+const form = document.getElementById('quiz');
+const anuncio = document.getElementById('anuncio');
+let r = {}, i = -1; // i = -1 portada; 0 propósito; luego los pasos de la rama
+try { const g = JSON.parse(sessionStorage.getItem('hqh-quiz')); if (g) { r = g.r; i = g.i; } } catch (e) {}
+
+const pasos = () => ['proposito', ...(RAMAS[r.proposito] || [])];
+const track = (evento, datos) => (window.dataLayer = window.dataLayer || []).push({ event: evento, ...datos });
+const guardar = () => { try { sessionStorage.setItem('hqh-quiz', JSON.stringify({ r, i })); } catch (e) {} };
+function el(tag, attrs, ...hijos) {
+  const n = document.createElement(tag);
+  for (const k in attrs || {}) { if (attrs[k] === false || attrs[k] == null) continue; k === 'class' ? n.className = attrs[k] : n.setAttribute(k, attrs[k] === true ? '' : attrs[k]); }
+  hijos.flat().forEach(h => h != null && n.append(h));
+  return n;
+}
+const texto = (id, v) => (P[id].opciones.find(o => o[0] === v) || [])[1];
+const valor = id => [].concat(r[id] || []).map(v => texto(id, v)).join(', ');
+
+function pintar(foco = true) {
+  form.replaceChildren();
+  const lista = pasos();
+  let vista;
+  if (i < 0) vista = portada();
+  else if (i >= lista.length) vista = resultado();
+  else if (lista[i] === 'datos') vista = datos(lista);
+  else vista = pregunta(lista[i], lista);
+  form.append(vista);
+  guardar();
+  if (foco) { const h = form.querySelector('h1,h2'); h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); window.scrollTo(0, 0); }
+}
+
+function portada() {
+  return el('section', { class: 'paso' },
+    el('h1', {}, 'Encuentre la pieza que busca'),
+    el('p', { class: 'intro' }, 'Cuéntenos para qué busca y le mostramos por dónde empezar. Son cuatro o cinco preguntas y toma cerca de un minuto.'),
+    el('p', { class: 'nota' }, 'No le pedimos datos para ver el resultado.'),
+    el('p', { class: 'cita' }, 'Hay objetos que no solo decoran. Cuentan historias.'),
+    barraAcciones(null, 'Empezar'));
+}
+
+function progreso(lista) {
+  const total = r.proposito ? lista.length : null;
+  return el('div', { class: 'progreso' },
+    el('p', {}, total ? `Paso ${i + 1} de ${total}` : 'Paso 1 · Son cuatro o cinco preguntas'),
+    el('div', { class: 'barra', 'aria-hidden': 'true' }, el('span', { style: `transform:scaleX(${(i + 1) / (total || 5)})` })));
+}
+
+function pregunta(id, lista) {
+  const p = P[id], actual = [].concat(r[id] || []);
+  const opciones = p.opciones.map(([v, t, d]) => el('label', { class: 'opcion' },
+    el('input', { type: p.multiple ? 'checkbox' : 'radio', name: id, value: v, checked: actual.includes(v), 'aria-describedby': `error-${id}` }),
+    el('span', {}, el('strong', {}, t), d ? el('span', {}, d) : null)));
+  return el('section', { class: 'paso' }, progreso(lista),
+    el('fieldset', {},
+      el('legend', {}, el('h2', {}, p.titulo)),
+      el('p', { class: 'pista' }, p.pista || 'Elija una opción.', p.pendiente ? [' ', el('span', { class: 'pendiente' }, p.pendiente)] : null),
+      el('div', { class: 'opciones' }, opciones),
+      el('div', { id: `error-${id}`, role: 'alert' })),
+    barraAcciones(i > 0 ? 'Atrás' : null, 'Continuar'));
+}
+
+const CAMPOS = [
+  ['nombre', 'Su nombre', 'text', 'name', null, true],
+  ['negocio', 'Nombre del negocio', 'text', 'organization', null, true],
+  ['ciudad', 'Ciudad', 'text', 'address-level2', 'Hacemos envíos a todo el país.', true],
+  ['nit', 'NIT o cédula (opcional)', 'text', 'off', 'Solo números, sin puntos ni dígito de verificación.', false],
+  ['whatsapp', 'Número de WhatsApp', 'tel', 'tel-national', 'Diez dígitos. Ejemplo: 300 123 4567. Por ahí le respondemos.', true]
+];
+function datos(lista) {
+  const campos = CAMPOS.map(([id, etq, tipo, auto, ayuda]) => el('div', { class: 'campo' },
+    el('label', { for: id }, etq),
+    ayuda ? el('span', { class: 'ayuda-campo', id: `ayuda-${id}` }, ayuda) : null,
+    el('input', { id, name: id, type: tipo, autocomplete: auto, value: (r.datos || {})[id] || '', inputmode: id === 'nit' ? 'numeric' : null,
+      spellcheck: 'false', 'aria-describedby': `${ayuda ? `ayuda-${id} ` : ''}error-${id}` }),
+    el('div', { id: `error-${id}`, role: 'alert' })));
+  return el('section', { class: 'paso' }, progreso(lista),
+    el('div', { id: 'resumen-error', tabindex: '-1' }),
+    el('h2', {}, '¿A quién le enviamos la cotización?'),
+    el('p', { class: 'pista' }, 'Le responde una persona por WhatsApp. ', el('span', { class: 'pendiente' }, '[POR CONFIRMAR: tiempo de respuesta]')),
+    campos,
+    el('label', { class: 'casilla' },
+      el('input', { type: 'checkbox', id: 'autoriza', name: 'autoriza', 'aria-describedby': 'error-autoriza' }),
+      el('span', {}, 'Autorizo a Historias que Habitan a usar estos datos para responder mi solicitud, según la ',
+        el('a', { href: '/politica-de-datos' }, 'política de tratamiento de datos'), '. ',
+        el('span', { class: 'pendiente' }, '[POR CONFIRMAR: texto legal]'))),
+    el('div', { id: 'error-autoriza', role: 'alert' }),
+    barraAcciones('Atrás', 'Ver mi solicitud'));
+}
+
+function recomendar() {
+  const c = (...ids) => ids.map(k => CAT[k]);
+  if (r.proposito === 'regalo') {
+    const por = { boda: c('mesa', 'porcelanas'), hogar: c('jarrones', 'mesa'), cumple: c('porcelanas', 'esculturas'), navidad: c('centros', 'porcelanas') };
+    return { tipo: 'Colección sugerida', nombre: 'Regalos que se guardan', url: 'coleccion-regalos.html', cats: por[r.ocasion],
+      porque: 'Reúne piezas pensadas para regalar, con la medida, el material y el origen a la vista para que elija con seguridad aunque no conozca la casa de quien lo recibe.' };
+  }
+  if (r.proposito === 'lucir') {
+    const por = { escultura: c('esculturas', 'porcelanas'), jarron: c('jarrones', 'flores'), flores: c('flores', 'jarrones'), conjunto: c('centros', 'jarrones') };
+    return { tipo: 'Sección sugerida', nombre: 'Piezas protagonistas', url: '/colecciones/piezas-protagonistas', cats: por[r.pieza], pendiente: '[POR CONFIRMAR: nombre de la sección]',
+      porque: 'Son las piezas de mayor presencia del catálogo: las que se ven al entrar a un espacio. En cada una encontrará las medidas para confirmar que cabe donde la imagina.' };
+  }
+  if (r.momento === 'primer') return { tipo: 'Colección sugerida', nombre: 'Primer hogar', url: 'coleccion-primer-hogar.html', cats: c('jarrones', 'mesa'),
+    porque: 'Reúne pocas piezas que combinan entre sí, para empezar una casa sin tener que comprarlo todo de una vez.' };
+  if (r.momento === 'recibir' || r.espacio === 'mesa') return { tipo: 'Colección sugerida', nombre: 'La mesa que recibe', url: 'coleccion.html', cats: c('mesa', 'centros'),
+    porque: 'Reúne vajillas, cristalería y centros de mesa que funcionan juntos, para vestir la mesa con pocas piezas.' };
+  const por = { sala: c('jarrones', 'flores', 'esculturas'), entrada: c('jarrones', 'porcelanas'), nose: c('porcelanas', 'jarrones') };
+  return { tipo: 'Por dónde empezar', nombre: 'Dos categorías para su espacio', url: (por[r.espacio] || por.nose)[0][1], cats: por[r.espacio] || por.nose,
+    porque: 'Son las categorías que mejor responden al espacio que nos contó. Dentro de cada una puede filtrar por tamaño, color y precio.' };
+}
+
+function resultado() {
+  const mayor = r.proposito === 'negocio';
+  const lista = pasos().slice(1).filter(id => id !== 'datos' && r[id]);
+  const resumen = el('div', { class: 'usted' }, el('strong', {}, 'Usted nos contó'),
+    el('ul', {}, lista.map(id => el('li', {}, `${P[id].resumen}: ${valor(id)}`))));
+  track(mayor ? 'cotizacion_mayorista_lista' : 'quiz_resultado', { proposito: r.proposito });
+  const confianza = el('div', { class: 'bloque' }, el('h3', {}, 'Antes de comprar, usted verá'),
+    el('ul', { class: 'lista' },
+      el('li', {}, 'Medidas, material, acabado y origen de cada pieza.'),
+      el('li', {}, 'El precio con IVA incluido y el costo de envío antes de pagar.'),
+      el('li', {}, 'Envíos a todo el país y cómo llega embalada cada pieza. ', el('span', { class: 'pendiente' }, '[POR CONFIRMAR: operador y política de roturas]')),
+      el('li', {}, 'Cambios, garantía y derecho de retracto. ', el('span', { class: 'pendiente' }, '[POR CONFIRMAR: revisión legal]'))));
+  const reiniciar = el('p', {}, el('button', { type: 'button', class: 'enlace', 'data-accion': 'reiniciar' }, 'Cambiar mis respuestas'));
+
+  if (mayor) return el('section', { class: 'paso' },
+    el('p', { class: 'etiqueta' }, 'Solicitud de cotización'),
+    el('h1', {}, 'Su solicitud está lista'),
+    el('p', { class: 'intro' }, `${r.datos.nombre}, revise el resumen y envíelo por WhatsApp. Una persona le responde con precios por volumen y condiciones.`),
+    resumen,
+    el('div', { class: 'cta' },
+      el('a', { class: 'boton principal', href: '#', 'data-wa': 'mayorista' }, 'Enviar solicitud por WhatsApp')),
+    el('p', { class: 'nota' }, 'Se abre WhatsApp con el mensaje escrito. Usted decide si lo envía.'),
+    reiniciar);
+
+  const rec = recomendar();
+  return el('section', { class: 'paso' },
+    el('p', { class: 'etiqueta' }, rec.tipo),
+    el('h1', {}, rec.nombre), rec.pendiente ? el('span', { class: 'pendiente' }, rec.pendiente) : null,
+    el('p', { class: 'intro' }, rec.porque),
+    resumen,
+    el('ul', { class: 'piezas', 'aria-label': 'Piezas sugeridas, pendientes del inventario' },
+      [1, 2, 3].map(() => el('li', {}, '[FOTO DEL PRODUCTO]'))),
+    el('p', { class: 'nota' }, el('span', { class: 'pendiente' }, '[PIEZAS POR CONFIRMAR CON EL INVENTARIO]')),
+    el('div', { class: 'cta' },
+      el('a', { class: 'boton principal', href: rec.url, 'data-proto': !rec.url.endsWith('.html') }, rec.tipo === 'Por dónde empezar' ? `Ver ${rec.cats[0][0]}` : `Ver «${rec.nombre}»`),
+      el('a', { class: 'boton secundario', href: '#', 'data-wa': 'detal' }, 'Recibir orientación por WhatsApp')),
+    el('div', { class: 'bloque' }, el('h3', {}, 'También puede mirar'),
+      el('ul', { class: 'lista' }, rec.cats.map(([n, u]) => el('li', {}, el('a', { href: u, 'data-proto': !u.endsWith('.html') }, n))))),
+    confianza,
+    el('p', { class: 'cita' }, 'Objetos que se vuelven herencia.'),
+    reiniciar);
+}
+
+function barraAcciones(atras, siguiente) {
+  return el('div', { class: 'acciones' }, el('div', {},
+    atras ? el('button', { type: 'button', class: 'boton secundario', 'data-accion': 'atras' }, atras) : null,
+    el('button', { type: 'submit', class: 'boton principal' }, siguiente)));
+}
+
+function mensajeWa(tipo) {
+  if (tipo === 'ayuda') return 'Buen día. Tengo una pregunta sobre Historias que Habitan.';
+  const lineas = pasos().slice(1).filter(id => id !== 'datos' && r[id]).map(id => `${P[id].resumen}: ${valor(id)}`);
+  if (tipo === 'mayorista') return ['Buen día. Quiero solicitar una cotización por mayor.', `Negocio: ${r.datos.negocio} (${r.datos.ciudad})`, `Contacto: ${r.datos.nombre}`, ...lineas].join('\n');
+  return ['Buen día. Hice el cuestionario de orientación y busco ' + texto('proposito', r.proposito).toLowerCase() + '.', ...lineas].join('\n');
+}
+function aviso(t) {
+  document.querySelector('.aviso')?.remove();
+  const a = el('p', { class: 'aviso', role: 'status' }, t);
+  document.body.append(a); setTimeout(() => a.remove(), 5000);
+}
+function error(id, t) {
+  const caja = document.getElementById(`error-${id}`);
+  caja.replaceChildren(t ? el('p', { class: 'error' }, t) : '');
+  const campo = document.getElementById(id);
+  if (campo && campo.type !== 'checkbox') campo.setAttribute('aria-invalid', t ? 'true' : 'false');
+}
+const REGLAS = {
+  nombre: v => v.trim() ? '' : 'Escriba su nombre.',
+  negocio: v => v.trim() ? '' : 'Escriba el nombre de su negocio.',
+  ciudad: v => v.trim() ? '' : 'Escriba la ciudad a la que enviaríamos el pedido.',
+  nit: v => !v.trim() || /^\d{5,10}$/.test(v.replace(/[\s.]/g, '')) ? '' : 'Escriba solo números, entre 5 y 10 dígitos, o deje el campo vacío.',
+  whatsapp: v => /^3\d{9}$/.test(v.replace(/\D/g, '').replace(/^57/, '')) ? '' : 'Escriba un celular de diez dígitos que empiece por 3. Ejemplo: 300 123 4567.'
+};
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const lista = pasos(), id = lista[i];
+  if (i < 0) { i = 0; track('quiz_inicio'); return pintar(); }
+  if (id === 'datos') {
+    const d = Object.fromEntries(CAMPOS.map(([c]) => [c, form.elements[c].value]));
+    r.datos = d; guardar();
+    const fallas = CAMPOS.map(([c, etq]) => [c, etq, REGLAS[c](d[c])]).filter(f => f[2]);
+    if (!form.elements.autoriza.checked) fallas.push(['autoriza', 'Autorización', 'Marque la casilla para que podamos responderle.']);
+    CAMPOS.forEach(([c]) => error(c, REGLAS[c](d[c])));
+    error('autoriza', form.elements.autoriza.checked ? '' : 'Marque la casilla para que podamos responderle.');
+    const caja = document.getElementById('resumen-error');
+    if (fallas.length) {
+      caja.className = 'resumen-error';
+      caja.replaceChildren(el('strong', {}, fallas.length === 1 ? 'Falta corregir un dato' : `Falta corregir ${fallas.length} datos`),
+        el('ul', {}, fallas.map(([c, , m]) => el('li', {}, el('a', { href: `#${c}` }, m)))));
+      caja.focus(); return;
+    }
+    i++; return pintar();
+  }
+  const marcados = [...form.querySelectorAll(`[name="${id}"]:checked`)].map(n => n.value);
+  if (!marcados.length) {
+    error(id, P[id].multiple ? 'Marque al menos una categoría para continuar.' : 'Elija una opción para continuar.');
+    return form.querySelector(`[name="${id}"]`).focus();
+  }
+  if (id === 'proposito' && r.proposito !== marcados[0]) r = {};
+  r[id] = P[id].multiple ? marcados : marcados[0];
+  i++; track('quiz_paso', { paso: id });
+  pintar();
+  anuncio.textContent = i < pasos().length ? `Paso ${i + 1} de ${pasos().length}` : 'Resultado listo';
+});
+
+form.addEventListener('focusout', e => { if (REGLAS[e.target.id] && e.target.value) error(e.target.id, REGLAS[e.target.id](e.target.value)); });
+form.addEventListener('change', e => { if (e.target.matches('.opcion input')) error(e.target.name, ''); });
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-accion],[data-wa],[data-proto],.resumen-error a');
+  if (!b) return;
+  if (b.matches('.resumen-error a')) { e.preventDefault(); return document.querySelector(b.getAttribute('href')).focus(); }
+  if (b.dataset.accion === 'atras') { i--; return pintar(); }
+  if (b.dataset.accion === 'reiniciar') { i = 0; return pintar(); }
+  e.preventDefault();
+  if (b.dataset.wa) {
+    track('quiz_whatsapp', { origen: b.dataset.wa });
+    return window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(mensajeWa(b.dataset.wa))}`, '_blank', 'noopener');
+  }
+  aviso(`Prototipo: la página ${b.getAttribute('href')} todavía no existe.`);
+});
+
+pintar(false);
+</script>
+</body>
+</html>

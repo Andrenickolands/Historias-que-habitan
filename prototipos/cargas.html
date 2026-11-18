@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBFAF9">
+<title>Sistema de cargas y transiciones · Historias que Habitan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#312620; --cafe-humo:#705C51; --piedra:#BBB2A8; --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6; --suave:#F3F0ED;
+  --exito:#3F6B4E; --exito-fondo:#E6EEE7; --error:#8E2B33; --error-fondo:#F5E3E4; --info:#3E5A73; --info-fondo:#E4EAF0;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  /* Tokens de movimiento: los mismos tiempos y curvas en todo el sitio */
+  --t-instante:100ms; --t-rapida:200ms; --t-media:300ms; --t-lenta:400ms; --t-marca:800ms; --t-brillo:1500ms;
+  --c-salida:cubic-bezier(.2,.7,.2,1);   /* entradas, salidas y transiciones de página */
+  --c-estado:cubic-bezier(.2,0,0,1);     /* cambios de estado de un control */
+  --k:1;                                  /* 10 = cámara lenta para revisar */
+  --titulo:"Cormorant Garamond",Georgia,serif;
+  --texto:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--hueso);color:var(--tinta);font:400 1rem/1.5 var(--texto);-webkit-font-smoothing:antialiased;touch-action:manipulation}
+::selection{background:var(--oatmeal)}
+a{color:inherit;text-underline-offset:3px}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+h1,h2,h3{font-family:var(--titulo);font-weight:600;margin:0;text-wrap:balance}
+p{margin:0;text-wrap:pretty}
+.icono{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.oculto-visual{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ancho{max-width:880px;margin:0 auto;padding:0 var(--s4)}
+.pendiente{display:inline-block;font-size:.8125rem;line-height:1.4;color:var(--info);background:var(--info-fondo);padding:2px var(--s2);border-radius:2px}
+
+.cab{padding:var(--s6) 0 var(--s5);border-bottom:1px solid var(--tinta)}
+.cab h1{font-size:2.25rem;line-height:1.1}
+.cab p{margin-top:var(--s3);max-width:60ch}
+.controles{position:sticky;top:0;z-index:20;background:var(--hueso);border-bottom:1px solid var(--perla);display:flex;flex-wrap:wrap;gap:0 var(--s5);padding:var(--s1) 0}
+.casilla{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;cursor:pointer}
+.casilla input{width:22px;height:22px;margin:0;accent-color:var(--tinta)}
+
+.pieza{padding:var(--s7) 0;border-bottom:1px solid var(--perla)}
+.pieza h2{font-size:1.75rem;line-height:1.2}
+.pieza>p{margin-top:var(--s2);max-width:62ch}
+.datos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s1) var(--s4);margin:var(--s4) 0 0;font-size:.875rem}
+.datos div{border-top:1px solid var(--perla);padding-top:var(--s1)}
+.datos dt{color:var(--cafe-humo)}
+.datos dd{margin:0}
+.escena{margin-top:var(--s5);background:var(--suave);border-radius:6px;padding:var(--s4);position:relative}
+.barra-demo{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s3)}
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:48px;padding:0 var(--s5);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;border-radius:2px;border:1px solid var(--tinta);cursor:pointer;background:var(--tinta);color:var(--hueso);transition:background-color calc(var(--t-rapida)*var(--k)) var(--c-estado),scale calc(var(--t-instante)*var(--k)) var(--c-estado)}
+.boton:hover{background:#1F1814}
+.boton:active{scale:.96}
+.boton.secundario{background:var(--hueso);color:var(--tinta)}
+.boton.secundario:hover{background:var(--oatmeal)}
+.boton[aria-busy=true]{cursor:progress}
+.foto{background:var(--perla);display:grid;place-content:center;text-align:center;font-size:.75rem;padding:var(--s2);outline:1px solid rgba(0,0,0,.1);outline-offset:-1px}
+
+/* Monograma [MARCADOR]: se reemplaza por los trazos del logo vectorizado */
+.h{width:64px;height:80px;fill:none;stroke:var(--tinta);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;display:block}
+.h path{stroke-dasharray:1;stroke-dashoffset:0}
+.h .estrella{fill:var(--tinta);stroke:none;transform-box:fill-box;transform-origin:center}
+
+/* 1. Transición entre páginas */
+.mini{background:var(--hueso);border-radius:6px;padding:var(--s4);max-width:420px;min-height:300px}
+.mini-rejilla{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.mini-rejilla button{all:unset;display:block;cursor:pointer;width:100%}
+.mini-rejilla button:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+.mini .foto{aspect-ratio:4/5}
+.mini h3{font-size:1.125rem;margin-top:var(--s2)}
+.mini .precio{font-size:.9375rem;font-variant-numeric:tabular-nums}
+#t-detalle .foto{aspect-ratio:4/3;margin-bottom:var(--s3)}
+#t-detalle h3{font-size:1.5rem}
+::view-transition-group(*){animation-duration:calc(var(--t-media)*var(--k));animation-timing-function:var(--c-salida)}
+.sin-vt{animation:fundir calc(var(--t-rapida)*var(--k)) var(--c-salida)}
+@keyframes fundir{from{opacity:0}}
+
+/* 2. Carga inicial de marca: la puerta se abre y deja ver la página */
+.telefono{position:relative;width:240px;aspect-ratio:9/16;background:var(--hueso);border:1px solid var(--cafe-humo);border-radius:12px;overflow:hidden;margin:0 auto}
+.telefono .pagina{padding:var(--s4);display:grid;gap:var(--s2)}
+.telefono .pagina .foto{aspect-ratio:4/5}
+.telefono .pagina h3{font-size:1.125rem}
+.telon{position:absolute;inset:0;display:grid;place-content:center;pointer-events:none}
+.telon i{position:absolute;top:0;bottom:0;width:50.5%;background:var(--oatmeal)}
+.telon i:first-child{left:0}.telon i:nth-child(2){right:0}
+.telon .h{position:relative}
+.telon.fuera{visibility:hidden}
+.telon.abre .h path:not(.estrella){animation:trazo calc(450ms*var(--k)) var(--c-salida) both}
+.telon.abre .h .estrella{animation:luz calc(250ms*var(--k)) var(--c-salida) calc(350ms*var(--k)) both}
+.telon.abre .h{animation:irse calc(200ms*var(--k)) var(--c-salida) calc(600ms*var(--k)) forwards}
+.telon.abre i:first-child{animation:hoja-izq calc(200ms*var(--k)) var(--c-salida) calc(600ms*var(--k)) forwards}
+.telon.abre i:nth-child(2){animation:hoja-der calc(200ms*var(--k)) var(--c-salida) calc(600ms*var(--k)) forwards}
+.telon.corta .h,.telon.corta i{animation:irse calc(var(--t-instante)*var(--k)) linear forwards!important}
+@keyframes trazo{from{stroke-dashoffset:1}}
+@keyframes luz{from{opacity:0;scale:.25}}
+@keyframes irse{to{opacity:0}}
+@keyframes hoja-izq{to{translate:-100% 0}}
+@keyframes hoja-der{to{translate:100% 0}}
+
+/* 3. Esqueletos con la forma real del contenido */
+.esq-fila{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4)}
+.esq{background:var(--hueso);border-radius:6px;padding:var(--s3)}
+.esq h3{font:500 .8125rem/1.4 var(--texto);color:var(--cafe-humo);margin-bottom:var(--s2)}
+.b{display:block;background:var(--oatmeal);border-radius:2px;height:12px;margin-top:var(--s2)}
+.b.foto-b{aspect-ratio:4/5;height:auto;margin-top:0}
+.b.ancha{aspect-ratio:4/3}
+.b.t{height:18px;width:80%}.b.m{width:55%}.b.c{width:35%}.b.btn{height:36px;margin-top:var(--s3)}
+.linea{display:grid;grid-template-columns:36px 1fr;gap:var(--s2);align-items:center;margin-top:var(--s2)}
+.linea .b{margin:0}.linea .b:first-child{height:44px}
+.cargando .b{background:linear-gradient(100deg,var(--oatmeal) 35%,#F1E9DA 50%,var(--oatmeal) 65%) 0 0/300% 100%;animation:brillo calc(var(--t-brillo)*var(--k)) linear infinite}
+@keyframes brillo{to{background-position:-150% 0}}
+.real{display:none;font-size:.875rem}
+.listo .b,.listo .linea{display:none}
+.listo .real{display:block;animation:fundir calc(var(--t-rapida)*var(--k)) var(--c-salida)}
+
+/* 4. Marcador de imagen: color dominante y espacio reservado */
+.imagen{position:relative;aspect-ratio:4/5;max-width:220px;background:var(--piedra);overflow:hidden}
+.imagen .foto{position:absolute;inset:0;opacity:0;transition:opacity calc(var(--t-media)*var(--k)) var(--c-salida);background:linear-gradient(160deg,#D8D2CC,#B7AEA4)}
+.imagen.cargada .foto{opacity:1}
+
+/* 5. Microinteracciones */
+.micro{display:grid;gap:var(--s5)}
+.micro>div{background:var(--hueso);border-radius:6px;padding:var(--s4)}
+.micro h3{font:500 1rem/1.5 var(--texto);margin-bottom:var(--s3)}
+.carrito-demo{display:flex;align-items:center;gap:var(--s4);flex-wrap:wrap}
+.miniatura{width:48px;aspect-ratio:4/5;background:var(--perla);flex:none}
+.bolsa{position:relative;margin-left:auto;width:44px;height:44px;display:grid;place-content:center}
+.conteo{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--tinta);color:var(--hueso);font:500 .6875rem/18px var(--texto);text-align:center;font-variant-numeric:tabular-nums;transition:scale calc(var(--t-rapida)*var(--k)) var(--c-estado)}
+.conteo.sube{scale:1.25}
+.vuelo{position:fixed;z-index:50;background:var(--perla);pointer-events:none;transition:translate calc(var(--t-lenta)*var(--k)) var(--c-salida),scale calc(var(--t-lenta)*var(--k)) var(--c-salida),opacity calc(var(--t-lenta)*var(--k)) var(--c-salida)}
+.cambia{position:relative;display:inline-grid}
+.cambia>*{grid-area:1/1;transition:opacity calc(var(--t-rapida)*var(--k)) var(--c-estado),scale calc(var(--t-rapida)*var(--k)) var(--c-estado),filter calc(var(--t-rapida)*var(--k)) var(--c-estado)}
+.cambia>:last-child,.activo .cambia>:first-child{opacity:0;scale:.25;filter:blur(4px)}
+.activo .cambia>:last-child{opacity:1;scale:1;filter:none}
+.favorito{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;background:none;border:0;font:inherit;color:inherit;cursor:pointer;padding:0 var(--s2) 0 0}
+.favorito .llena{fill:var(--tinta)}
+.cupon{display:flex;gap:var(--s2);flex-wrap:wrap}
+.cupon input{flex:1;min-width:140px;min-height:48px;padding:0 var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px;text-transform:uppercase}
+.giro{width:16px;height:16px;border:1.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:girar calc(700ms*var(--k)) linear infinite}
+@keyframes girar{to{rotate:360deg}}
+.aviso{margin-top:var(--s2);padding:var(--s2) var(--s3);border-radius:2px;font-size:.9375rem}
+.aviso:empty{display:none}
+.aviso.bien{background:var(--exito-fondo);color:var(--exito)}
+.aviso.mal{background:var(--error-fondo);color:var(--error)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.chip{min-height:44px;padding:0 var(--s4);font:inherit;color:var(--tinta);background:var(--hueso);border:1px solid var(--cafe-humo);border-radius:999px;cursor:pointer;transition:background-color calc(var(--t-rapida)*var(--k)) var(--c-estado)}
+.chip[aria-pressed=true]{background:var(--tinta);color:var(--hueso);border-color:var(--tinta)}
+#f-cuenta{font-variant-numeric:tabular-nums;margin-top:var(--s3);transition:opacity calc(var(--t-instante)*var(--k)) linear}
+
+/* 6 y 7. Pago y sin conexión */
+.centro{background:var(--hueso);border-radius:12px;padding:var(--s6) var(--s5);max-width:380px;margin:0 auto;text-align:center}
+.centro .h{margin:0 auto var(--s4)}
+.centro h3{font-size:1.5rem;line-height:1.25}
+.centro p{margin-top:var(--s2)}
+.centro .boton{margin-top:var(--s5)}
+.respira .h{animation:respirar calc(1600ms*var(--k)) var(--c-salida) 3 alternate}
+@keyframes respirar{from{opacity:.35}}
+.cerrada .h .estrella{opacity:.25}
+
+/* Movimiento reducido: fundidos cortos o estado fijo. La clase .reducido lo simula en esta página. */
+@media (prefers-reduced-motion:reduce){
+  .telon.abre .h path,.telon.abre .h .estrella{animation:none!important}
+  .telon.abre i{animation:irse 200ms linear 300ms forwards!important}
+  .telon.abre .h{animation:irse 200ms linear 300ms forwards!important}
+  .cargando .b,.respira .h,.giro{animation:none!important}
+  .cambia>*{scale:1!important;filter:none!important}
+  .vuelo{transition:opacity 200ms linear!important}
+  .boton:active{scale:1}
+  ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation-duration:1ms!important}
+}
+.reducido .telon.abre .h path,.reducido .telon.abre .h .estrella{animation:none!important}
+.reducido .telon.abre i,.reducido .telon.abre .h{animation:irse 200ms linear 300ms forwards!important}
+.reducido .cargando .b,.reducido .respira .h,.reducido .giro{animation:none!important}
+.reducido .cambia>*{scale:1!important;filter:none!important}
+.reducido .vuelo{transition:opacity 200ms linear!important}
+.reducido .boton:active{scale:1}
+.reducido .giro{border-right-color:currentColor;opacity:.5}
+
+@media (min-width:640px){
+  .cab h1{font-size:2.75rem}
+  .datos{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .esq-fila{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .micro{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<header class="cab"><div class="ancho">
+  <h1>Sistema de cargas y transiciones</h1>
+  <p>Siete piezas con los mismos tiempos y curvas. Ninguna alarga la espera real: si el contenido ya está, la animación termina. El monograma de esta página es un marcador hasta tener el logo en vectores. <span class="pendiente">[MONOGRAMA SVG PENDIENTE]</span></p>
+</div></header>
+<div class="controles"><div class="ancho" style="display:flex;flex-wrap:wrap;gap:0 var(--s5)">
+  <label class="casilla"><input type="checkbox" id="lento"> Cámara lenta (10 %)</label>
+  <label class="casilla"><input type="checkbox" id="reducido"> Simular movimiento reducido</label>
+</div></div>
+
+<main class="ancho">
+  <section class="pieza" aria-labelledby="p1">
+    <h2 id="p1">1. Transición entre páginas</h2>
+    <p>La foto de la tarjeta crece hasta ser la foto de la ficha. El resto se funde. Toque una pieza.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>300 ms</dd></div><div><dt>Curva</dt><dd>Salida</dd></div><div><dt>Técnica</dt><dd>View Transitions (CSS)</dd></div><div><dt>Peso</dt><dd>0 KB de script</dd></div></dl>
+    <div class="escena"><div class="mini" id="t-escena">
+      <div class="mini-rejilla" id="t-lista">
+        <button type="button" data-pieza="Jarrón de cerámica"><div class="foto">[FOTO]</div><h3>Jarrón de cerámica</h3><p class="precio">$189.900</p></button>
+        <button type="button" data-pieza="Juego de 6 copas"><div class="foto">[FOTO]</div><h3>Juego de 6 copas</h3><p class="precio">$129.900</p></button>
+      </div>
+      <div id="t-detalle" hidden><div class="foto">[FOTO]</div><h3 id="t-nombre" tabindex="-1"></h3><p class="precio">Precio con IVA incluido</p><div class="barra-demo"><button class="boton secundario" type="button" id="t-volver">Volver a la lista</button></div></div>
+    </div></div>
+  </section>
+
+  <section class="pieza" aria-labelledby="p2">
+    <h2 id="p2">2. Carga inicial de marca</h2>
+    <p>La H se dibuja, entra la luz de la estrella y la puerta se abre para dejar ver la página. Solo en la primera visita y solo si la carga tarda más de un segundo.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>800 ms, una sola vez</dd></div><div><dt>Curva</dt><dd>Salida</dd></div><div><dt>Técnica</dt><dd>SVG con trazo y CSS</dd></div><div><dt>Peso</dt><dd>Menos de 2 KB</dd></div></dl>
+    <div class="escena">
+      <div class="telefono">
+        <div class="pagina"><div class="foto">[FOTO PRINCIPAL]</div><h3>Porcelanas, jarrones y piezas para su casa</h3><span class="b" style="width:60%"></span></div>
+        <div class="telon fuera" id="telon" aria-hidden="true"><i></i><i></i><span data-h></span></div>
+      </div>
+      <div class="barra-demo" style="justify-content:center"><button class="boton" type="button" id="abrir-telon">Reproducir</button><button class="boton secundario" type="button" id="cortar-telon">El contenido ya llegó</button></div>
+    </div>
+  </section>
+
+  <section class="pieza" aria-labelledby="p3">
+    <h2 id="p3">3. Esqueletos de marca</h2>
+    <p>Bloques con la forma real del contenido y un brillo suave. Para esperas de uno a tres segundos. Con movimiento reducido quedan fijos.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>Brillo de 1,5 s en bucle</dd></div><div><dt>Curva</dt><dd>Lineal</dd></div><div><dt>Técnica</dt><dd>CSS</dd></div><div><dt>Peso</dt><dd>Menos de 1 KB</dd></div></dl>
+    <div class="escena cargando" id="esqueletos" aria-busy="true">
+      <div class="esq-fila">
+        <div class="esq"><h3>Tarjeta</h3><span class="b foto-b"></span><span class="b t"></span><span class="b m"></span><span class="b c"></span><p class="real">[FOTO], nombre, material y precio</p></div>
+        <div class="esq"><h3>Ficha</h3><span class="b foto-b ancha"></span><span class="b t"></span><span class="b c"></span><span class="b btn"></span><p class="real">[FOTO], nombre, precio y botón de compra</p></div>
+        <div class="esq"><h3>Carrito</h3><div class="linea"><span class="b"></span><span class="b"></span></div><div class="linea"><span class="b"></span><span class="b"></span></div><span class="b btn"></span><p class="real">Dos piezas y el botón de pago</p></div>
+        <div class="esq"><h3>Búsqueda</h3><span class="b btn" style="margin-top:0"></span><div class="linea"><span class="b"></span><span class="b"></span></div><div class="linea"><span class="b"></span><span class="b"></span></div><p class="real">Campo de búsqueda y dos resultados</p></div>
+      </div>
+      <div class="barra-demo"><button class="boton secundario" type="button" id="alternar-esq">Mostrar el contenido</button><span id="esq-estado" role="status" class="oculto-visual">Cargando contenido</span></div>
+    </div>
+  </section>
+
+  <section class="pieza" aria-labelledby="p4">
+    <h2 id="p4">4. Marcadores de imagen</h2>
+    <p>Cada foto reserva su espacio con proporción fija y muestra su color dominante. Al llegar, la foto aparece con un fundido y nada se mueve.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>300 ms</dd></div><div><dt>Curva</dt><dd>Salida</dd></div><div><dt>Técnica</dt><dd>CSS y atributo de tamaño</dd></div><div><dt>Peso</dt><dd>Un color por foto</dd></div></dl>
+    <div class="escena"><div class="imagen" id="imagen"><div class="foto">[FOTO DEL PRODUCTO]</div></div>
+      <div class="barra-demo"><button class="boton secundario" type="button" id="cargar-imagen">Cargar la foto</button></div></div>
+  </section>
+
+  <section class="pieza" aria-labelledby="p5">
+    <h2 id="p5">5. Microinteracciones</h2>
+    <p>Respuestas cortas que confirman una acción. El texto y el contador cambian siempre; el movimiento solo acompaña.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>100 a 400 ms</dd></div><div><dt>Curva</dt><dd>Estado y salida</dd></div><div><dt>Técnica</dt><dd>Transiciones CSS</dd></div><div><dt>Peso</dt><dd>Menos de 1 KB de script</dd></div></dl>
+    <div class="escena micro">
+      <div><h3>Agregar al carrito</h3>
+        <div class="carrito-demo"><div class="miniatura" id="mini-foto"></div>
+          <button class="boton" type="button" id="agregar"><span class="cambia"><span>Agregar al carrito</span><span>Agregada</span></span></button>
+          <span class="bolsa" id="bolsa"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="conteo" id="conteo">0</span></span></div></div>
+      <div><h3>Favoritos</h3>
+        <button class="favorito" type="button" id="favorito" aria-pressed="false"><span class="cambia"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.500-7-10a4 4 0 0 1 7-2.500A4 4 0 0 1 19 10c0 5.500-7 10-7 10Z"/></svg><svg class="icono llena" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.500-7-10a4 4 0 0 1 7-2.500A4 4 0 0 1 19 10c0 5.500-7 10-7 10Z"/></svg></span><span id="fav-texto">Guardar en favoritos</span></button></div>
+      <div><h3>Aplicar cupón</h3>
+        <form class="cupon" id="cupon" novalidate><label class="oculto-visual" for="codigo">Código del cupón</label><input id="codigo" autocomplete="off" spellcheck="false" placeholder="Código…" aria-describedby="cupon-aviso"><button class="boton secundario" type="submit" id="aplicar">Aplicar</button></form>
+        <p class="aviso" id="cupon-aviso" role="status"></p>
+        <p style="font-size:.8125rem;color:var(--cafe-humo);margin-top:var(--s2)">Demostración: espera simulada de 700 ms. Pruebe con PRUEBA.</p></div>
+      <div><h3>Filtros</h3>
+        <div class="chips"><button class="chip" type="button" aria-pressed="false" data-n="3">Cerámica</button><button class="chip" type="button" aria-pressed="false" data-n="2">Vidrio</button><button class="chip" type="button" aria-pressed="false" data-n="3">Porcelana</button></div>
+        <p id="f-cuenta" role="status">8 piezas</p></div>
+    </div>
+  </section>
+
+  <section class="pieza" aria-labelledby="p6">
+    <h2 id="p6">6. Estado de pago</h2>
+    <p>Un aviso sobrio con la H y un mensaje tranquilo. Sin barra de progreso, porque no se conoce el avance real. La H respira tres veces y queda fija.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>Lo que tarde la pasarela</dd></div><div><dt>Curva</dt><dd>Salida</dd></div><div><dt>Técnica</dt><dd>SVG y CSS</dd></div><div><dt>Peso</dt><dd>Menos de 1 KB</dd></div></dl>
+    <div class="escena"><div class="centro respira" id="pago" role="status"><span data-h></span><h3>Estamos procesando su pago…</h3><p>No cierre ni recargue esta página.</p></div>
+      <div class="barra-demo" style="justify-content:center"><button class="boton secundario" type="button" id="repetir-pago">Reproducir de nuevo</button></div></div>
+  </section>
+
+  <section class="pieza" aria-labelledby="p7" style="border-bottom:0">
+    <h2 id="p7">7. Sin conexión o error de carga</h2>
+    <p>La H queda fija, con la estrella apagada. El mensaje dice qué pasó y qué hacer.</p>
+    <dl class="datos"><div><dt>Duración</dt><dd>Sin animación</dd></div><div><dt>Curva</dt><dd>No aplica</dd></div><div><dt>Técnica</dt><dd>SVG fijo</dd></div><div><dt>Peso</dt><dd>Menos de 1 KB</dd></div></dl>
+    <div class="escena"><div class="centro cerrada"><span data-h></span><h3>No hay conexión</h3><p>Lo que tiene en el carrito sigue guardado. Revise su conexión y vuelva a intentar.</p><button class="boton" type="button" id="reintentar"><span class="cambia"><span>Reintentar</span><span>Reintentando…</span></span></button><p class="aviso mal" id="reintento" role="status"></p></div></div>
+  </section>
+</main>
+<p class="oculto-visual" id="anuncio" aria-live="polite"></p>
+
+<script>
+const $ = id => document.getElementById(id);
+const raiz = document.documentElement;
+const k = () => $('lento').checked ? 10 : 1;
+const quieto = () => $('reducido').checked || matchMedia('(prefers-reduced-motion:reduce)').matches;
+const espera = ms => new Promise(r => setTimeout(r, ms * k()));
+const anunciar = t => { $('anuncio').textContent = ''; requestAnimationFrame(() => $('anuncio').textContent = t); };
+
+/* Monograma [MARCADOR]: H externa, arco de la puerta y estrella. Sustituir por los trazos reales del logo. */
+const H = '<svg class="h" viewBox="0 0 64 80" aria-hidden="true"><path pathLength="1" d="M14 8v64"/><path pathLength="1" d="M50 8v64"/><path pathLength="1" d="M14 40h36"/><path pathLength="1" d="M24 72V52a8 8 0 0 1 16 0v20"/><path class="estrella" d="M32 15l1.700 4.800 4.800 1.700-4.800 1.700-1.700 4.800-1.700-4.800-4.800-1.700 4.800-1.700z"/></svg>';
+document.querySelectorAll('[data-h]').forEach(e => e.innerHTML = H);
+
+$('lento').onchange = () => raiz.style.setProperty('--k', k());
+$('reducido').onchange = e => raiz.classList.toggle('reducido', e.target.checked);
+
+/* 1. Transición entre páginas */
+function cambiar(hacer) {
+  if (document.startViewTransition && !quieto()) return document.startViewTransition(hacer);
+  hacer(); $('t-escena').classList.remove('sin-vt'); void $('t-escena').offsetWidth; $('t-escena').classList.add('sin-vt');
+}
+$('t-lista').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  b.querySelector('.foto').style.viewTransitionName = 'foto';
+  cambiar(() => { b.querySelector('.foto').style.viewTransitionName = ''; $('t-detalle').querySelector('.foto').style.viewTransitionName = 'foto';
+    $('t-nombre').textContent = b.dataset.pieza; $('t-lista').hidden = true; $('t-detalle').hidden = false; $('t-detalle').dataset.de = b.dataset.pieza; $('t-nombre').focus(); });
+});
+$('t-volver').onclick = () => {
+  const b = $('t-lista').querySelector(`[data-pieza="${$('t-detalle').dataset.de}"]`);
+  cambiar(() => { $('t-detalle').querySelector('.foto').style.viewTransitionName = ''; b.querySelector('.foto').style.viewTransitionName = 'foto';
+    $('t-detalle').hidden = true; $('t-lista').hidden = false; b.focus(); });
+};
+
+/* 2. Carga inicial */
+const telon = $('telon');
+$('abrir-telon').onclick = () => { telon.className = 'telon'; void telon.offsetWidth; telon.classList.add('abre'); };
+$('cortar-telon').onclick = () => { if (telon.classList.contains('abre')) telon.classList.add('corta'); };
+telon.addEventListener('animationend', e => { if (e.target.tagName === 'I' && e.target === telon.children[1]) telon.className = 'telon fuera'; });
+
+/* 3. Esqueletos */
+$('alternar-esq').onclick = e => {
+  const c = $('esqueletos').classList.toggle('cargando'); $('esqueletos').classList.toggle('listo', !c); $('esqueletos').setAttribute('aria-busy', c);
+  e.target.textContent = c ? 'Mostrar el contenido' : 'Volver a cargar'; $('esq-estado').textContent = c ? 'Cargando contenido' : 'Contenido cargado';
+};
+
+/* 4. Imagen */
+$('cargar-imagen').onclick = e => { const c = $('imagen').classList.toggle('cargada'); e.target.textContent = c ? 'Quitar la foto' : 'Cargar la foto'; };
+
+/* 5. Microinteracciones */
+let n = 0;
+$('agregar').onclick = async () => {
+  const b = $('agregar'), o = $('mini-foto').getBoundingClientRect(), d = $('bolsa').getBoundingClientRect();
+  n++; $('conteo').textContent = n; anunciar(`Pieza agregada al carrito. ${n} en total.`); b.classList.add('activo');
+  const v = document.createElement('div'); v.className = 'vuelo';
+  Object.assign(v.style, { left: o.left + 'px', top: o.top + 'px', width: o.width + 'px', height: o.height + 'px' }); document.body.append(v); void v.offsetWidth;
+  if (!quieto()) { v.style.translate = `${d.left + d.width / 2 - o.left - o.width / 2}px ${d.top + d.height / 2 - o.top - o.height / 2}px`; v.style.scale = '.2'; }
+  v.style.opacity = '0';
+  await espera(400); v.remove(); $('conteo').classList.add('sube'); await espera(200); $('conteo').classList.remove('sube');
+  await espera(900); b.classList.remove('activo');
+};
+$('favorito').onclick = e => { const b = e.currentTarget, a = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', a); b.classList.toggle('activo', a); $('fav-texto').textContent = a ? 'Guardada en favoritos' : 'Guardar en favoritos'; };
+$('cupon').addEventListener('submit', async e => {
+  e.preventDefault(); const b = $('aplicar'), aviso = $('cupon-aviso'), codigo = $('codigo').value.trim().toUpperCase();
+  if (b.getAttribute('aria-busy') === 'true') return;
+  if (!codigo) { aviso.className = 'aviso mal'; aviso.textContent = 'Escriba el código del cupón.'; return $('codigo').focus(); }
+  b.setAttribute('aria-busy', 'true'); aviso.textContent = '';
+  const tardo = setTimeout(() => b.innerHTML = '<span class="giro" aria-hidden="true"></span>Aplicando…', 100 * k()); // sin indicador por debajo de 100 ms
+  await espera(700); clearTimeout(tardo); b.removeAttribute('aria-busy'); b.textContent = 'Aplicar';
+  const ok = codigo === 'PRUEBA'; aviso.className = 'aviso ' + (ok ? 'bien' : 'mal');
+  aviso.textContent = ok ? 'Cupón PRUEBA aplicado. [EJEMPLO]' : `El cupón ${codigo} no existe o ya venció. Revise el código.`;
+});
+document.querySelector('.chips').addEventListener('click', async e => {
+  const c = e.target.closest('.chip'); if (!c) return; c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+  const act = [...document.querySelectorAll('.chip[aria-pressed=true]')], total = act.length ? act.reduce((s, x) => s + +x.dataset.n, 0) : 8;
+  $('f-cuenta').style.opacity = '.4'; await espera(100); $('f-cuenta').textContent = `${total} piezas`; $('f-cuenta').style.opacity = '1';
+});
+
+/* 6 y 7 */
+$('repetir-pago').onclick = () => { $('pago').classList.remove('respira'); void $('pago').offsetWidth; $('pago').classList.add('respira'); };
+$('reintentar').onclick = async e => { const b = e.currentTarget; if (b.classList.contains('activo')) return; b.classList.add('activo'); b.setAttribute('aria-busy', 'true'); $('reintento').textContent = '';
+  await espera(900); b.classList.remove('activo'); b.removeAttribute('aria-busy'); $('reintento').textContent = 'Sigue sin conexión. Intente de nuevo en un momento.'; };
+</script>
+</body>
+</html>

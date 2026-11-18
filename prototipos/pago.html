@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBFAF9">
+<title>Pago · Historias que Habitan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --tinta:#312620; --cafe-humo:#705C51; --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6; --suave:#F3F0ED;
+  --exito:#3F6B4E; --exito-fondo:#E6EEE7; --error:#8E2B33; --error-fondo:#F5E3E4; --info:#3E5A73; --info-fondo:#E4EAF0;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px;
+  --dur:200ms; --curva:cubic-bezier(.2,.7,.2,1);
+  --titulo:"Cormorant Garamond",Georgia,serif;
+  --texto:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding:72px 0 120px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--hueso);color:var(--tinta);font:400 1rem/1.5 var(--texto);touch-action:manipulation;-webkit-tap-highlight-color:rgba(49,38,32,.12);padding-bottom:96px;caret-color:var(--tinta)}
+::selection{background:var(--oatmeal)}
+a{color:var(--tinta);text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+.oculto-visual{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.salto{position:absolute;left:var(--s4);top:-100px;background:var(--tinta);color:var(--hueso);padding:var(--s3) var(--s4);z-index:30}
+.salto:focus{top:var(--s2)}
+.pendiente{display:inline-block;font:400 .8125rem/1.4 var(--texto);color:var(--info);background:var(--info-fondo);padding:2px var(--s2);border-radius:2px}
+.ancho{max-width:600px;margin:0 auto;padding:0 var(--s4)}
+
+.proto{background:var(--info-fondo);color:var(--info);font-size:.875rem;padding:var(--s2) var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:center}
+.proto label{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px}
+.proto select{font:inherit;min-height:36px;color:var(--tinta);background:#fff;border:1px solid var(--info);border-radius:2px;padding:0 var(--s2)}
+
+.cabecera{border-bottom:1px solid var(--perla)}
+.cabecera .ancho{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);min-height:64px}
+.marca{font:500 .75rem/1.2 var(--texto);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.cabecera a:last-child{font-size:.875rem;min-height:44px;display:inline-flex;align-items:center}
+
+h1{font:600 2rem/1.16 var(--titulo);margin:var(--s5) 0 var(--s4);text-wrap:balance}
+h1:focus,h2:focus{outline:none}
+
+/* Resumen del pedido: plegado en móvil, siempre con el total a la vista */
+.resumen{background:var(--suave);border-radius:6px;margin-bottom:var(--s5)}
+.resumen summary{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);min-height:56px;padding:0 var(--s4);cursor:pointer;list-style:none}
+.resumen summary::-webkit-details-marker{display:none}
+.resumen summary span:first-child{text-decoration:underline;text-underline-offset:3px}
+.resumen summary strong{font-weight:500;font-variant-numeric:tabular-nums}
+.resumen>div{padding:0 var(--s4) var(--s4)}
+.resumen ul{list-style:none;margin:0;padding:0}
+.resumen li{display:flex;justify-content:space-between;gap:var(--s4);padding:var(--s2) 0;border-top:1px solid var(--perla)}
+.resumen li span:last-child,.totales dd{font-variant-numeric:tabular-nums;white-space:nowrap}
+.resumen small{display:block;color:var(--cafe-humo);font-size:.875rem}
+.totales{margin:0;display:grid;grid-template-columns:1fr auto;gap:var(--s1) var(--s4);padding-top:var(--s3);border-top:1px solid var(--tinta)}
+.totales dt,.totales dd{margin:0}
+.totales .total{font-weight:500;font-size:1.125rem;padding-top:var(--s2)}
+
+/* Indicador de pasos */
+.pasos{position:sticky;top:0;z-index:12;display:flex;align-items:center;list-style:none;margin:0 calc(var(--s4) * -1) var(--s5);padding:var(--s3) var(--s4);background:var(--hueso);border-bottom:1px solid var(--perla);font-size:.9375rem}
+.pasos li{flex:1;display:flex;align-items:center;gap:var(--s2);color:var(--cafe-humo)}
+.pasos li:first-child{flex:0 1 auto}
+.pasos li+li::before{content:"";flex:1;min-width:12px;height:1.5px;background:var(--perla);margin:0 var(--s1) 0 var(--s2)}
+.pasos .num{flex:none;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--cafe-humo);display:grid;place-content:center;font-size:.875rem;font-variant-numeric:tabular-nums}
+.pasos li[aria-current]{color:var(--tinta);font-weight:500}
+.pasos li[aria-current] .num{background:var(--tinta);border-color:var(--tinta);color:var(--hueso)}
+.pasos li.hecho{color:var(--tinta)}
+.pasos li.hecho .num{border-color:var(--tinta);font-size:0}
+.pasos li.hecho .num::after{content:"";width:12px;height:7px;border-left:2px solid var(--tinta);border-bottom:2px solid var(--tinta);rotate:-45deg;translate:0 -2px}
+.pasos li.hecho+li::before{background:var(--tinta)}
+
+.paso{border-top:1px solid var(--tinta);padding:var(--s4) 0}
+.paso:last-of-type{border-bottom:1px solid var(--tinta)}
+.paso-cab{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3)}
+.paso h2{font:600 1.5rem/1.25 var(--titulo);margin:0}
+.paso-resumen{margin:var(--s1) 0 0;color:var(--cafe-humo);font-size:.9375rem;overflow-wrap:anywhere}
+.paso-cuerpo{padding-top:var(--s4)}
+.enlace-boton{background:none;border:0;padding:0;min-height:44px;font:inherit;color:var(--tinta);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
+
+.campo{margin-bottom:var(--s5)}
+.campo label,.grupo legend{display:block;font-weight:500;margin-bottom:var(--s1);padding:0}
+.ayuda-campo{display:block;color:var(--cafe-humo);font-size:.875rem;margin-bottom:var(--s2)}
+.campo input,.campo select,.campo textarea{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.campo textarea{min-height:96px;resize:vertical}
+.campo [aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.dos{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:var(--s3)}
+.error{display:flex;gap:var(--s2);color:var(--error);background:var(--error-fondo);padding:var(--s2) var(--s3);margin:var(--s2) 0 0;font-size:.9375rem;border-radius:2px}
+.error::before{content:"!";font-weight:500;flex:none;width:20px;height:20px;border:1.5px solid currentColor;border-radius:50%;display:grid;place-content:center;font-size:.8125rem}
+.resumen-error{border:1px solid var(--error);background:var(--error-fondo);color:var(--error);padding:var(--s4);margin-bottom:var(--s5);border-radius:6px}
+.resumen-error:empty{display:none}
+.resumen-error ul{margin:var(--s2) 0 0;padding-left:var(--s5)}
+.resumen-error a{color:var(--error)}
+.casilla{display:flex;gap:var(--s3);align-items:flex-start;min-height:44px;padding:var(--s2) 0;cursor:pointer}
+.casilla input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--tinta)}
+.regalo{background:var(--suave);border-radius:6px;padding:var(--s4);margin:var(--s2) 0 var(--s5)}
+.regalo .campo:last-of-type{margin-bottom:var(--s3)}
+.nota{color:var(--cafe-humo);font-size:.875rem;margin:var(--s2) 0 0}
+fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
+.opcion{display:flex;gap:var(--s3);align-items:flex-start;min-height:56px;padding:var(--s4);margin-bottom:var(--s2);border:1px solid var(--cafe-humo);border-radius:6px;background:var(--hueso);cursor:pointer}
+.opcion:hover{background:var(--suave)}
+.opcion input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--tinta)}
+.opcion:has(input:checked){background:var(--oatmeal);border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.opcion div{flex:1}
+.opcion strong{display:flex;justify-content:space-between;gap:var(--s3);font-weight:500;font-variant-numeric:tabular-nums}
+.opcion small{display:block;color:var(--cafe-humo);font-size:.875rem}
+.opcion:has(input:checked) small{color:var(--tinta)}
+.aviso-fragil{display:flex;gap:var(--s3);padding:var(--s3) var(--s4);background:var(--suave);border-radius:6px;font-size:.9375rem;margin-bottom:var(--s5)}
+.aviso-fragil svg{flex:none;width:20px;height:20px;margin-top:2px;fill:none;stroke:var(--cafe-humo);stroke-width:1.5;stroke-linejoin:round}
+.pasarela{border:1px dashed var(--cafe-humo);border-radius:6px;padding:var(--s4);margin:0 0 var(--s5);font-size:.9375rem}
+
+/* Tarjeta del pedido: los detalles a la vista, no detrás de un enlace */
+.pedido{background:#fff;border:1px solid var(--perla);border-radius:12px;padding:var(--s4);margin-bottom:var(--s5);box-shadow:0 14px 28px -20px rgba(49,38,32,.4)}
+.pedido-cab{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);margin-bottom:var(--s2)}
+.pedido-cab h2{font:600 1.5rem/1.25 var(--titulo);margin:0}
+.pedido-cab span{font-size:.875rem;color:var(--cafe-humo)}
+.pedido-lista{list-style:none;margin:0;padding:0}
+.pedido-lista li{display:grid;grid-template-columns:44px 1fr auto;gap:var(--s3);align-items:center;padding:var(--s3) 0;border-top:1px solid var(--perla)}
+.pedido-lista .mini{aspect-ratio:4/5;background:var(--perla)}
+.pedido-lista small{display:block;color:var(--cafe-humo);font-size:.875rem}
+.pedido-lista li>span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.recibo-datos{margin:0 0 var(--s2);display:grid}
+.recibo-datos div{display:flex;justify-content:space-between;gap:var(--s4);padding:var(--s2) 0;border-top:1px solid var(--perla)}
+.recibo-datos dt{color:var(--cafe-humo);flex:none}
+.recibo-datos dd{margin:0;text-align:right;overflow-wrap:anywhere}
+
+/* Botón de pago: verde, se parte en una píldora y un círculo mientras procesa y termina en un visto bueno */
+.pago-btn{position:relative;height:52px}
+.pago-btn .goo{position:absolute;inset:0;filter:url(#goo);opacity:0}
+.pago-btn .pildora,.pago-btn .gota{position:absolute;top:0;height:52px;background:var(--exito);transition:right 600ms var(--curva),background-color var(--dur) var(--curva)}
+.pago-btn .pildora{left:0;right:0;border-radius:26px}
+.pago-btn .gota{width:52px;border-radius:50%;right:calc(50% - 26px);transition-duration:700ms,var(--dur)}
+.pago-btn .boton{position:absolute;left:0;top:0;height:52px;min-height:0;width:100%;display:grid;place-items:center;transition:width 600ms var(--curva),background-color var(--dur) var(--curva),border-radius var(--dur) var(--curva)}
+.pago-btn .et{grid-area:1/1;transition:opacity 300ms var(--curva),scale 300ms var(--curva)}
+.pago-btn .et-2,.pago-btn .et-3{opacity:0;scale:.8}
+.pago-btn.pagar .goo{opacity:1}
+.pago-btn.pagar .boton,.pago-btn.pagar .boton:hover{background:transparent;border-color:transparent;border-radius:26px}
+.pago-btn.pagar[data-fase=idle]:hover .pildora,.pago-btn.pagar[data-fase=idle]:hover .gota{background:#335A40}
+.pago-btn.pagar[data-fase=idle]:active .goo{scale:.98}
+.pago-btn:not([data-fase=idle]) .pildora{right:64px}
+.pago-btn:not([data-fase=idle]) .gota{right:0}
+.pago-btn:not([data-fase=idle]) .boton{width:calc(100% - 64px);pointer-events:none}
+.pago-btn:not([data-fase=idle]) .et-1,.pago-btn[data-fase=success] .et-2{opacity:0;scale:.8}
+.pago-btn[data-fase=processing] .et-2,.pago-btn[data-fase=success] .et-3{opacity:1;scale:1}
+.icono-pago{position:absolute;right:0;top:0;width:52px;height:52px;display:grid;place-items:center;color:var(--hueso);opacity:0;transition:opacity 300ms var(--curva) 300ms;pointer-events:none}
+.pago-btn:not([data-fase=idle]) .icono-pago{opacity:1}
+.icono-pago i,.icono-pago svg{grid-area:1/1}
+.icono-pago i{width:22px;height:22px;border-radius:50%;border:2.5px solid rgba(251,250,249,.35);border-top-color:var(--hueso);animation:girar 800ms linear infinite}
+.icono-pago svg{width:28px;height:28px;display:none}
+.pago-btn[data-fase=success] .icono-pago i{display:none}
+.pago-btn[data-fase=success] .icono-pago svg{display:block}
+.icono-pago path{fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30}
+.pago-btn[data-fase=success] .icono-pago path{animation:dibujar 450ms var(--curva) 100ms forwards}
+@keyframes girar{to{rotate:360deg}}
+@keyframes dibujar{to{stroke-dashoffset:0}}
+.no-cierre{margin:0 0 var(--s2);font-size:.875rem;text-align:center}
+@media (prefers-reduced-motion:reduce){.icono-pago i{animation:none}.icono-pago path{animation:none!important;stroke-dashoffset:0}}
+
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--hueso);border-top:1px solid var(--perla);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom))}
+.barra div{max-width:568px;margin:0 auto}
+.boton{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:0 var(--s5);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:2px;border:1px solid var(--tinta);cursor:pointer;background:var(--tinta);color:var(--hueso);transition:background-color var(--dur) var(--curva)}
+.boton:hover{background:#1F1814}
+.boton.secundario{background:transparent;color:var(--tinta);width:auto}
+.boton.secundario:hover{background:var(--oatmeal)}
+.wa-flotante{position:fixed;right:var(--s4);bottom:calc(96px + env(safe-area-inset-bottom));z-index:14;width:56px;height:56px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:grid;place-content:center;box-shadow:0 4px 16px rgba(49,38,32,.28)}
+.wa-flotante:hover{background:#1F1814}
+.wa-flotante svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* Estado de pago: sobrio, sin barra de progreso falsa */
+#procesando{border:0;padding:var(--s6) var(--s5);max-width:min(420px,calc(100% - 32px));background:var(--hueso);color:var(--tinta);border-radius:12px;text-align:center}
+#procesando::backdrop{background:rgba(49,38,32,.6)}
+.monograma{width:64px;height:80px;margin:0 auto var(--s4);border:1.5px solid var(--tinta);display:grid;place-content:center;font:600 2.25rem/1 var(--titulo);animation:respirar 1.6s var(--curva) infinite alternate}
+@keyframes respirar{from{opacity:.35}to{opacity:1}}
+#procesando h2{font:600 1.5rem/1.25 var(--titulo);margin:0 0 var(--s2)}
+#procesando p{margin:0}
+
+.confirmado h1{margin-top:var(--s6)}
+.dato-pedido{background:var(--exito-fondo);color:var(--exito);padding:var(--s3) var(--s4);border-radius:6px;margin:0 0 var(--s5)}
+.sigue{counter-reset:paso;list-style:none;margin:0 0 var(--s5);padding:0}
+.sigue li{counter-increment:paso;display:grid;grid-template-columns:32px 1fr;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--perla)}
+.sigue li::before{content:counter(paso);width:32px;height:32px;border:1px solid var(--tinta);border-radius:50%;display:grid;place-content:center;font-variant-numeric:tabular-nums}
+.acciones-fin{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center;margin-bottom:var(--s6)}
+.cita{font:italic 500 1.375rem/1.27 var(--titulo);margin:0;padding-top:var(--s5);border-top:1px solid var(--perla)}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:0ms!important}.monograma{animation:none}}
+@media (min-width:720px){
+  h1{font-size:2.5rem;margin-top:var(--s7)}
+  .wa-flotante{right:var(--s5)}
+}
+</style>
+</head>
+<body>
+<a class="salto" href="#contenido">Saltar al contenido</a>
+
+<div class="proto" role="region" aria-label="Controles del prototipo">
+  <span>Prototipo: no cobra ni envía datos. Piezas, precios y tarifas son de ejemplo. El tiempo de «Procesando» es simulado (1,5 s).</span>
+  <span id="nota-carrito" hidden>No hay carrito guardado: se muestran dos piezas de ejemplo.</span>
+  <label>Ver estado <select id="ver-estado"><option value="formulario">Formulario</option><option value="procesando">Procesando el pago</option><option value="rechazado">Pago rechazado</option><option value="confirmado">Pedido confirmado</option></select></label>
+</div>
+
+<header class="cabecera">
+  <div class="ancho">
+    <!-- [LOGO SVG PENDIENTE] -->
+    <a class="marca" href="/" translate="no" data-proto>Historias que Habitan</a>
+    <a href="carrito.html">Volver al carrito</a>
+  </div>
+</header>
+
+<main id="contenido" class="ancho">
+  <div id="vista-pago">
+    <h1>Finalice su compra</h1>
+    <div class="pedido" id="carro-vacio" hidden><p style="margin:0 0 var(--s2)">Su carrito está vacío.</p><p style="margin:0"><a href="categoria.html">Ver jarrones y recipientes</a></p></div>
+
+    <section class="pedido" aria-labelledby="h-pedido">
+      <div class="pedido-cab"><h2 id="h-pedido">Su pedido</h2><span data-cuenta>2 piezas</span></div>
+      <ul class="pedido-lista" data-lista></ul>
+      <dl class="totales">
+        <dt>Subtotal</dt><dd id="t-subtotal">$239.800</dd>
+        <dt>Envío</dt><dd id="t-envio">$12.000</dd>
+        <dt id="t-regalo-dt" hidden>Empaque de regalo</dt><dd id="t-regalo" hidden>$8.000</dd>
+        <dt class="total">Total, IVA incluido</dt><dd class="total" id="t-total">$251.800</dd>
+      </dl>
+      <span id="total-resumen" hidden></span>
+    </section>
+
+    <ol class="pasos" id="pasos" aria-label="Pasos del pago">
+      <li aria-current="step"><span class="num">1</span><span>Datos<span class="oculto-visual est"></span></span></li><li><span class="num">2</span><span>Envío<span class="oculto-visual est"></span></span></li><li><span class="num">3</span><span>Pago<span class="oculto-visual est"></span></span></li>
+    </ol>
+
+    <form id="pago" novalidate>
+      <section class="paso" data-paso="1" aria-labelledby="h-1">
+        <div class="paso-cab"><h2 id="h-1" tabindex="-1">Sus datos y la entrega</h2><button class="enlace-boton" type="button" data-cambiar="1" hidden>Cambiar</button></div>
+        <p class="paso-resumen" id="r-1" hidden></p>
+        <div class="paso-cuerpo">
+          <p style="margin:0 0 var(--s5)">Compra como invitado, sin crear cuenta. Solo pedimos lo necesario para el envío; si quiere, crea su cuenta al final.</p>
+          <div class="resumen-error" id="errores-1" tabindex="-1"></div>
+
+          <div class="campo"><label for="nombre">Nombre y apellido</label>
+            <input id="nombre" name="nombre" type="text" autocomplete="name" aria-describedby="e-nombre"><div id="e-nombre" role="alert"></div></div>
+          <div class="campo"><label for="correo">Correo electrónico</label><span class="ayuda-campo" id="a-correo">Ahí le enviamos la confirmación y la factura.</span>
+            <input id="correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="a-correo e-correo"><div id="e-correo" role="alert"></div></div>
+          <div class="campo"><label for="celular">Celular</label><span class="ayuda-campo" id="a-celular">Diez dígitos. Le avisamos por WhatsApp cuando salga el pedido.</span>
+            <input id="celular" name="celular" type="tel" autocomplete="tel-national" inputmode="tel" aria-describedby="a-celular e-celular"><div id="e-celular" role="alert"></div></div>
+          
+          
+
+          <label class="casilla"><input type="checkbox" id="es-regalo" name="es-regalo" aria-controls="bloque-regalo"><span>Es un regalo: lo recibe otra persona</span></label>
+          <div class="regalo" id="bloque-regalo" hidden>
+            <div class="campo"><label for="recibe">Nombre de quien recibe</label>
+              <input id="recibe" name="recibe" type="text" autocomplete="shipping name" aria-describedby="e-recibe"><div id="e-recibe" role="alert"></div></div>
+            <div class="campo"><label for="celular-recibe">Celular de quien recibe</label><span class="ayuda-campo" id="a-celular-recibe">Lo usa la transportadora para coordinar la entrega. No le enviamos el precio.</span>
+              <input id="celular-recibe" name="celular-recibe" type="tel" autocomplete="shipping tel-national" inputmode="tel" aria-describedby="a-celular-recibe e-celular-recibe"><div id="e-celular-recibe" role="alert"></div></div>
+            <div class="campo"><label for="mensaje">Mensaje para la tarjeta (opcional)</label><span class="ayuda-campo" id="a-mensaje">Hasta 200 caracteres. <span id="cuenta-mensaje">Quedan 200.</span></span>
+              <textarea id="mensaje" name="mensaje" maxlength="200" aria-describedby="a-mensaje"></textarea></div>
+            <label class="casilla"><input type="checkbox" id="empaque" name="empaque"><span>Agregar empaque de regalo por $8.000 <span class="pendiente">[POR CONFIRMAR: si se ofrece y su valor]</span></span></label>
+            <p class="nota">Los pedidos de regalo viajan sin factura ni precios dentro de la caja.</p>
+          </div>
+
+          
+          
+          
+          <div class="campo"><label for="direccion">Dirección de entrega</label><span class="ayuda-campo" id="a-direccion">Ejemplo: Calle 85 # 12-34</span>
+            <input id="direccion" name="direccion" type="text" autocomplete="address-line1" aria-describedby="a-direccion e-direccion"><div id="e-direccion" role="alert"></div></div>
+          <div class="campo"><label for="complemento">Datos complementarios (opcional)</label><span class="ayuda-campo" id="a-complemento">Número de casa, interior, torre o apartamento.</span>
+            <input id="complemento" name="complemento" type="text" autocomplete="address-line2" aria-describedby="a-complemento"></div>
+          <div class="campo"><label for="barrio">Barrio o conjunto</label>
+            <input id="barrio" name="barrio" type="text" autocomplete="address-level3" aria-describedby="e-barrio"><div id="e-barrio" role="alert"></div></div>
+          <div class="campo"><label for="ciudad">Ciudad o municipio</label>
+            <input id="ciudad" name="ciudad" type="text" autocomplete="address-level2" aria-describedby="e-ciudad"><div id="e-ciudad" role="alert"></div></div>
+          <div class="campo"><label for="pais">País</label><span class="ayuda-campo" id="a-pais">Por ahora enviamos solo dentro de Colombia.</span>
+            <select id="pais" name="pais" autocomplete="country-name" aria-describedby="a-pais"><option selected>Colombia</option></select></div>
+        </div>
+      </section>
+
+      <section class="paso" data-paso="2" aria-labelledby="h-2">
+        <div class="paso-cab"><h2 id="h-2" tabindex="-1">Envío</h2><button class="enlace-boton" type="button" data-cambiar="2" hidden>Cambiar</button></div>
+        <p class="paso-resumen" id="r-2" hidden></p>
+        <div class="paso-cuerpo" hidden>
+          <p class="aviso-fragil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.500 3 8 7 10 4-2 7-5.500 7-10V6l-7-3Z"/></svg><span>El embalaje para piezas frágiles ya está incluido. Si una pieza llega rota, la reponemos o le devolvemos el dinero. <span class="pendiente">[POR CONFIRMAR: política]</span></span></p>
+          <fieldset class="grupo">
+            <legend>¿Cómo quiere recibirlo? <span id="destino" style="font-weight:400;color:var(--cafe-humo)"></span></legend>
+            <label class="opcion"><input type="radio" name="envio" value="estandar" data-costo="12000" checked><div><strong><span>Envío estándar</span><span id="precio-estandar">$12.000</span></strong><small>De 2 a 5 días hábiles</small></div></label>
+            <label class="opcion"><input type="radio" name="envio" value="prioritario" data-costo="19000"><div><strong><span>Envío prioritario</span><span>$19.000</span></strong><small>De 1 a 2 días hábiles</small></div></label>
+            <p class="nota"><span class="pendiente">[POR CONFIRMAR: operador, tarifas por ciudad y tiempos]</span> <span id="nota-gratis">Le faltan $60.200 para el envío gratis.</span></p>
+          </fieldset>
+        </div>
+      </section>
+
+      <section class="paso" data-paso="3" aria-labelledby="h-3">
+        <div class="paso-cab"><h2 id="h-3" tabindex="-1">Pago</h2></div>
+        <div class="paso-cuerpo" hidden>
+          <div class="resumen-error" id="errores-3" tabindex="-1"></div>
+          <fieldset class="grupo">
+            <legend>Medio de pago <span class="pendiente">[POR CONFIRMAR: pasarela]</span></legend>
+            <label class="opcion"><input type="radio" name="medio" value="Tarjeta" checked><div><strong><span>Tarjeta de crédito o débito</span></strong></div></label>
+            <label class="opcion"><input type="radio" name="medio" value="PSE"><div><strong><span>PSE</span></strong><small>Pago desde su banco. Lo llevamos a la página del banco y vuelve aquí.</small></div></label>
+            <label class="opcion"><input type="radio" name="medio" value="Nequi"><div><strong><span>Nequi</span></strong><small>Aprueba el pago desde la aplicación.</small></div></label>
+            <label class="opcion"><input type="radio" name="medio" value="Daviplata"><div><strong><span>Daviplata</span></strong><small>Aprueba el pago desde la aplicación.</small></div></label>
+          </fieldset>
+          <p class="pasarela" id="pasarela">[CAMPOS DE LA PASARELA: número de tarjeta, vencimiento y código. Los pinta y los valida la pasarela, con autocompletado y teclado numérico.]</p>
+          <label class="casilla"><input type="checkbox" name="misma" checked><span>Usar los mismos datos para la factura</span></label>
+          <label class="casilla"><input type="checkbox" id="acepta" name="acepta" aria-describedby="e-acepta"><span>Acepto los <a href="terminos.html">términos de compra</a> y la <a href="politica-de-datos.html">política de tratamiento de datos</a>. <span class="pendiente">[POR CONFIRMAR: textos legales]</span></span></label>
+          <div id="e-acepta" role="alert"></div>
+          <label class="casilla"><input type="checkbox" name="novedades"><span>Quiero recibir novedades por WhatsApp o correo (opcional)</span></label>
+          <p class="nota">Puede retractarse dentro de los plazos de ley. <a href="cambios-y-garantia.html">Cambios, garantía y retracto</a></p>
+        </div>
+      </section>
+    </form>
+  </div>
+
+  <section class="confirmado" id="vista-confirmado" hidden>
+    <h1 id="h-fin" tabindex="-1">Gracias. Su pedido está confirmado</h1>
+    <p class="dato-pedido">Pedido <strong>HQH-0001</strong> <span class="pendiente">[EJEMPLO]</span> · Total pagado <strong id="fin-total">$251.800</strong></p>
+    <p style="margin-bottom:var(--s5)">Enviamos el resumen y la factura a <strong id="fin-correo">su correo</strong>.</p>
+    <section class="pedido" aria-labelledby="h-recibo">
+      <div class="pedido-cab"><h2 id="h-recibo">Detalle del pedido</h2><span data-cuenta>2 piezas</span></div>
+      <dl class="recibo-datos">
+        <div><dt>Pedido</dt><dd>HQH-0001 <span class="pendiente">[EJEMPLO]</span></dd></div>
+        <div><dt>Fecha</dt><dd id="fin-fecha"></dd></div>
+        <div><dt>Medio de pago</dt><dd id="fin-medio"></dd></div>
+        <div><dt>Entrega</dt><dd id="fin-direccion"></dd></div>
+        <div><dt>Envío</dt><dd id="fin-envio"></dd></div>
+        <div id="fin-regalo-fila" hidden><dt>Regalo</dt><dd id="fin-regalo"></dd></div>
+      </dl>
+      <ul class="pedido-lista" data-lista></ul>
+      <dl class="totales">
+        <dt>Subtotal</dt><dd id="fin-subtotal">$239.800</dd>
+        <dt>Envío</dt><dd id="fin-costo-envio"></dd>
+        <dt id="fin-empaque-dt" hidden>Empaque de regalo</dt><dd id="fin-empaque" hidden>$8.000</dd>
+        <dt class="total">Total pagado, IVA incluido</dt><dd class="total" id="fin-total-2"></dd>
+      </dl>
+    </section>
+    <h2 style="font:600 1.5rem/1.25 var(--titulo);margin:var(--s5) 0 var(--s2)">Qué sigue</h2>
+    <ol class="sigue">
+      <li><span>Preparamos y embalamos su pedido con protección para piezas frágiles.</span></li>
+      <li><span>Le escribimos por WhatsApp con el número de guía cuando salga.</span></li>
+      <li><span id="fin-entrega">Llega a la dirección que nos dio en el tiempo del envío que eligió.</span></li>
+    </ol>
+    <div class="acciones-fin">
+      <a class="boton secundario" href="seguimiento.html">Seguir mi pedido</a>
+      <a href="pieza-rota.html">¿Qué hago si una pieza llega rota?</a>
+    </div>
+    <p style="margin:0 0 var(--s5)">Para seguir el pedido no necesita cuenta: basta el número del pedido y su correo.</p>
+    <section class="pedido" id="crear-cuenta" aria-labelledby="h-cuenta">
+      <h2 id="h-cuenta" style="font:600 1.5rem/1.25 var(--titulo);margin:0 0 var(--s2)">¿Quiere guardar sus datos para la próxima compra?</h2>
+      <p style="margin:0">Puede crear su cuenta con <strong id="cuenta-correo">su correo</strong>. Le enviamos un enlace para elegir la contraseña; no tiene que llenar nada más. Es opcional.</p>
+      <div id="cuenta-acciones" style="display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center;margin-top:var(--s4)">
+        <button class="boton secundario" type="button" id="crear">Crear mi cuenta</button>
+        <button class="enlace-boton" type="button" id="no-cuenta">Ahora no</button>
+      </div>
+      <p id="cuenta-estado" role="status" style="margin:var(--s3) 0 0"></p>
+    </section>
+    <p class="cita">Objetos que se vuelven herencia.</p>
+  </section>
+</main>
+
+<a class="wa-flotante" href="#" data-wa aria-label="Ayuda por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0-7.3 12.850L3.5 20.5l4.3-1.100A8.500 8.500 0 1 0 12 3.500Z"/><path d="M9.200 8.600c-.300 2.900 2.300 5.800 5.300 6.200l1-1.300-1.700-1-.700.700c-.900-.400-1.700-1.200-2.100-2.100l.700-.700-1-1.700z"/></svg></a>
+
+<div class="barra" id="barra"><div>
+  <p class="no-cierre" id="no-cierre" hidden>No cierre ni recargue esta página.</p>
+  <div class="pago-btn" id="pago-btn" data-fase="idle">
+    <div class="goo" aria-hidden="true"><span class="pildora"></span><span class="gota"></span></div>
+    <button class="boton" type="submit" form="pago" id="accion"><span class="et et-1" id="accion-texto">Continuar al envío</span><span class="et et-2" aria-hidden="true">Procesando…</span><span class="et et-3" aria-hidden="true">Pago aprobado</span></button>
+    <span class="icono-pago" aria-hidden="true"><i></i><svg viewBox="0 0 32 32"><path d="M9.5 16.5l4.5 4.5 8.5-10"/></svg></span>
+  </div>
+</div></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="goo" x="-10%" y="-60%" width="120%" height="220%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="6"/><feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10"/></filter></svg>
+
+
+<p class="oculto-visual" id="anuncio" aria-live="polite"></p>
+
+<script>
+/* Prototipo de diseño. No cobra, no valida tarjetas y no envía datos. */
+const $ = id => document.getElementById(id);
+const pesos = n => '$' + new Intl.NumberFormat('es-CO').format(n);
+const anunciar = t => { $('anuncio').textContent = ''; requestAnimationFrame(() => $('anuncio').textContent = t); };
+const track = (event, datos) => (window.dataLayer = window.dataLayer || []).push({ event, ...datos });
+const form = $('pago');
+const ENVIO_GRATIS = 300000, EMPAQUE = 8000; // [POR CONFIRMAR]
+/* El pedido viene del carrito guardado por la ficha. Sin carrito guardado se muestran dos piezas de ejemplo. */
+const EJEMPLO = [{ nombre: 'Jarrón de cerámica blanca con asas', variante: 'Blanco hueso · Mediano', precio: 189900, cantidad: 1 },
+  { nombre: '[Ramo de flores artificiales]', variante: '', precio: 49900, cantidad: 1 }];
+let carrito = null;
+try { carrito = JSON.parse(localStorage.getItem('hqh-carrito')); } catch (e) {}
+const deEjemplo = !Array.isArray(carrito);
+if (deEjemplo) carrito = EJEMPLO;
+const SUBTOTAL = carrito.reduce((t, x) => t + x.precio * x.cantidad, 0), PIEZAS = carrito.reduce((t, x) => t + x.cantidad, 0);
+document.querySelectorAll('[data-lista]').forEach(ul => ul.replaceChildren(...carrito.map(x => {
+  const li = document.createElement('li'), foto = document.createElement('span'), texto = document.createElement('span'), det = document.createElement('small'), precio = document.createElement('span');
+  foto.className = 'mini'; foto.setAttribute('aria-hidden', 'true');
+  texto.textContent = x.nombre; det.textContent = `${x.variante ? x.variante + ' · ' : ''}${x.cantidad} ${x.cantidad === 1 ? 'unidad' : 'unidades'}`; texto.append(det);
+  precio.textContent = pesos(x.precio * x.cantidad); li.append(foto, texto, precio); return li;
+})));
+document.querySelectorAll('[data-cuenta]').forEach(e => e.textContent = PIEZAS === 1 ? '1 pieza' : `${PIEZAS} piezas`);
+$('t-subtotal').textContent = $('fin-subtotal').textContent = pesos(SUBTOTAL);
+$('nota-carrito').hidden = !deEjemplo;
+if (!PIEZAS) { $('carro-vacio').hidden = false; document.querySelector('section.pedido').hidden = $('pasos').hidden = form.hidden = $('barra').hidden = true; }
+let paso = 1;
+
+
+
+/* Lo ya escrito no se pierde al recargar (salvo el pago) */
+const GUARDAR = ['nombre','correo','celular','recibe','celular-recibe','mensaje','direccion','complemento','barrio','ciudad'];
+try { const g = JSON.parse(sessionStorage.getItem('hqh-pago') || '{}'); GUARDAR.forEach(c => { if (g[c]) form.elements[c].value = g[c]; }); } catch (e) {}
+form.addEventListener('input', () => { try { sessionStorage.setItem('hqh-pago', JSON.stringify(Object.fromEntries(GUARDAR.map(c => [c, form.elements[c].value])))); } catch (e) {} });
+
+const celular = v => /^3\d{9}$/.test(v.replace(/\D/g, '').replace(/^57(?=3\d{9}$)/, ''));
+const REGLAS = {
+  nombre: v => v.trim().includes(' ') ? '' : 'Escriba su nombre y su apellido.',
+  correo: v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? '' : 'Escriba un correo como nombre@ejemplo.com.',
+  celular: v => celular(v) ? '' : 'Escriba un celular de diez dígitos que empiece por 3. Ejemplo: 300 123 4567.',
+  recibe: v => !form.elements['es-regalo'].checked || v.trim() ? '' : 'Escriba el nombre de quien recibe el regalo.',
+  'celular-recibe': v => !form.elements['es-regalo'].checked || celular(v) ? '' : 'Escriba el celular de quien recibe: diez dígitos que empiecen por 3.',
+  direccion: v => v.trim().length > 5 ? '' : 'Escriba la dirección completa. Ejemplo: Calle 85 # 12-34.',
+  barrio: v => v.trim() ? '' : 'Escriba el barrio o el nombre del conjunto.',
+  ciudad: v => v.trim() ? '' : 'Escriba la ciudad o el municipio.',
+};
+function marcar(id, mensaje) {
+  const caja = $('e-' + id); caja.replaceChildren();
+  if (mensaje) { const p = document.createElement('p'); p.className = 'error'; p.textContent = mensaje; caja.append(p); }
+  if (form.elements[id].type !== 'checkbox') form.elements[id].setAttribute('aria-invalid', mensaje ? 'true' : 'false');
+}
+function resumirErrores(caja, fallas) {
+  caja.replaceChildren();
+  if (!fallas.length) return true;
+  const t = document.createElement('strong'); t.textContent = fallas.length === 1 ? 'Falta corregir un dato' : `Falta corregir ${fallas.length} datos`;
+  const ul = document.createElement('ul');
+  fallas.forEach(([id, m]) => { const li = document.createElement('li'), a = document.createElement('a'); a.href = '#' + id; a.textContent = m; li.append(a); ul.append(li); });
+  caja.append(t, ul); caja.focus(); return false;
+}
+form.addEventListener('focusout', e => { const r = REGLAS[e.target.name]; if (r && e.target.value) marcar(e.target.name, r(e.target.value)); });
+
+/* Regalo: la dirección se pide una sola vez; los campos extra aparecen solo si se marca */
+$('es-regalo').addEventListener('change', e => { $('bloque-regalo').hidden = !e.target.checked; if (!e.target.checked) $('empaque').checked = false; totales(); if (e.target.checked) $('recibe').focus(); });
+$('empaque').addEventListener('change', totales);
+$('mensaje').addEventListener('input', e => $('cuenta-mensaje').textContent = `Quedan ${200 - e.target.value.length}.`);
+form.addEventListener('change', e => {
+  if (e.target.name === 'envio') totales();
+  if (e.target.name === 'medio') {
+    const v = e.target.value;
+    $('pasarela').textContent = v === 'Tarjeta' ? '[CAMPOS DE LA PASARELA: número de tarjeta, vencimiento y código. Los pinta y los valida la pasarela, con autocompletado y teclado numérico.]'
+      : v === 'PSE' ? '[CAMPOS DE LA PASARELA: banco y tipo de persona. Al pagar se abre la página del banco y luego vuelve a esta tienda.]'
+      : `[CAMPOS DE LA PASARELA: número de celular de ${v}. Al pagar llega una notificación a la aplicación para aprobar.]`;
+    totales();
+  }
+  if (e.target.id === 'acepta' && e.target.checked) marcar('acepta', '');
+});
+
+/* El envío gratis aplica al estándar cuando el subtotal llega al monto [POR CONFIRMAR] */
+function costoEnvio() { const e = form.querySelector('[name=envio]:checked'); return SUBTOTAL >= ENVIO_GRATIS && e.value === 'estandar' ? 0 : +e.dataset.costo; }
+function total() { return SUBTOTAL + costoEnvio() + ($('empaque').checked ? EMPAQUE : 0); }
+function totales() {
+  const regalo = $('empaque').checked;
+  $('t-envio').textContent = costoEnvio() ? pesos(costoEnvio()) : 'Gratis';
+  $('t-regalo').hidden = $('t-regalo-dt').hidden = !regalo;
+  $('t-total').textContent = $('total-resumen').textContent = $('fin-total').textContent = pesos(total());
+  const gratis = SUBTOTAL >= ENVIO_GRATIS;
+  $('nota-gratis').textContent = gratis ? 'Su pedido tiene envío estándar gratis.' : `Le faltan ${pesos(ENVIO_GRATIS - SUBTOTAL)} para el envío gratis.`;
+  $('precio-estandar').textContent = gratis ? 'Gratis' : '$12.000';
+  $('pago-btn').classList.toggle('pagar', paso === 3);
+  $('accion-texto').textContent = paso === 1 ? 'Continuar al envío' : paso === 2 ? 'Continuar al pago' : `Pagar ${pesos(total())}`;
+}
+
+function irA(n, foco = true) {
+  paso = n;
+  document.querySelectorAll('.paso').forEach(s => {
+    const k = +s.dataset.paso, cuerpo = s.querySelector('.paso-cuerpo'), r = s.querySelector('.paso-resumen'), b = s.querySelector('[data-cambiar]');
+    cuerpo.hidden = k !== n; if (r) r.hidden = !(k < n); if (b) b.hidden = !(k < n);
+  });
+  [...$('pasos').children].forEach((li, i) => { li.toggleAttribute('aria-current', i + 1 === n); if (i + 1 === n) li.setAttribute('aria-current', 'step'); li.className = i + 1 < n ? 'hecho' : ''; li.querySelector('.est').textContent = i + 1 < n ? ', completado' : i + 1 === n ? ', paso actual' : ''; });
+  totales();
+  if (foco) { $('h-' + n).focus({ preventScroll: true }); $('h-' + n).scrollIntoView({ block: 'start' }); anunciar(`Paso ${n} de 3: ${$('h-' + n).textContent}`); }
+}
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-cambiar]'); if (c) return irA(+c.dataset.cambiar);
+  const err = e.target.closest('.resumen-error a'); if (err) { e.preventDefault(); return document.querySelector(err.getAttribute('href')).focus(); }
+  const p = e.target.closest('[data-proto],[data-wa]'); if (!p) return; e.preventDefault();
+  if (p.matches('[data-wa]')) return window.open('https://wa.me/?text=' + encodeURIComponent('Buen día. Necesito ayuda con el pago de mi pedido.'), '_blank', 'noopener');
+  anunciar('Prototipo: esta página todavía no existe.');
+});
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if (paso === 1) {
+    const fallas = Object.keys(REGLAS).map(id => [id, REGLAS[id](form.elements[id].value)]).filter(f => f[1]);
+    Object.keys(REGLAS).forEach(id => marcar(id, REGLAS[id](form.elements[id].value)));
+    if (!resumirErrores($('errores-1'), fallas)) return;
+    const f = form.elements, regalo = f['es-regalo'].checked;
+    $('r-1').textContent = `${f.correo.value} · ${regalo ? 'Regalo para ' + f.recibe.value : f.nombre.value} · ${f.direccion.value}, ${f.barrio.value}, ${f.ciudad.value}`;
+    $('destino').textContent = `A ${f.ciudad.value}`;
+    $('fin-correo').textContent = $('cuenta-correo').textContent = f.correo.value;
+    track('iniciar_pago'); return irA(2);
+  }
+  if (paso === 2) {
+    const o = form.querySelector('[name=envio]:checked').closest('.opcion');
+    $('r-2').textContent = `${o.querySelector('strong span').textContent} · ${costoEnvio() ? pesos(costoEnvio()) : 'Gratis'} · ${o.querySelector('small').textContent}`;
+    $('fin-entrega').textContent = `Llega a ${form.elements.ciudad.value}: ${o.querySelector("small").textContent.toLowerCase()}.`;
+    track('elegir_envio'); return irA(3);
+  }
+  const falta = !$('acepta').checked;
+  marcar('acepta', falta ? 'Marque esta casilla para poder pagar.' : '');
+  if (!resumirErrores($('errores-3'), falta ? [['acepta', 'Acepte los términos de compra y la política de datos.']] : [])) return;
+  track('agregar_pago', { medio: form.elements.medio.value });
+  pagar();
+});
+
+/* Pago: el botón cambia de fase y el formulario queda bloqueado mientras procesa */
+let pagando = false;
+function fase(f) {
+  $('pago-btn').dataset.fase = f;
+  $('accion').setAttribute('aria-busy', f === 'processing');
+  $('no-cierre').hidden = f !== 'processing';
+  form.inert = f !== 'idle';
+}
+async function pagar() {
+  if (pagando) return; pagando = true;
+  fase('processing'); anunciar('Estamos procesando su pago. No cierre esta página.');
+  await new Promise(r => setTimeout(r, 1500)); // [DEMOSTRACIÓN] En producción dura lo que tarde la pasarela, sin espera añadida.
+  if (!pagando) return;
+  fase('success'); anunciar('Pago aprobado.');
+  await new Promise(r => setTimeout(r, 1100));
+  if (!pagando) return;
+  ver('confirmado');
+}
+function llenarRecibo() {
+  const f = form.elements, envio = form.querySelector('[name=envio]:checked').closest('.opcion');
+  $('fin-fecha').textContent = new Intl.DateTimeFormat('es-CO', { dateStyle: 'long' }).format(new Date());
+  $('fin-medio').textContent = f.medio.value;
+  $('fin-direccion').textContent = f.direccion.value ? [f.direccion.value, f.complemento.value, f.barrio.value, f.ciudad.value, f.pais.value].filter(Boolean).join(', ') : '[Dirección de entrega]';
+  $('fin-envio').textContent = `${envio.querySelector('strong span').textContent}. ${envio.querySelector('small').textContent}`;
+  $('fin-costo-envio').textContent = costoEnvio() ? pesos(costoEnvio()) : 'Gratis';
+  const regalo = f['es-regalo'].checked;
+  $('fin-regalo-fila').hidden = !regalo;
+  $('fin-regalo').textContent = regalo ? `Para ${f.recibe.value || '[quien recibe]'}${$('empaque').checked ? ', con empaque de regalo' : ''}${f.mensaje.value ? ' y mensaje en la tarjeta' : ''}` : '';
+  $('fin-empaque').hidden = $('fin-empaque-dt').hidden = !$('empaque').checked;
+  $('fin-total-2').textContent = pesos(total());
+}
+
+/* Cuenta opcional, solo después de comprar: un toque, sin formulario */
+$('crear').addEventListener('click', () => { $('cuenta-acciones').hidden = true; $('cuenta-estado').textContent = `Listo. Enviamos a ${$('cuenta-correo').textContent} un enlace para elegir su contraseña. [PROTOTIPO: no se envía nada]`; track('crear_cuenta_poscompra'); });
+$('no-cuenta').addEventListener('click', () => { $('crear-cuenta').hidden = true; anunciar('De acuerdo. Su pedido no cambia.'); });
+
+/* Estados del prototipo */
+function ver(estado) {
+  pagando = false; fase(estado === 'procesando' ? 'processing' : 'idle');
+  $('vista-pago').hidden = $('barra').hidden = estado === 'confirmado';
+  $('vista-confirmado').hidden = estado !== 'confirmado';
+  $('errores-3').replaceChildren();
+  $('ver-estado').value = estado;
+  if (estado === 'procesando') irA(3, false);
+  if (estado === 'confirmado') llenarRecibo();
+  if (estado === 'rechazado') {
+    irA(3, false);
+    const t = document.createElement('strong'); t.textContent = 'No pudimos procesar el pago';
+    const p = document.createElement('p'); p.style.margin = '8px 0 0'; p.textContent = 'No se hizo ningún cobro y sus datos siguen aquí. Revise los datos del medio de pago o intente con otro.';
+    $('errores-3').append(t, p); $('errores-3').focus(); $('errores-3').scrollIntoView({ block: 'center' });
+  }
+  if (estado === 'confirmado') { $('h-fin').focus({ preventScroll: true }); window.scrollTo(0, 0); track('compra', { total: total() }); try { sessionStorage.removeItem('hqh-pago'); if (!deEjemplo) localStorage.removeItem('hqh-carrito'); } catch (e) {} }
+}
+$('ver-estado').addEventListener('change', e => ver(e.target.value));
+
+irA(1, false);
+</script>
+</body>
+</html>

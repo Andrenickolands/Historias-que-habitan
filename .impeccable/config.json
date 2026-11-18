@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "prototipos/ficha-producto.html"
+        ],
+        "createdAt": "2026-11-15T04:14:14.788Z",
+        "reason": "Claude: falso positivo verificado en captura a 375 px; el titulo del acordeon va centrado en 64 px de alto y el selector de cantidad llena su caja a proposito"
+      }
+    ]
+  }
+}

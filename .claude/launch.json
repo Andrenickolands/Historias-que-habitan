@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "prototipos",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4173", "--bind", "127.0.0.1", "--directory", "C:/Users/nicol/Documents/Proyectos_IA/Historias que habitan/prototipos"],
+      "port": 4173
+    }
+  ]
+}

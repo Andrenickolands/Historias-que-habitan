@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBFAF9">
+<title>Buscar · Historias que Habitan</title>
+<meta name="description" content="Busque piezas por nombre, material o categoría.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
+<style>
+/* Historias que Habitan · estilos compartidos de inicio y categoría. Tokens del manual de marca (07 a 09). */
+:root{
+  --tinta:#312620; --cafe-humo:#705C51; --piedra:#BBB2A8; --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6; --suave:#F3F0ED;
+  --borgona:#722F37; --mocha:#5B4632; --espresso:#3B2A20; --champagne:#F4D9A0;
+  --error:#8E2B33; --error-fondo:#F5E3E4; --info:#3E5A73; --info-fondo:#E4EAF0;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:200ms; --curva:cubic-bezier(.2,.7,.2,1);
+  --titulo:"Cormorant Garamond",Georgia,serif;
+  --texto:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@view-transition{navigation:auto}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:80px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--hueso);color:var(--tinta);font:400 1rem/1.5 var(--texto);touch-action:manipulation;-webkit-tap-highlight-color:rgba(49,38,32,.12);caret-color:var(--tinta)}
+::selection{background:var(--oatmeal);color:var(--tinta)}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+h1,h2,h3{font-family:var(--titulo);font-weight:600;margin:0;text-wrap:balance}
+p{margin:0}
+.icono{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.oculto-visual{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.salto{position:absolute;left:var(--s4);top:-100px;background:var(--tinta);color:var(--hueso);padding:var(--s3) var(--s4);z-index:40}
+.salto:focus{top:var(--s2)}
+.ancho{max-width:1200px;margin:0 auto;padding:0 var(--s4)}
+.pendiente{display:inline-block;font:400 .8125rem/1.4 var(--texto);font-style:normal;color:var(--info);background:var(--info-fondo);padding:2px var(--s2);border-radius:2px}
+.proto{background:var(--info-fondo);color:var(--info);font-size:.875rem;padding:var(--s2) var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:center}
+.proto label{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px}
+.proto select{font:inherit;min-height:36px;color:var(--tinta);background:#fff;border:1px solid var(--info);border-radius:2px;padding:0 var(--s2)}
+
+/* Cabecera */
+.cabecera{position:sticky;top:0;z-index:20;background:var(--hueso);border-bottom:1px solid var(--perla)}
+.cabecera .ancho{display:flex;align-items:center;gap:var(--s1);min-height:64px}
+.marca{font:500 .75rem/1.2 var(--texto);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;margin-right:auto;min-height:44px;display:inline-flex;align-items:center;padding:0 var(--s2)}
+.boton-icono{position:relative;display:inline-grid;place-content:center;width:44px;height:44px;background:none;border:0;color:inherit;border-radius:2px;cursor:pointer}
+.boton-icono:hover{background:var(--suave)}
+.nav-escritorio{display:none}
+
+/* Botones y enlaces */
+.boton{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 var(--s5);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;text-align:center;border-radius:2px;border:1px solid var(--tinta);cursor:pointer;background:var(--tinta);color:var(--hueso);transition:background-color var(--dur) var(--curva)}
+.boton:hover{background:#1F1814}
+.boton.secundario{background:transparent;color:var(--tinta)}
+.boton.secundario:hover{background:var(--oatmeal)}
+.boton.claro{background:transparent;color:var(--hueso);border-color:var(--hueso)}
+.boton.claro:hover{background:rgba(251,250,249,.14)}
+.enlace{display:inline-flex;align-items:center;min-height:44px;background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
+.foto{background:var(--perla);display:grid;place-content:center;text-align:center;font-size:.75rem;padding:var(--s2);color:var(--tinta)}
+
+/* Paneles: menú lateral y hoja de filtros */
+dialog.panel{border:0;padding:0;background:var(--hueso);color:var(--tinta);overscroll-behavior:contain;flex-direction:column}
+dialog.panel[open]{display:flex}
+dialog.panel::backdrop{background:rgba(49,38,32,.45)}
+.panel-cab{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s2) var(--s2) var(--s2) var(--s4);border-bottom:1px solid var(--perla)}
+.panel-cab h2{font-size:1.5rem;line-height:1.25}
+.panel-cab h2:focus{outline:none}
+.panel-cuerpo{flex:1;min-height:0;overflow-y:auto;padding:var(--s4)}
+.panel-pie{display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom));border-top:1px solid var(--perla)}
+.panel-pie .boton{flex:1}
+#menu{margin:0;width:min(88vw,380px);max-width:none;height:100dvh;max-height:100dvh}
+#menu[open]{animation:de-lado 300ms var(--curva)}
+@keyframes de-lado{from{transform:translateX(-100%)}}
+@keyframes subir{from{transform:translateY(100%)}}
+.buscar{display:flex;gap:var(--s2);margin-bottom:var(--s5)}
+.buscar input{flex:1;min-width:0;min-height:48px;padding:0 var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.menu-lista{list-style:none;margin:0 0 var(--s5);padding:0}
+.menu-lista a{display:flex;align-items:center;min-height:48px;text-decoration:none;border-bottom:1px solid var(--perla)}
+.menu-lista a:hover{background:var(--suave)}
+.menu-lista a[aria-current]{font-weight:500}
+.menu-titulo{font:500 .75rem/1.33 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--cafe-humo);margin:0 0 var(--s1)}
+.menu-lista.grande a{font:600 1.375rem/1.2 var(--titulo)}
+
+/* Tarjeta de producto */
+.rejilla{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5) var(--s3);list-style:none;margin:0;padding:0}
+.tarjeta a{display:block;text-decoration:none}
+.tarjeta .foto{position:relative;aspect-ratio:4/5;margin-bottom:var(--s2)}
+.tarjeta h3{font-size:1.25rem;line-height:1.2}
+.tarjeta a:hover h3{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.tarjeta .meta{font-size:.875rem;color:var(--cafe-humo);margin-top:2px}
+.tarjeta .precio{margin-top:var(--s1);font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px var(--s2)}
+.tarjeta .precio strong{font-weight:500}
+.tarjeta .precio s{font-size:.875rem;color:var(--cafe-humo)}
+.oferta{font-size:.8125rem;font-weight:500;color:var(--hueso);background:var(--borgona);padding:3px 8px;border-radius:2px}
+.sello{position:absolute;left:var(--s2);top:var(--s2);font:500 .6875rem/1.4 var(--texto);letter-spacing:.12em;text-transform:uppercase;background:var(--hueso);border:1px solid var(--tinta);padding:2px 6px;border-radius:2px}
+.agotado-txt{font-size:.875rem;color:var(--error)}
+
+/* Estantería: las piezas se apoyan en una repisa flotante. Cada tarjeta dibuja su tramo y los tramos se unen por fila,
+   así funciona con cualquier número de columnas y con los filtros. Necesita fotos recortadas, sin fondo. */
+.rejilla{--hueco:var(--s3)}
+.recorte{display:contents}
+.tarjeta .foto:has(.arte){display:flex;align-items:flex-end;justify-content:center;padding:var(--s3) var(--s3) 0}
+.arte{display:block;height:100%;width:auto;max-width:100%}
+.estanteria{row-gap:var(--s6)}
+.estanteria .tarjeta{text-align:center}
+.estanteria .tarjeta .foto{background:none;display:flex;align-items:flex-end;justify-content:center;padding:0 var(--s2);margin-bottom:0}
+.estanteria .tarjeta .foto::after{content:"";position:absolute;left:calc(var(--hueco) / -2 - 1px);right:calc(var(--hueco) / -2 - 1px);top:100%;height:16px;background:linear-gradient(to bottom,#E2DDD6 0,#FBFAF9 8px,#fff 8px,#E7E2DB 16px);box-shadow:0 1px 0 rgba(49,38,32,.06),0 20px 22px -14px rgba(49,38,32,.36)}
+.estanteria .arte{position:relative;z-index:1;translate:0 7px;transition:translate var(--dur) var(--curva)}
+.estanteria .tarjeta a:hover .arte{translate:0 3px}
+.estanteria .recorte{display:grid;place-content:center;width:64%;height:74%;padding:var(--s1);font-size:.6875rem;line-height:1.3;background:var(--suave);border:1px dashed var(--cafe-humo)}
+.estanteria .tarjeta h3{margin-top:calc(16px + var(--s4))}
+.estanteria .tarjeta .precio{justify-content:center}
+.estanteria .sello{top:0;left:0}
+/* La pieza viaja de la repisa a la ficha y vuelve */
+::view-transition-group(pieza){animation-duration:550ms;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
+::view-transition-old(pieza),::view-transition-new(pieza){width:100%;height:100%;object-fit:contain}
+@media (min-width:640px){.rejilla{--hueco:var(--s4)}.estanteria .tarjeta .foto{aspect-ratio:1}}
+
+.contador{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--tinta);color:var(--hueso);font:500 .6875rem/18px var(--texto);text-align:center;font-variant-numeric:tabular-nums}
+.cookies{position:fixed;left:var(--s4);right:88px;bottom:calc(var(--s4) + env(safe-area-inset-bottom));z-index:25;max-width:460px;background:var(--hueso);border:1px solid var(--tinta);border-radius:6px;padding:var(--s4);font-size:.9375rem;box-shadow:0 12px 28px -14px rgba(49,38,32,.45)}
+.cookies p{margin-bottom:var(--s3)}
+.cookies div{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.cookies .boton{flex:1;min-height:44px;padding:0 var(--s3);white-space:nowrap}
+
+/* Pie */
+.pie{margin-top:var(--s8);border-top:1px solid var(--perla);padding:var(--s6) 0 calc(var(--s8) + var(--s6));font-size:.875rem;color:var(--cafe-humo)}
+.pie ul{list-style:none;display:flex;flex-wrap:wrap;gap:var(--s1) var(--s5);padding:0;margin:0 0 var(--s4)}
+.pie a{display:inline-flex;align-items:center;min-height:44px;color:var(--tinta)}
+.pie p{margin:0 0 var(--s2)}
+.wa-flotante{position:fixed;right:var(--s4);bottom:calc(var(--s4) + env(safe-area-inset-bottom));z-index:14;width:56px;height:56px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:grid;place-content:center;box-shadow:0 4px 16px rgba(49,38,32,.28)}
+.wa-flotante:hover{background:#1F1814}
+.wa-flotante svg{width:28px;height:28px}
+
+@media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  *{transition-duration:0ms!important;animation:none!important;scroll-behavior:auto!important}
+}
+@media (min-width:640px){
+  .rejilla{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s6) var(--s4)}
+}
+@media (min-width:960px){
+  .ancho{padding:0 var(--s6)}
+  .cabecera .ancho{min-height:72px}
+  .nav-escritorio{display:flex;gap:var(--s5);margin-right:var(--s5)}
+  .nav-escritorio a,.nav-escritorio button{font:inherit;background:none;border:0;padding:0;color:inherit;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+  .nav-escritorio a:hover,.nav-escritorio button:hover{text-decoration:underline;text-underline-offset:3px}
+  .solo-movil{display:none}
+  .rejilla{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .wa-flotante{right:var(--s5);bottom:var(--s5)}
+}
+</style>
+<style>
+.migas{font-size:.875rem;padding:var(--s2) 0}
+.migas ol{list-style:none;display:flex;flex-wrap:wrap;gap:var(--s2);margin:0;padding:0}
+.migas li+li::before{content:"/";margin-right:var(--s2);color:var(--cafe-humo)}
+.migas a{display:inline-flex;align-items:center;min-height:44px}
+.migas [aria-current]{display:inline-flex;align-items:center;min-height:44px;color:var(--cafe-humo)}
+.intro h1{font-size:2.25rem;line-height:1.1}
+.intro p{margin-top:var(--s3);max-width:62ch}
+.barra-lista{position:sticky;top:64px;z-index:10;background:var(--hueso);display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;margin-top:var(--s5);border-top:1px solid var(--tinta);border-bottom:1px solid var(--perla)}
+.barra-lista .boton{min-height:44px;padding:0 var(--s4)}
+#n-filtros{margin-left:.4em}
+.barra-lista label{margin-left:auto;font-size:.875rem;color:var(--cafe-humo)}
+.barra-lista select{min-height:44px;max-width:150px;font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px;padding:0 var(--s2)}
+.estado-lista{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);padding:var(--s3) 0 var(--s4)}
+.estado-lista p{margin-right:var(--s2);font-variant-numeric:tabular-nums}
+.ficha-filtro{display:inline-flex;align-items:center;gap:var(--s1);min-height:36px;padding:0 var(--s1) 0 var(--s3);font:inherit;font-size:.875rem;color:var(--tinta);background:var(--oatmeal);border:1px solid var(--tinta);border-radius:999px;cursor:pointer}
+.ficha-filtro svg{width:18px;height:18px}
+.ficha-filtro:hover{background:var(--piedra)}
+.vacio{padding:var(--s6) var(--s4);background:var(--suave);border-radius:6px;display:grid;gap:var(--s3);justify-items:start}
+.vacio h2{font-size:1.5rem}
+.mas{display:flex;justify-content:center;padding-top:var(--s6)}
+.vistas{display:inline-flex;margin-left:auto;border:1px solid var(--cafe-humo);border-radius:2px;overflow:hidden}
+.vistas button{min-height:44px;padding:0 var(--s3);font:inherit;font-size:.875rem;color:var(--tinta);background:var(--hueso);border:0;cursor:pointer}
+.vistas button:focus-visible{outline-offset:-3px}
+.vistas button[aria-pressed=true]{background:var(--tinta);color:var(--hueso)}
+.texto-cat{margin-top:var(--s8);display:grid;gap:var(--s6)}
+.texto-cat h2{font-size:1.75rem;line-height:1.2;margin-bottom:var(--s3)}
+.texto-cat p{max-width:62ch}
+.faq{border-top:1px solid var(--perla);max-width:68ch}
+.faq summary{min-height:48px;padding:var(--s3) 0;cursor:pointer;font-weight:500}
+.faq p{padding-bottom:var(--s4)}
+#filtros{margin:auto 0 0;width:100%;max-width:100%;max-height:86dvh;border-radius:12px 12px 0 0}
+#filtros[open]{animation:subir 300ms var(--curva)}
+#filtros fieldset{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
+#filtros legend{font-weight:500;padding:0;margin-bottom:var(--s1)}
+.casilla{display:flex;align-items:center;gap:var(--s3);min-height:44px;cursor:pointer}
+.casilla input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--tinta)}
+.dos-col{display:grid;grid-template-columns:1fr 1fr;column-gap:var(--s4)}
+.cargando .tarjeta .foto,.cargando .tarjeta h3,.cargando .tarjeta .meta,.cargando .tarjeta .precio{color:transparent;background:linear-gradient(100deg,var(--suave) 30%,var(--oatmeal) 50%,var(--suave) 70%) 0 0/300% 100%;border-radius:2px;animation:brillo 1.4s linear infinite}
+.cargando .tarjeta *{color:transparent!important;border-color:transparent!important}
+.cargando .tarjeta .sello,.cargando .tarjeta .oferta,.cargando .tarjeta s{visibility:hidden}
+@keyframes brillo{to{background-position:-150% 0}}
+@media (min-width:640px){.intro h1{font-size:2.75rem}}
+@media (min-width:960px){
+  .barra-lista{top:72px}
+  .texto-cat{grid-template-columns:1fr 1fr;gap:var(--s8)}
+  #filtros{margin:0 0 0 auto;width:440px;height:100dvh;max-height:100dvh;border-radius:0}
+}
+
+.doc{max-width:68ch;padding-bottom:var(--s5)}
+.doc h2{font-size:1.75rem;line-height:1.2;margin:var(--s6) 0 var(--s3)}
+.doc h3{font-size:1.375rem;line-height:1.25;margin:var(--s5) 0 var(--s2)}
+.doc p{margin-bottom:var(--s3)}
+.doc ul,.doc ol{padding-left:var(--s5);margin:0 0 var(--s4)}
+.doc li{margin-bottom:var(--s2)}
+.firma{font-size:.875rem;color:var(--cafe-humo);margin-top:var(--s2)}
+.frase{font:italic 500 1.5rem/1.25 var(--titulo);margin:var(--s5) 0;padding:var(--s4) 0;border-top:1px solid var(--perla);border-bottom:1px solid var(--perla);max-width:30ch}
+.caja{background:var(--suave);border-radius:6px;padding:var(--s5);margin:var(--s5) 0;max-width:68ch}
+.caja>:last-child{margin-bottom:0}
+.caja.bien{background:#E6EEE7;color:#3F6B4E}
+.campo{margin-bottom:var(--s5);max-width:480px}
+.campo label,.grupo legend{display:block;font-weight:500;margin-bottom:var(--s1);padding:0}
+.campo input,.campo select,.campo textarea{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.campo textarea{min-height:120px;resize:vertical}
+.campo input[type=file]{padding:var(--s2)}
+.campo [aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.ayuda-campo{display:block;color:var(--cafe-humo);font-size:.875rem;margin-bottom:var(--s2)}
+.error{color:var(--error);background:var(--error-fondo);padding:var(--s2) var(--s3);margin:var(--s2) 0 0;border-radius:2px;font-size:.9375rem}
+.error:empty{display:none}
+fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
+.pasos-lista{counter-reset:paso;list-style:none;padding:0;margin:var(--s4) 0 var(--s5);max-width:68ch}
+.pasos-lista li{counter-increment:paso;display:grid;grid-template-columns:36px 1fr;gap:var(--s3);padding:var(--s4) 0;border-top:1px solid var(--perla);margin:0}
+.pasos-lista li::before{content:counter(paso);width:36px;height:36px;border:1px solid var(--tinta);border-radius:50%;display:grid;place-content:center;font-variant-numeric:tabular-nums}
+.pasos-lista strong{display:block;font-weight:500}
+.ruta{list-style:none;padding:0;margin:var(--s4) 0}
+.ruta li{display:grid;grid-template-columns:28px 1fr;gap:var(--s3);padding-bottom:var(--s4);position:relative;margin:0}
+.ruta li::before{content:"";width:18px;height:18px;margin:3px 5px 0;border-radius:50%;border:1.5px solid var(--cafe-humo);background:var(--hueso);position:relative;z-index:1}
+.ruta li.hecho::before{background:var(--tinta);border-color:var(--tinta)}
+.ruta li+li::after{content:"";position:absolute;left:13.5px;top:-100%;bottom:calc(100% - 4px);width:1.5px;background:var(--cafe-humo);height:100%}
+.ruta strong{display:block;font-weight:500}
+.ruta span{color:var(--cafe-humo);font-size:.9375rem}
+.banda-col{background:var(--borgona);color:var(--hueso);margin:0 calc(var(--s4) * -1);padding:var(--s6) var(--s4)}
+.banda-col h1{font-size:2.5rem;line-height:1.05;color:var(--champagne)}
+.banda-col p{margin-top:var(--s3);max-width:52ch}
+.banda-col .pendiente{margin-top:var(--s2)}
+.guias{list-style:none;margin:0;padding:0;border-top:1px solid var(--tinta);max-width:800px}
+.guias li{border-bottom:1px solid var(--perla)}
+.guias a{display:block;padding:var(--s4) 0;text-decoration:none}
+.guias h2,.guias h3{font-size:1.5rem;line-height:1.2;margin:0}
+.guias a:hover :is(h2,h3){text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.guias p{font-size:.875rem;color:var(--cafe-humo);margin-top:var(--s1)}
+.tipo{display:inline-block;font-size:.8125rem;border:1px solid var(--cafe-humo);border-radius:999px;padding:1px var(--s2);margin-bottom:var(--s2)}
+.buscador{display:flex;gap:var(--s2);max-width:640px;margin-top:var(--s4)}
+.buscador input{flex:1;min-width:0;min-height:52px;padding:0 var(--s4);font:inherit;font-size:1.125rem;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.sugerencias{list-style:none;margin:var(--s2) 0 0;padding:0;max-width:640px;border:1px solid var(--perla);border-radius:6px;background:#fff}
+.sugerencias:empty{display:none}
+.sugerencias a{display:flex;justify-content:space-between;gap:var(--s3);min-height:48px;align-items:center;padding:0 var(--s4);text-decoration:none;border-top:1px solid var(--perla)}
+.sugerencias li:first-child a{border-top:0}
+.sugerencias a:hover{background:var(--suave)}
+.sugerencias span:last-child{color:var(--cafe-humo);font-size:.875rem}
+.resultados{list-style:none;margin:var(--s4) 0 0;padding:0;border-top:1px solid var(--tinta);max-width:800px}
+.resultados a{display:grid;grid-template-columns:1fr auto;gap:var(--s1) var(--s4);padding:var(--s4) 0;border-bottom:1px solid var(--perla);text-decoration:none}
+.resultados strong{font:600 1.25rem/1.2 var(--titulo)}
+.resultados span{font-size:.875rem;color:var(--cafe-humo)}
+.resultados b{font-weight:500;font-variant-numeric:tabular-nums}
+.carro{list-style:none;margin:0;padding:0;border-top:1px solid var(--tinta);max-width:800px}
+.carro li{display:grid;grid-template-columns:64px 1fr auto;grid-template-areas:"foto info quitar" "foto pie pie";gap:var(--s1) var(--s3);padding:var(--s4) 0;border-bottom:1px solid var(--perla);transition:opacity 200ms var(--curva)}
+.carro li.sale{opacity:0}
+.carro .mini{grid-area:foto;aspect-ratio:4/5;background:var(--perla)}
+.carro .info{grid-area:info;min-width:0}
+.carro .info strong{display:block;font-weight:500}
+.carro .info span{font-size:.875rem;color:var(--cafe-humo)}
+.carro [data-quitar]{grid-area:quitar;color:var(--cafe-humo)}
+.carro .pie-linea{grid-area:pie;display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+.paso-cant{display:inline-flex;align-items:center;border:1px solid var(--cafe-humo);border-radius:2px}
+.paso-cant button{width:44px;height:44px;display:grid;place-content:center;background:none;border:0;color:var(--tinta);cursor:pointer}
+.paso-cant button:hover{background:var(--suave)}
+.paso-cant button:disabled{color:var(--piedra);cursor:default;background:none}
+.paso-cant span{min-width:28px;text-align:center}
+.carro b{font-weight:500;font-variant-numeric:tabular-nums}
+.resumen-carro{max-width:800px;display:grid;gap:var(--s3);padding-top:var(--s4)}
+.resumen-carro .fila{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3)}
+.resumen-carro .fila strong{font-weight:500;font-size:1.375rem;font-variant-numeric:tabular-nums}
+.gratis progress{display:block;width:100%;height:10px;appearance:none;-webkit-appearance:none;border:1px solid var(--cafe-humo);border-radius:5px;background:var(--hueso);overflow:hidden;margin-top:var(--s2)}
+.gratis progress::-webkit-progress-bar{background:var(--hueso)}
+.gratis progress::-webkit-progress-value{background:var(--tinta)}
+.gratis progress::-moz-progress-bar{background:var(--tinta)}
+.casilla{display:flex;align-items:flex-start;gap:var(--s3);min-height:44px;cursor:pointer}
+@media (min-width:640px){.banda-col{margin:0;padding:var(--s7) var(--s6)}.banda-col h1{font-size:3.25rem}}
+</style>
+</head>
+<body>
+<a class="salto" href="#contenido">Saltar al contenido</a>
+<header class="cabecera">
+  <div class="ancho">
+    <button class="boton-icono solo-movil" type="button" data-abrir-menu aria-label="Abrir el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <!-- [LOGO SVG PENDIENTE] -->
+    <a class="marca" href="inicio.html" translate="no">Historias que Habitan</a>
+    <nav class="nav-escritorio" aria-label="Principal">
+      <button type="button" data-abrir-menu>Tienda</button>
+      <a href="colecciones.html">Colecciones</a>
+      <a href="historias.html">Historias</a>
+      <a href="quiz-orientacion.html">Orientación</a>
+      <a href="por-mayor.html">Por mayor</a>
+    </nav>
+    <button class="boton-icono" type="button" data-abrir-menu aria-label="Buscar"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+    <a class="boton-icono" href="carrito.html" aria-label="Carrito, 0 piezas" data-contador><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+  </div>
+</header>
+
+<dialog class="panel" id="menu" aria-labelledby="t-menu">
+  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-cuerpo">
+    <form class="buscar" role="search">
+      <label class="oculto-visual" for="q">Buscar en la tienda</label>
+      <input id="q" name="q" type="search" placeholder="Buscar: jarrón, vajilla…" autocomplete="off" enterkeyhint="search">
+      <button class="boton secundario" type="submit">Buscar</button>
+    </form>
+    <nav aria-label="Menú de la tienda">
+      <p class="menu-titulo" id="m-tienda">Tienda</p>
+      <ul class="menu-lista grande" aria-labelledby="m-tienda">
+        <li><a href="porcelanas.html">Porcelanas y figuras</a></li>
+        <li><a href="categoria.html">Jarrones y recipientes</a></li>
+        <li><a href="flores-artificiales.html">Flores artificiales</a></li>
+        <li><a href="mesa.html">Mesa</a></li>
+        <li><a href="centros-de-mesa.html">Centros de mesa</a></li>
+        <li><a href="esculturas.html">Esculturas pequeñas</a></li>
+        <li><a href="decoracion.html">Decoraciones del hogar</a></li>
+        <li><a href="lamparas.html" style="padding-left:var(--s4);font:400 1rem/1.5 var(--texto)">Lámparas</a></li>
+      </ul>
+      <p class="menu-titulo" id="m-col">Colecciones</p>
+      <ul class="menu-lista" aria-labelledby="m-col">
+        <li><a href="coleccion.html">La mesa que recibe</a></li>
+        <li><a href="coleccion-primer-hogar.html">Primer hogar</a></li>
+        <li><a href="coleccion-regalos.html">Regalos que se guardan</a></li>
+      </ul>
+      <ul class="menu-lista">
+        <li><a href="historias.html">Historias</a></li>
+        <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
+        <li><a href="por-mayor.html">Por mayor</a></li>
+        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
+        <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
+      </ul>
+    </nav>
+  </div>
+</dialog>
+
+<main id="contenido" class="ancho">
+<nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio.html">Inicio</a></li><li><span aria-current="page">Buscar</span></li></ol></nav>
+  <header class="intro"><h1>Buscar</h1></header>
+  <form class="buscador" id="form-buscar" role="search">
+    <label class="oculto-visual" for="b">Buscar en la tienda</label>
+    <input id="b" name="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="Jarrón, vajilla, lámpara…" aria-describedby="estado-b" aria-controls="sugerencias">
+    <button class="boton" type="submit">Buscar</button>
+  </form>
+  <ul class="sugerencias" id="sugerencias" aria-label="Sugerencias"></ul>
+  <p id="estado-b" role="status" style="margin-top:var(--s4)"></p>
+  <ul class="resultados" id="resultados"></ul>
+  <div class="vacio" id="sin" hidden style="margin-top:var(--s4)">
+    <h2>No encontramos piezas con esa búsqueda</h2>
+    <p>Revise la escritura o pruebe con una palabra más general, como «jarrón» o «vidrio».</p>
+    <p><a class="enlace" href="categoria.html">Ver jarrones y recipientes</a> · <a class="enlace" href="lamparas.html">Ver lámparas</a></p>
+    <a class="boton secundario" href="quiz-orientacion.html">Ayúdeme a elegir</a>
+  </div>
+  <p class="firma" style="margin-top:var(--s6)"><span class="pendiente">[PROTOTIPO: busca en 14 piezas de ejemplo. En producción lo resuelve el buscador de la plataforma]</span></p>
+</main>
+
+<footer class="pie">
+  <div class="ancho">
+    <ul>
+      <li><a href="envios.html">Envíos</a></li><li><a href="cambios-y-garantia.html">Cambios y garantía</a></li>
+      <li><a href="pieza-rota.html">Reportar una pieza rota</a></li><li><a href="seguimiento.html">Seguir mi pedido</a></li>
+      <li><a href="nosotros.html">Nosotros</a></li><li><a href="por-mayor.html">Por mayor</a></li>
+      <li><a href="politica-de-datos.html">Tratamiento de datos</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
+    </ul>
+    <p>Historias que Habitan · Decoración y objetos para el hogar · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
+    <p>Superintendencia de Industria y Comercio: <a href="https://www.sic.gov.co" rel="noopener" style="min-height:0;display:inline">www.sic.gov.co</a></p>
+  </div>
+</footer>
+
+<div class="cookies" id="cookies" role="region" aria-label="Aviso de cookies" hidden>
+  <p>Usamos cookies necesarias para que la tienda funcione y, si usted acepta, otras para medir las visitas. <a href="politica-de-cookies.html">Política de cookies</a> <span class="pendiente">[POR CONFIRMAR: texto legal]</span></p>
+  <div><button class="boton secundario" type="button" data-cookies="necesarias">Solo las necesarias</button><button class="boton secundario" type="button" data-cookies="todas">Aceptar todas</button></div>
+</div>
+<a class="wa-flotante" href="#" data-wa aria-label="Ayuda por WhatsApp"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0-7.3 12.85L3.5 20.5l4.3-1.1A8.5 8.5 0 1 0 12 3.5Z"/><path d="M9.2 8.6c-.3 2.9 2.3 5.8 5.3 6.2l1-1.3-1.7-1-.7.7c-.9-.4-1.7-1.2-2.1-2.1l.7-.7-1-1.7z"/></svg></a>
+<p id="aviso-proto" hidden style="position:fixed;left:16px;right:88px;bottom:16px;z-index:30;max-width:420px;background:var(--tinta);color:var(--hueso);padding:12px 16px;border-radius:6px;font-size:.9375rem">Prototipo: esta página todavía no existe.</p>
+<p class="oculto-visual" id="anuncio" aria-live="polite"></p>
+<script>
+/* Historias que Habitan · comportamiento compartido de inicio y categoría (prototipo). */
+const WHATSAPP = ''; // [POR CONFIRMAR: número de la marca]
+const anuncio = document.getElementById('anuncio');
+window.anunciar = t => { anuncio.textContent = ''; requestAnimationFrame(() => anuncio.textContent = t); };
+window.track = (event, datos) => (window.dataLayer = window.dataLayer || []).push({ event, ...datos });
+
+/* Menú: el foco entra al abrir, Esc lo cierra y el foco vuelve al botón (comportamiento nativo de dialog) */
+const menu = document.getElementById('menu');
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-abrir-menu]')) { menu.showModal(); return; }
+  const panel = e.target.closest('dialog.panel');
+  if (panel && (e.target === panel || e.target.closest('[data-cerrar]'))) return panel.close();
+  const wa = e.target.closest('[data-wa]');
+  if (wa) { e.preventDefault(); return window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Buen día. Tengo una pregunta sobre Historias que Habitan.')}`, '_blank', 'noopener'); }
+  const proto = e.target.closest('[data-proto]');
+  if (proto) { e.preventDefault(); anunciar('Prototipo: esta página todavía no existe.'); const a = document.getElementById('aviso-proto'); a.hidden = false; clearTimeout(a.t); a.t = setTimeout(() => a.hidden = true, 3500); }
+});
+document.querySelector('.buscar')?.addEventListener('submit', e => { e.preventDefault(); const q = e.target.elements.q.value.trim(); location.href = 'buscar.html' + (q ? '?q=' + encodeURIComponent(q) : ''); });
+
+/* La pieza que se toca es la que viaja a la ficha */
+document.addEventListener('click', e => {
+  const a = e.target.closest('.tarjeta a[href$=".html"]'); if (!a) return;
+  document.querySelectorAll('.arte').forEach(x => x.style.viewTransitionName = '');
+  const arte = a.querySelector('.arte'); if (arte) arte.style.viewTransitionName = 'pieza';
+});
+
+/* El ícono del carrito muestra cuántas piezas hay guardadas */
+try {
+  const guardado = JSON.parse(localStorage.getItem('hqh-carrito')) || [], n = guardado.reduce((t, x) => t + x.cantidad, 0), icono = document.querySelector('[data-contador]');
+  if (icono && n) { icono.setAttribute('aria-label', `Carrito, ${n} ${n === 1 ? 'pieza' : 'piezas'}`); const b = document.createElement('span'); b.className = 'contador'; b.textContent = n; icono.append(b); }
+} catch (e) {}
+
+/* Aviso de cookies: no bloquea la página, las dos opciones pesan lo mismo y nada viene aceptado */
+try {
+  const aviso = document.getElementById('cookies');
+  if (aviso && !localStorage.getItem('hqh-cookies')) aviso.hidden = false;
+  aviso?.addEventListener('click', e => { const b = e.target.closest('[data-cookies]'); if (!b) return; localStorage.setItem('hqh-cookies', b.dataset.cookies); aviso.hidden = true; anunciar(b.dataset.cookies === 'todas' ? 'Cookies aceptadas' : 'Solo cookies necesarias'); });
+} catch (e) {}
+</script>
+<script>
+/* Búsqueda con sugerencias y tolerancia a errores de escritura (jarron, porselana, lampra) */
+const PIEZAS = [
+  ['Jarrón de cerámica blanca con asas', 'Jarrones y recipientes', 189900, 'ficha-producto.html'], ['Jarrón de vidrio ámbar', 'Jarrones y recipientes', 129900],
+  ['Recipiente pequeño de cerámica', 'Jarrones y recipientes', 79900], ['Jarrón alto de porcelana', 'Jarrones y recipientes', 319900],
+  ['Florero de vidrio transparente', 'Jarrones y recipientes', 69900], ['Ánfora decorativa de cerámica', 'Jarrones y recipientes', 259900],
+  ['Jarrón de porcelana con relieve', 'Jarrones y recipientes', 219900], ['Recipiente con tapa de cerámica', 'Jarrones y recipientes', 99900],
+  ['Lámpara de mesa con base de cerámica', 'Lámparas', 249900, 'ficha-lampara.html'], ['Colgante de vidrio en globo', 'Lámparas', 189900],
+  ['Aplique doble de pared', 'Lámparas', 159900], ['Lámpara de mesa tipo hongo', 'Lámparas', 219900], ['Colgante de tres globos', 'Lámparas', 389900], ['Farol de mesa', 'Lámparas', 129900]
+].map(([nombre, cat, precio, url]) => ({ nombre, cat, precio, url }));
+const limpio = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').trim();
+const distancia = (a, b) => { const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] !== b[j - 1])); return d[a.length][b.length]; };
+const coincide = (palabra, texto) => texto.split(' ').some(t => t.startsWith(palabra) || (palabra.length > 3 && distancia(palabra, t.slice(0, Math.max(palabra.length, t.length))) <= (palabra.length > 6 ? 2 : 1)));
+const buscar = q => { const ps = limpio(q).split(' ').filter(Boolean); return ps.length ? PIEZAS.filter(p => ps.every(w => coincide(w, limpio(p.nombre + ' ' + p.cat)))) : []; };
+const $ = id => document.getElementById(id), pesos = n => '$' + new Intl.NumberFormat('es-CO').format(n);
+const fila = (p, clase) => { const li = document.createElement('li'), a = document.createElement('a'); a.href = p.url || '/pieza/ejemplo'; if (!p.url) a.dataset.proto = '';
+  if (clase) { const n = document.createElement('span'), c = document.createElement('span'); n.textContent = p.nombre; c.textContent = p.cat; a.append(n, c); }
+  else { const n = document.createElement('strong'), b = document.createElement('b'), c = document.createElement('span'); n.textContent = p.nombre; b.textContent = pesos(p.precio); c.textContent = p.cat; a.append(n, b, c); }
+  li.append(a); return li; };
+function mostrar(q) {
+  const r = buscar(q); $('sugerencias').replaceChildren();
+  $('resultados').replaceChildren(...r.map(p => fila(p)));
+  $('sin').hidden = !q.trim() || r.length > 0;
+  $('estado-b').textContent = !q.trim() ? '' : r.length ? `${r.length} ${r.length === 1 ? 'pieza' : 'piezas'} para «${q.trim()}»` : `Sin resultados para «${q.trim()}»`;
+  track(r.length ? 'busqueda_interna' : 'busqueda_sin_resultados', { resultados: r.length });
+  try { history.replaceState(null, '', q.trim() ? '?q=' + encodeURIComponent(q.trim()) : location.pathname); } catch (e) {}
+}
+$('b').addEventListener('input', e => { const r = e.target.value.trim().length > 1 ? buscar(e.target.value).slice(0, 5) : []; $('sugerencias').replaceChildren(...r.map(p => fila(p, true))); });
+$('form-buscar').addEventListener('submit', e => { e.preventDefault(); mostrar($('b').value); });
+const inicial = new URLSearchParams(location.search).get('q'); if (inicial) { $('b').value = inicial; mostrar(inicial); }
+</script>
+</body>
+</html>
