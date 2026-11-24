@@ -2,6 +2,11 @@
 import io, os, sys
 proto = sys.argv[1]
 s = io.open(os.path.join(proto, 'ficha-producto.html'), encoding='utf-8').read()
+# El guion del sitio (cabecera, favoritos, boletín) va al final: se aparta mientras se arma la lámpara y vuelve al final
+_SITIO_JS = ''
+if '<!-- sitio-js:ini -->' in s:
+    _i, _j = s.index('<!-- sitio-js:ini -->'), s.index('<!-- sitio-js:fin -->\n') + len('<!-- sitio-js:fin -->\n')
+    _SITIO_JS, s = s[_i:_j], s[:_i] + s[_j:]
 
 
 def rep(a, b):
@@ -14,12 +19,12 @@ rep('<title>[EJEMPLO] Jarrón de cerámica blanca con asas · Historias que Habi
 rep('<h1>Jarrón de cerámica blanca con asas</h1>', '<h1>Lámpara de mesa con base de cerámica</h1>')
 rep('Jarrón de cerámica esmaltada de 28 cm, para ramas, flores artificiales o solo. Va bien en una mesa de entrada o en un aparador.',
     'Lámpara de mesa con base de cerámica y pantalla de tela. Tiene tres tonos de luz: cálida, neutra y fría.')
-rep('<li><a href="categoria.html">Jarrones y recipientes</a></li>', '<li><a href="lamparas.html">Lámparas</a></li>')
+rep('<li><a href="inicio-estructura.html">Inicio</a></li><li><a href="categoria.html">Jarrones y recipientes</a></li>', '<li><a href="inicio-estructura.html">Inicio</a></li><li><a href="lamparas.html">Lámparas</a></li>')
 rep('<ul class="fotos" id="fotos"', '<ul class="fotos luces" data-luz="off" data-tono="calida" id="fotos"')
 
 i = s.index('<li class="con-arte">')
 j = s.index('</li>', i) + 5
-s = s[:i] + ('<li class="luz-foto" data-tonos="3"><div class="escena" style="--lx:50%;--ly:40%"><span class="halo"></span>'
+s = s[:i] + ('<li class="luz-foto" data-tonos="calida neutra fria"><div class="escena" style="--lx:50%;--ly:40%"><span class="halo"></span>'
              '<svg viewBox="0 0 200 250" aria-hidden="true" focusable="false"><rect class="mesa" x="0" y="232" width="200" height="18"/>'
              '<path class="ceramica" d="M92 232 H108 L112 224 Q124 200 116 176 Q110 160 104 150 H96 Q90 160 84 176 Q76 200 88 224 Z"/>'
              '<rect class="metal" x="98" y="126" width="4" height="26"/><path class="pantalla" d="M68 128 L84 68 H116 L132 128 Z"/></svg></div>'
@@ -29,7 +34,7 @@ rep('      <div class="acciones-foto">', '''      <div class="barra-luz">
         <div class="interruptor"><span id="et-luz">Luz</span>
           <button type="button" role="switch" aria-checked="false" aria-labelledby="et-luz" id="luz"><span class="perilla"></span></button>
           <span id="estado-luz" aria-hidden="true">Apagada</span></div>
-        <fieldset class="tonos"><legend>Tono</legend><div>
+        <fieldset class="tonos" hidden><legend>Tono</legend><div>
           <label><input type="radio" name="tono-luz" value="calida" checked><span><i style="background:#FFB259"></i>Cálida</span></label>
           <label><input type="radio" name="tono-luz" value="neutra"><span><i style="background:#FFE2B0"></i>Neutra</span></label>
           <label><input type="radio" name="tono-luz" value="fria"><span><i style="background:#C9DEFF"></i>Fría</span></label>
@@ -58,6 +63,9 @@ rep('\n/* Esqueletos', r'''
 .interruptor button[aria-checked=true] .perilla{translate:26px 0;background:#F4D9A0}
 #estado-luz{min-width:8ch;color:var(--cafe-humo)}
 .tonos{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2) var(--s3);border:0;padding:0;margin:0;min-width:0}
+.tonos:not([hidden]){animation:aparecer-tono 250ms var(--curva)}
+@keyframes aparecer-tono{from{opacity:0;translate:-6px 0}}
+@media (prefers-reduced-motion:reduce){.tonos:not([hidden]){animation:none}}
 .tonos legend{float:left;padding:0;margin:0 var(--s3) 0 0;font-weight:400}
 .tonos div{display:inline-flex;border:1px solid var(--cafe-humo);border-radius:2px;overflow:hidden}
 .tonos label{position:relative;cursor:pointer}
@@ -95,8 +103,11 @@ rep('</script>\n</body>', r'''
   const poner = (on, decir = true) => {
     fotos.dataset.luz = on ? 'on' : 'off'; llave.setAttribute('aria-checked', on);
     $('estado-luz').textContent = on ? 'Encendida' : 'Apagada';
+    // El tono solo se elige con la luz encendida, y solo en lámparas de dos o tres tonos
+    const tres = (document.querySelector('.luz-foto').dataset.tonos || '').split(' ').length > 1; // dos o tres tonos
+    document.querySelector('.tonos').hidden = !(on && tres);
     if (fotoActual() !== 0) irA(0); // la luz se ve en la primera foto
-    if (decir) anunciar(on ? `Lámpara encendida, luz ${TONOS[fotos.dataset.tono]}` : 'Lámpara apagada');
+    if (decir) anunciar(on ? `Lámpara encendida, luz ${TONOS[fotos.dataset.tono]}${tres ? '. Ya puede elegir el tono.' : ''}` : 'Lámpara apagada');
     track('luz_lampara', { encendida: on, tono: fotos.dataset.tono });
   };
   llave.addEventListener('click', () => poner(llave.getAttribute('aria-checked') !== 'true'));
@@ -104,5 +115,6 @@ rep('</script>\n</body>', r'''
 }
 </script>
 </body>''')
+s = s[:s.rindex('</body>')] + _SITIO_JS + s[s.rindex('</body>'):]
 io.open(os.path.join(proto, 'ficha-lampara.html'), 'w', encoding='utf-8', newline='\n').write(s)
 print('ficha de lámpara lista')

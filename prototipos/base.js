@@ -24,11 +24,7 @@ document.addEventListener('click', e => {
   const arte = a.querySelector('.arte'); if (arte) arte.style.viewTransitionName = 'pieza';
 });
 
-/* El ícono del carrito muestra cuántas piezas hay guardadas */
-try {
-  const guardado = JSON.parse(localStorage.getItem('hqh-carrito')) || [], n = guardado.reduce((t, x) => t + x.cantidad, 0), icono = document.querySelector('[data-contador]');
-  if (icono && n) { icono.setAttribute('aria-label', `Carrito, ${n} ${n === 1 ? 'pieza' : 'piezas'}`); const b = document.createElement('span'); b.className = 'contador'; b.textContent = n; icono.append(b); }
-} catch (e) {}
+/* El contador del carrito, la cuenta y los favoritos de la cabecera: ver SITIO_JS en herramientas/sitio.py */
 
 /* Aviso de cookies: no bloquea la página, las dos opciones pesan lo mismo y nada viene aceptado */
 try {

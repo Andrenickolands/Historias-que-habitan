@@ -95,7 +95,7 @@ def nueva(archivo, titulo, descripcion, cuerpo, guion=''):
     EXTRA.append(archivo)
 
 
-INI = ('Inicio', 'inicio.html')
+INI = ('Inicio', 'inicio-estructura.html')  # el inicio aprobado; inicio.html queda como el diseño anterior
 P = '<span class="pendiente">%s</span>'
 
 # ---------------------------------------------------------------- Colección
@@ -111,8 +111,8 @@ nueva('coleccion.html', 'La mesa que recibe', 'Vajillas, cristalería y centros 
   <ul class="rejilla estanteria">
 ''' + tarjeta('[Recipiente con tapa de cerámica]', 'Cerámica · Hecho en China', '$99.900', dibujo=('tarro', '#F4F2EE'))
       + tarjeta('[Florero de vidrio transparente]', 'Vidrio · Hecho en China', '$69.900', dibujo=('florero', '#DDE6E8', True))
-      + tarjeta('[Juego de 6 copas]', '[Material] · [Origen]', '[Precio]')
-      + tarjeta('[Vajilla de 16 piezas]', '[Material] · [Origen]', '[Precio]') + '''  </ul>
+      + tarjeta('[Juego de 6 copas de vino]', 'Vidrio · Hecho en China', '$149.900', dibujo=('copa', '#DDE6E8', True))
+      + tarjeta('[Vajilla de 16 piezas blanca]', 'Porcelana · Hecho en China', '$389.900', dibujo=('plato', '#F4F2EE')) + '''  </ul>
   <div class="texto-cat">
     <section aria-labelledby="t-guia">
       <h2 id="t-guia">La guía de esta colección</h2>
@@ -172,7 +172,7 @@ nueva('nosotros.html', 'Nosotros', 'Quiénes somos y cómo elegimos las piezas d
     <h2>Cómo elegimos</h2>
     <ul><li>Miramos los acabados y los detalles de fabricación.</li><li>Buscamos piezas que combinen entre sí y que sigan gustando después de una temporada.</li><li>No prometemos que una pieza sea irrepetible ni antigua.</li></ul>
     <h2>De dónde vienen las piezas</h2>
-    <p>Nuestras piezas vienen de China y Panamá. Lo decimos en cada ficha, junto al material y las medidas.</p>
+    <p>El origen de cada pieza está en su ficha técnica, junto al material y las medidas. No lo escondemos ni lo reemplazamos por un relato.</p>
     <h2>Cómo contamos cada pieza</h2>
     <p>Separamos tres cosas: el hecho que se puede comprobar, nuestra lectura del diseño y una propuesta sobre el lugar que la pieza puede tener en su casa. No presentamos una interpretación como un hecho.</p>
     <h2>Dónde estamos</h2>
@@ -319,7 +319,7 @@ nueva('preguntas.html', 'Preguntas frecuentes', 'Respuestas sobre envíos, pagos
     <details class="faq"><summary>¿Tengo que crear una cuenta para comprar?</summary><p>No. Puede comprar como invitado. Si quiere, crea su cuenta al final, después de pagar.</p></details>
     <details class="faq"><summary>¿Los precios incluyen IVA?</summary><p>Sí. Todos los precios incluyen IVA.</p></details>
     <h2>Las piezas</h2>
-    <details class="faq"><summary>¿De dónde vienen las piezas?</summary><p>De China y Panamá. El origen de cada pieza está en su ficha técnica.</p></details>
+    <details class="faq"><summary>¿De dónde vienen las piezas?</summary><p>Cada ficha técnica dice el origen de la pieza, junto al material y las medidas.</p></details>
     <details class="faq"><summary>¿Tienen tienda física?</summary><p>No. Somos una tienda en línea y atendemos por WhatsApp.</p></details>
     <details class="faq"><summary>¿Venden por mayor?</summary><p>Sí. <a href="por-mayor.html">Solicite una cotización</a>.</p></details>
   </article>''')
@@ -344,6 +344,7 @@ nueva('buscar.html', 'Buscar', 'Busque piezas por nombre, material o categoría.
   </div>
   <p class="firma" style="margin-top:var(--s6)">''' + P % '[PROTOTIPO: busca en 14 piezas de ejemplo. En producción lo resuelve el buscador de la plataforma]' + '''</p>''', guion=r'''<script>
 /* Búsqueda con sugerencias y tolerancia a errores de escritura (jarron, porselana, lampra) */
+const ESTADOS = __ESTADOS__; // del catálogo único: oferta, quedan pocas, agotada
 const PIEZAS = [
   ['Jarrón de cerámica blanca con asas', 'Jarrones y recipientes', 189900, 'ficha-producto.html'], ['Jarrón de vidrio ámbar', 'Jarrones y recipientes', 129900],
   ['Recipiente pequeño de cerámica', 'Jarrones y recipientes', 79900], ['Jarrón alto de porcelana', 'Jarrones y recipientes', 319900],
@@ -351,7 +352,7 @@ const PIEZAS = [
   ['Jarrón de porcelana con relieve', 'Jarrones y recipientes', 219900], ['Recipiente con tapa de cerámica', 'Jarrones y recipientes', 99900],
   ['Lámpara de mesa con base de cerámica', 'Lámparas', 249900, 'ficha-lampara.html'], ['Colgante de vidrio en globo', 'Lámparas', 189900],
   ['Aplique doble de pared', 'Lámparas', 159900], ['Lámpara de mesa tipo hongo', 'Lámparas', 219900], ['Colgante de tres globos', 'Lámparas', 389900], ['Farol de mesa', 'Lámparas', 129900]
-].map(([nombre, cat, precio, url]) => ({ nombre, cat, precio, url }));
+].map(([nombre, cat, precio, url]) => ({ nombre, cat, precio, url, ...(ESTADOS[nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')] || {}) }));
 const limpio = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').trim();
 const distancia = (a, b) => { const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j;
   for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] !== b[j - 1])); return d[a.length][b.length]; };
@@ -360,7 +361,10 @@ const buscar = q => { const ps = limpio(q).split(' ').filter(Boolean); return ps
 const $ = id => document.getElementById(id), pesos = n => '$' + new Intl.NumberFormat('es-CO').format(n);
 const fila = (p, clase) => { const li = document.createElement('li'), a = document.createElement('a'); a.href = p.url || '/pieza/ejemplo'; if (!p.url) a.dataset.proto = '';
   if (clase) { const n = document.createElement('span'), c = document.createElement('span'); n.textContent = p.nombre; c.textContent = p.cat; a.append(n, c); }
-  else { const n = document.createElement('strong'), b = document.createElement('b'), c = document.createElement('span'); n.textContent = p.nombre; b.textContent = pesos(p.precio); c.textContent = p.cat; a.append(n, b, c); }
+  else { const n = document.createElement('strong'), b = document.createElement('b'), c = document.createElement('span'); n.textContent = p.nombre; b.textContent = pesos(p.precio); c.textContent = p.cat; a.append(n, b, c);
+    // Mismos estados que en la tienda y la ficha
+    if (p.antes && !p.agotada) { const s = document.createElement('s'), o = document.createElement('span'); s.textContent = pesos(p.antes); o.className = 'chip-estado chip-oferta'; o.textContent = `−${Math.round((1 - p.precio / p.antes) * 100)} %`; b.append(' ', s, ' ', o); }
+    if (p.agotada || p.pocas) { const e = document.createElement('span'); e.className = 'chip-estado ' + (p.agotada ? 'chip-agotada' : 'chip-pocas'); e.textContent = p.agotada ? 'Agotada' : p.unidades === 1 ? 'Queda 1' : `Quedan ${p.unidades}`; c.append(' · ', e); } }
   li.append(a); return li; };
 function mostrar(q) {
   const r = buscar(q); $('sugerencias').replaceChildren();
@@ -374,7 +378,7 @@ $('b').addEventListener('input', e => { const r = e.target.value.trim().length >
 $('form-buscar').addEventListener('submit', e => { e.preventDefault(); mostrar($('b').value); });
 const inicial = new URLSearchParams(location.search).get('q'); if (inicial) { $('b').value = inicial; mostrar(inicial); }
 </script>
-''')
+'''.replace('__ESTADOS__', __import__('json').dumps({k: dict(estado_pieza(k), antes=estado_pieza(k)['antes']) for k in __import__('catalogo').ESTADO}, ensure_ascii=False)))
 
 # ---------------------------------------------------------------- Carrito completo
 nueva('carrito.html', 'Su carrito', 'Revise las piezas de su carrito antes de pagar.',

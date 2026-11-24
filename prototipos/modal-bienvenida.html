@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modal de bienvenida · Historias que Habitan</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
+<style>
+/* Tokens del manual de marca (los mismos de base.css) */
+:root{
+  --tinta:#312620; --cafe-humo:#705C51; --piedra:#BBB2A8; --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6; --suave:#F3F0ED;
+  --borgona:#722F37; --mocha:#5B4632; --espresso:#3B2A20; --champagne:#F4D9A0; --info:#3E5A73; --info-fondo:#E4EAF0;
+  --exito:#3F6B4E; --exito-fondo:#E6EEE7; --error:#8E2B33; --error-fondo:#F5E3E4;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:200ms; --curva:cubic-bezier(.2,.7,.2,1);
+  --titulo:"Cormorant Garamond",Georgia,serif; --texto:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html:has(dialog[open]){overflow:hidden}
+body{margin:0;background:var(--hueso);color:var(--tinta);font:400 1rem/1.5 var(--texto);-webkit-text-size-adjust:100%}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+h1,h2,h3{font-family:var(--titulo);font-weight:600;margin:0;text-wrap:balance}
+p{margin:0}
+.pendiente{display:inline-block;font-size:.8125rem;color:var(--info);background:var(--info-fondo);padding:0 6px;border-radius:2px}
+.proto{background:var(--info-fondo);color:var(--info);font-size:.875rem;padding:var(--s2) var(--s4)}
+.ancho{max-width:72rem;margin:0 auto;padding:0 var(--s4)}
+
+/* ---------- Página de comparación ---------- */
+.cab{padding:var(--s7) 0 var(--s5)}
+.ante{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--cafe-humo)}
+.cab h1{font-size:clamp(2rem,5vw,2.75rem);line-height:1.1;margin-top:var(--s2)}
+.cab p:last-child{margin-top:var(--s3);max-width:62ch;color:var(--cafe-humo)}
+.variantes{list-style:none;margin:0;padding:0;display:grid;gap:var(--s4)}
+.variante{position:relative;min-width:0;display:flex;flex-direction:column;gap:var(--s3);padding:var(--s5);border:1px solid var(--perla);border-radius:8px;background:#fff}
+.variante.recomendada{border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.letra{font:600 2.25rem/1 var(--titulo);color:var(--borgona)}
+.variante h2{font-size:1.5rem;line-height:1.2}
+.variante p{color:var(--cafe-humo)}
+.variante dl{margin:0;display:grid;gap:var(--s2);font-size:.9375rem}
+.variante dt{font-weight:500}
+.variante dd{margin:0;color:var(--cafe-humo)}
+.variante .boton{margin-top:auto}
+.sello-rec{position:absolute;top:var(--s4);right:var(--s4);font:500 .6875rem/1.4 var(--texto);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--tinta);padding:2px 8px;border-radius:2px}
+.bloque{padding:var(--s7) 0 0}
+.bloque h2{font-size:1.75rem}
+.bloque ul{margin:var(--s4) 0 0;padding-left:1.2em;display:grid;gap:var(--s2);max-width:72ch}
+.bloque li::marker{color:var(--piedra)}
+.pie-proto{padding:var(--s7) 0 var(--s8)}
+@media (min-width:760px){.variantes{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- Comunes a los tres modales ---------- */
+.boton{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);width:100%;min-height:52px;padding:0 var(--s5);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;border-radius:2px;border:1px solid var(--tinta);background:var(--tinta);color:var(--hueso);cursor:pointer;transition:background-color var(--dur) var(--curva)}
+.boton:hover{background:#1F1814}
+.boton[disabled]{opacity:.7;cursor:progress}
+/* «Por el momento no»: tan grande como el principal y con borde, para que se vea que es un botón */
+.boton.secundario{background:transparent;color:var(--tinta);border:2px solid var(--tinta)}
+.boton.secundario:hover{background:var(--suave)}
+.enlace-boton{background:none;border:0;padding:0;min-height:44px;font:inherit;font-size:.9375rem;color:var(--tinta);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
+.modal{border:0;padding:0;width:calc(100% - 32px);max-width:520px;max-height:calc(100dvh - 32px);overflow:auto;border-radius:12px;background:var(--hueso);color:var(--tinta);box-shadow:0 24px 64px rgba(30,20,14,.35)}
+.modal::backdrop{background:rgba(49,38,32,.56)}
+.modal[open]{animation:entra 260ms var(--curva)}
+@keyframes entra{from{opacity:0;transform:translateY(14px)}}
+.cerrar{position:absolute;top:var(--s2);right:var(--s2);z-index:3;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:rgba(251,250,249,.92);color:var(--tinta);cursor:pointer}
+.cerrar svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;fill:none}
+.cerrar:hover{background:#fff}
+.m-cuerpo{padding:var(--s5)}
+.m-titulo{font-size:1.875rem;line-height:1.1}
+.m-linea{margin-top:var(--s2);color:var(--cafe-humo)}
+.mform{margin-top:var(--s5)}
+.campo{margin-bottom:var(--s4)}
+.campo label{display:block;font-weight:500;margin-bottom:var(--s1)}
+.campo label small{font-weight:400;color:var(--cafe-humo);font-size:.875rem}
+.campo input{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.campo [aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.dos{display:grid;gap:0 var(--s3)}
+@media (min-width:480px){.dos{grid-template-columns:1fr 1fr}}
+.casilla{display:flex;gap:var(--s3);align-items:flex-start;min-height:44px;padding:var(--s1) 0;cursor:pointer;font-size:1rem}
+.casilla input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--tinta)}
+.error{display:flex;gap:var(--s2);color:var(--error);background:var(--error-fondo);padding:var(--s2) var(--s3);margin:var(--s1) 0 var(--s2);font-size:.9375rem;border-radius:2px}
+.error::before{content:"!";font-weight:500;flex:none;width:18px;height:18px;border:1.5px solid currentColor;border-radius:50%;display:grid;place-content:center;font-size:.75rem}
+.acciones{display:grid;justify-items:center;gap:var(--s3);margin-top:var(--s4)}
+/* La mayoría de las clientas lee mejor sin letra diminuta: los textos de ayuda no bajan de 15 px */
+.letra-chica{font-size:.9375rem;color:var(--cafe-humo);text-align:center}
+.campo label small{font-size:.9375rem}
+.listo{text-align:center}
+.listo h3{font-size:1.75rem;line-height:1.15}
+.listo .beneficio{margin-top:var(--s2);font-size:1.0625rem}
+.codigo{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--s2) var(--s3);margin:var(--s4) 0;padding:var(--s3) var(--s4);border:1.5px dashed var(--mocha);border-radius:4px;background:#fff}
+.codigo span{font-size:.8125rem;color:var(--cafe-humo);letter-spacing:.08em;text-transform:uppercase}
+.codigo strong{font:600 1.375rem/1 var(--texto);letter-spacing:.12em}
+.listo .envio{font-size:.9375rem;color:var(--cafe-humo);margin-bottom:var(--s4)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* Celular: hoja que sube desde abajo y deja ver la página */
+@media (max-width:639px){
+  .modal{width:100%;max-width:100%;margin:auto 0 0;max-height:92dvh;border-radius:16px 16px 0 0}
+  .modal[open]{animation:sube 300ms var(--curva)}
+  @keyframes sube{from{transform:translateY(100%)}}
+  .modal::before{content:"";position:sticky;top:0;display:block;width:40px;height:4px;margin:var(--s2) auto calc(var(--s2) * -1 - 4px);border-radius:2px;background:var(--piedra);z-index:4}
+}
+@media (prefers-reduced-motion:reduce){.modal[open]{animation:none}.boton{transition:none}}
+
+/* ---------- A · Suscríbase y reciba un descuento ---------- */
+.ma-banda{padding:var(--s6) var(--s5) var(--s5);background:var(--borgona);color:var(--hueso)}
+.ma-banda .ante{color:var(--champagne)}
+.ma-banda .m-titulo{margin-top:var(--s2)}
+.ma-banda .m-linea{color:#F1E6E2}
+.ma-banda .pendiente{margin-top:var(--s2)}
+
+/* ---------- B · Ruleta ---------- */
+.modal-b{max-width:880px}
+.mb{display:grid}
+.mb-rueda{position:relative;display:grid;place-items:center;padding:var(--s6) var(--s4) var(--s5);background:var(--espresso)}
+.rueda-marco{position:relative;width:min(240px,64vw);aspect-ratio:1}
+.rueda{width:100%;height:100%;display:block;transform:rotate(0deg)}
+.rueda.girando{transition:transform 4.8s cubic-bezier(.12,.67,.12,1)}
+.puntero{position:absolute;left:50%;top:-10px;width:30px;height:36px;translate:-50% 0;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.mb-rueda .pendiente{margin-top:var(--s4);max-width:34ch;text-align:center}
+.mb .m-cuerpo{align-self:center}
+.mb .ante{color:var(--borgona)}
+@media (min-width:760px){
+  .mb{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .mb-rueda{padding:var(--s7) var(--s5)}
+  .rueda-marco{width:min(340px,100%)}
+  .mb .m-cuerpo{padding:var(--s7) var(--s6)}
+}
+@media (prefers-reduced-motion:reduce){.rueda.girando{transition:none}}
+
+/* ---------- C · Elija su regalo ---------- */
+.modal-c{max-width:640px}
+.mc .m-cuerpo{padding-top:var(--s6)}
+.mc .ante{color:var(--borgona)}
+.regalos{border:0;margin:var(--s4) 0 0;padding:0;min-width:0}
+.regalos legend{font-weight:500;margin-bottom:var(--s2);padding:0}
+.regalos-lista{display:grid;gap:var(--s2)}
+.regalo{position:relative;display:flex;gap:var(--s3);align-items:center;min-height:64px;padding:var(--s3) var(--s4);border:1px solid var(--cafe-humo);border-radius:6px;background:#fff;cursor:pointer;transition:background-color var(--dur) var(--curva)}
+.regalo:hover{background:var(--suave)}
+.regalo input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--tinta)}
+.regalo:has(input:checked){background:var(--oatmeal);border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.regalo svg{flex:none;width:28px;height:28px;fill:none;stroke:var(--mocha);stroke-width:1.4;stroke-linejoin:round;stroke-linecap:round}
+.regalo b{display:block;font:600 1.25rem/1.15 var(--titulo)}
+.regalo small{display:block;color:var(--cafe-humo);font-size:.875rem}
+@media (min-width:600px){
+  .regalos-lista{grid-template-columns:repeat(3,1fr)}
+  .regalo{flex-direction:column;align-items:flex-start;text-align:left;min-height:150px;padding:var(--s4)}
+  .regalo input{position:absolute;top:var(--s3);right:var(--s3)}
+}
+@media (prefers-reduced-motion:reduce){.regalo{transition:none}}
+
+/* ---------- D · Solo lo nuevo: una frase, el correo y una casilla ---------- */
+.modal-d{max-width:580px}
+.md-piezas{display:grid;place-items:end center;height:112px;padding-top:var(--s4);background:var(--oatmeal)}
+.md-piezas svg{display:block;width:190px;height:86px}
+.md{text-align:center}
+.md .ante{color:var(--borgona)}
+.md .m-titulo{margin-top:var(--s2)}
+.md .mform{text-align:left}
+.frase-sel{display:grid;gap:var(--s1);font-size:.875rem;font-weight:500;min-width:0}
+.frase-sel select{width:100%;min-width:0;min-height:44px;padding:0 var(--s3);font:inherit;font-weight:400;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="proto" role="region" aria-label="Nota del prototipo">Prototipo para elegir el modal de bienvenida. Los porcentajes, montos y códigos son de ejemplo; no se guarda ni se envía ningún dato.</div>
+
+<main class="ancho">
+  <header class="cab">
+    <p class="ante">Modal de bienvenida · cuatro variantes</p>
+    <h1>Cuatro formas de invitar a suscribirse</h1>
+    <p>En la A, la B y la C el único dato obligatorio es el correo; la D pide además nombre y celular, y la empresa es opcional. Las casillas van separadas y sin marcar, y en celular la ventana sube desde abajo y deja ver la página. Ábralas para compararlas.</p>
+  </header>
+
+  <ul class="variantes">
+    <li class="variante">
+      <span class="letra" aria-hidden="true">A</span>
+      <h2>Suscríbase y reciba un descuento</h2>
+      <p>La más simple: un beneficio fijo a cambio del correo, con el código en pantalla y en el correo.</p>
+      <dl><dt>A favor</dt><dd>Se entiende en un segundo y es la más rápida de construir.</dd><dt>En contra</dt><dd>Se parece a la de cualquier tienda.</dd></dl>
+      <button type="button" class="boton" data-abrir="modal-a">Abrir la variante A</button>
+    </li>
+    <li class="variante">
+      <span class="letra" aria-hidden="true">B</span>
+      <h2>Ruleta con premios</h2>
+      <p>Un giro con seis premios: descuentos de 5, 10 y 15 %, envío gratis desde $150.000 y empaque de regalo.</p>
+      <dl><dt>A favor</dt><dd>Es la que más llama la atención y la que más se comparte.</dd><dt>En contra</dt><dd>En Colombia, una ruleta de premios puede ser un juego promocional que requiere autorización de Coljuegos: hay que confirmarlo con asesoría legal. Necesita una app o código propio y pesa más.</dd></dl>
+      <button type="button" class="boton" data-abrir="modal-b">Abrir la variante B</button>
+    </li>
+    <li class="variante">
+      <span class="letra" aria-hidden="true">C</span>
+      <h2>Elija su regalo de bienvenida</h2>
+      <p>Tres beneficios a la vista y la persona escoge el que le sirve. Da la sensación de premio, sin azar.</p>
+      <dl><dt>A favor</dt><dd>Nadie siente que la ruleta está arreglada, no hay riesgo de juego promocional y el negocio aprende qué beneficio prefiere la gente.</dd><dt>En contra</dt><dd>Necesita código propio en el tema o una app.</dd></dl>
+      <button type="button" class="boton" data-abrir="modal-c">Abrir la variante C</button>
+    </li>
+    <li class="variante recomendada">
+      <span class="sello-rec">Elegida · ya está en el inicio</span>
+      <span class="letra" aria-hidden="true">D</span>
+      <h2>Nuevas piezas y nuevas ofertas</h2>
+      <label class="frase-sel">Frase del título, para comparar
+        <select id="frase-d">
+          <option>Nuevas piezas y nuevas ofertas</option>
+          <option>Que no se le pase lo nuevo ni los descuentos</option>
+          <option>Le avisamos cuando llegue algo nuevo o haya descuento</option>
+          <option>Nuevas piezas, nuevas historias para su casa</option>
+          <option>Piezas nuevas y descuentos reales, en su correo y su WhatsApp</option>
+          <option>Lo que llega a la tienda, primero para usted</option>
+          <option>Guarde un lugar en su casa para lo que viene</option>
+        </select></label>
+      <p>La más sencilla: una frase, los datos de contacto y una casilla. No regala un descuento por suscribirse; avisa de los productos nuevos y de ofertas para suscriptores.</p>
+      <dl><dt>A favor</dt><dd>No le cuesta margen al negocio y deja nombre, correo y celular para avisar también por WhatsApp. Si escriben su empresa, se sabe que compran para un negocio.</dd><dt>En contra</dt><dd>Con el celular como obligatorio se suscriben menos personas que con solo el correo.</dd></dl>
+      <button type="button" class="boton" data-abrir="modal-d">Abrir la variante D</button>
+    </li>
+  </ul>
+
+  <section class="bloque" aria-labelledby="h-reglas">
+    <h2 id="h-reglas">Cuándo aparece y cuándo no</h2>
+    <ul>
+      <li><strong>Una sola vez,</strong> desde la segunda página que la persona visita: a los 20 segundos o al bajar la mitad de la página, lo que pase primero. En computador, también cuando el cursor va a salir de la pestaña. <span class="pendiente">[POR CONFIRMAR con una prueba A/B]</span></li>
+      <li><strong>No aparece</strong> en el carrito, el pago, Mi cuenta ni las páginas de ayuda, ni a quien ya está suscrito.</li>
+      <li><strong>No tapa la página al llegar desde un buscador en celular:</strong> Google penaliza los avisos que cubren el contenido apenas se entra. Por eso espera a la segunda página.</li>
+      <li><strong>Si la persona lo cierra,</strong> no vuelve en 14 días. <span class="pendiente">[POR CONFIRMAR]</span></li>
+      <li><strong>Se cierra</strong> con la X, con el botón «Por el momento no» (grande y con borde, tan visible como el principal), con la tecla Esc y tocando fuera. Sin frases que hagan sentir mal a quien no se suscribe.</li>
+      <li><strong>Un código por correo,</strong> solo para la primera compra; se valida al pagar.</li>
+      <li><strong>Accesibilidad:</strong> ventana nativa (<code>dialog</code>): el foco queda adentro y vuelve al botón de origen al cerrar; los errores van junto a cada campo; la ruleta no gira si la persona pidió menos movimiento.</li>
+    </ul>
+  </section>
+
+  <section class="bloque pie-proto" aria-labelledby="h-falta">
+    <h2 id="h-falta">Lo que falta confirmar</h2>
+    <ul>
+      <li>Porcentajes, montos (por ejemplo, el envío gratis desde $150.000), vigencia y tope de cada beneficio.</li>
+      <li>Si se elige la ruleta: las probabilidades de cada premio, publicadas en sus condiciones, y el concepto legal sobre Coljuegos.</li>
+      <li>Los textos de las condiciones de la promoción y de la política de privacidad.</li>
+      <li>La herramienta en la plataforma. En Shopify, la A sale con Shopify Forms y un descuento; la B y la C necesitan una app o código propio. <span class="pendiente">[POR CONFIRMAR al elegir plataforma]</span></li>
+      <li>El correo que lleva el código y el boletín.</li>
+    </ul>
+  </section>
+</main>
+
+<!-- ======================= A · Suscríbase y reciba un descuento ======================= -->
+<dialog class="modal modal-a" id="modal-a" data-variante="A" aria-labelledby="a-t" aria-describedby="a-d">
+  <button type="button" class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="ma-banda">
+    <p class="ante">Bienvenida</p>
+    <h2 class="m-titulo" id="a-t">10 % de descuento en su primera compra</h2>
+    <p class="m-linea" id="a-d">Suscríbase y reciba piezas nuevas, ideas para decorar y ofertas con su precio anterior a la vista. El código le llega al correo.</p>
+    <span class="pendiente">[POR CONFIRMAR: porcentaje, tope y vigencia]</span>
+  </div>
+  <div class="m-cuerpo">
+    <form class="mform" novalidate data-codigo="BIENVENIDA10" data-beneficio="10 % de descuento en su primera compra" style="margin-top:0">
+      <div class="campo"><label for="a-correo">Correo electrónico</label>
+        <input id="a-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="a-e-correo"><div id="a-e-correo" role="alert"></div></div>
+      <div class="dos">
+        <div class="campo"><label for="a-nombre">Nombre <small>(opcional)</small></label>
+          <input id="a-nombre" name="nombre" type="text" autocomplete="given-name"></div>
+        <div class="campo"><label for="a-celular">Celular <small>(opcional)</small></label>
+          <input id="a-celular" name="celular" type="tel" autocomplete="tel-national" inputmode="tel" aria-describedby="a-e-celular"><div id="a-e-celular" role="alert"></div></div>
+      </div>
+      <label class="casilla"><input type="checkbox" name="condiciones" id="a-condiciones" aria-describedby="a-e-condiciones"><span>Acepto las <a href="terminos.html">condiciones de la promoción</a>.</span></label>
+      <div id="a-e-condiciones" role="alert"></div>
+      <label class="casilla"><input type="checkbox" name="datos" id="a-datos" aria-describedby="a-e-datos"><span>Autorizo el tratamiento de mis datos para recibir el boletín, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+      <div id="a-e-datos" role="alert"></div>
+      <div class="acciones">
+        <button type="submit" class="boton">Quiero mi 10 %</button>
+        <button type="button" class="boton secundario" data-cerrar>Por el momento no</button>
+        <p class="letra-chica">Puede darse de baja cuando quiera, desde cualquier correo.</p>
+      </div>
+    </form>
+    <div class="listo" hidden></div>
+  </div>
+</dialog>
+
+<!-- ======================= B · Ruleta con premios ======================= -->
+<dialog class="modal modal-b" id="modal-b" data-variante="B" aria-labelledby="b-t" aria-describedby="b-d">
+  <button type="button" class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="mb">
+    <div class="mb-rueda">
+      <div class="rueda-marco">
+        <svg class="puntero" viewBox="0 0 30 36" aria-hidden="true"><path d="M15 36 2 6a13 13 0 0 1 26 0Z" fill="#722F37"/><circle cx="15" cy="10" r="4" fill="#F4D9A0"/></svg>
+        <svg class="rueda" id="rueda" viewBox="0 0 320 320" role="img" aria-label="Ruleta con seis premios: 5 % de descuento, envío gratis desde $150.000, 10 % de descuento, empaque de regalo, 15 % de descuento y envío gratis desde $150.000"></svg>
+      </div>
+      <span class="pendiente">[POR CONFIRMAR con asesoría legal: una ruleta de premios puede ser un juego promocional que requiere autorización de Coljuegos]</span>
+    </div>
+    <div class="m-cuerpo">
+      <p class="ante">Ruleta de bienvenida</p>
+      <h2 class="m-titulo" id="b-t" style="margin-top:var(--s2)">Gire la ruleta y gane un beneficio para su primera compra</h2>
+      <p class="m-linea" id="b-d">Todos los espacios tienen premio. Un giro por correo. <span class="pendiente">[EJEMPLO: premios y probabilidades]</span></p>
+      <form class="mform" novalidate data-ruleta>
+        <div class="campo"><label for="b-correo">Correo electrónico</label>
+          <input id="b-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="b-e-correo"><div id="b-e-correo" role="alert"></div></div>
+        <div class="campo"><label for="b-nombre">Nombre <small>(opcional)</small></label>
+          <input id="b-nombre" name="nombre" type="text" autocomplete="given-name"></div>
+        <label class="casilla"><input type="checkbox" name="condiciones" id="b-condiciones" aria-describedby="b-e-condiciones"><span>Acepto las <a href="terminos.html">condiciones de la ruleta</a>, con sus premios y probabilidades.</span></label>
+        <div id="b-e-condiciones" role="alert"></div>
+        <label class="casilla"><input type="checkbox" name="datos" id="b-datos" aria-describedby="b-e-datos"><span>Autorizo el tratamiento de mis datos para recibir el boletín, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+        <div id="b-e-datos" role="alert"></div>
+        <div class="acciones">
+          <button type="submit" class="boton">Girar la ruleta</button>
+          <button type="button" class="boton secundario" data-cerrar>Por el momento no</button>
+        </div>
+      </form>
+      <p class="sr" role="status" id="b-estado"></p>
+      <div class="listo" hidden></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ======================= C · Elija su regalo de bienvenida ======================= -->
+<dialog class="modal modal-c" id="modal-c" data-variante="C" aria-labelledby="c-t" aria-describedby="c-d">
+  <button type="button" class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="mc">
+    <div class="m-cuerpo">
+      <p class="ante">Regalo de bienvenida</p>
+      <h2 class="m-titulo" id="c-t" style="margin-top:var(--s2)">Elija su regalo para la primera compra</h2>
+      <p class="m-linea" id="c-d">Suscríbase y escoja uno. Sin azar: usted decide cuál le sirve más. <span class="pendiente">[POR CONFIRMAR: beneficios, montos y vigencia]</span></p>
+      <form class="mform" novalidate>
+        <fieldset class="regalos" aria-describedby="c-e-regalo">
+          <legend>Su regalo</legend>
+          <div class="regalos-lista">
+            <label class="regalo"><input type="radio" name="regalo" value="10" data-codigo="BIENVENIDA10" data-beneficio="10 % de descuento en toda su primera compra">
+              <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 23 23 5"/><circle cx="8" cy="8" r="3"/><circle cx="20" cy="20" r="3"/></svg>
+              <span><b>10 % de descuento</b><small>En toda su primera compra</small></span></label>
+            <label class="regalo"><input type="radio" name="regalo" value="envio" data-codigo="ENVIO150" data-beneficio="Envío gratis en su primera compra desde $150.000">
+              <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M3 8h14v11H3zM17 12h5l3 3.5V19h-8"/><circle cx="8" cy="21" r="2.2"/><circle cx="21" cy="21" r="2.2"/></svg>
+              <span><b>Envío gratis</b><small>En compras desde $150.000</small></span></label>
+            <label class="regalo"><input type="radio" name="regalo" value="empaque" data-codigo="EMPAQUE" data-beneficio="Empaque de regalo sin costo en su primer pedido">
+              <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 11h20v4H4zM6 15h16v9H6zM14 11v13M14 11c-2-5-7-5-7-2s5 2 7 2c2 0 7 1 7-2s-5-3-7 2"/></svg>
+              <span><b>Empaque de regalo</b><small>Sin costo en su primer pedido</small></span></label>
+          </div>
+        </fieldset>
+        <div id="c-e-regalo" role="alert"></div>
+        <div class="campo" style="margin-top:var(--s4)"><label for="c-correo">Correo electrónico</label>
+          <input id="c-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="c-e-correo"><div id="c-e-correo" role="alert"></div></div>
+        <label class="casilla"><input type="checkbox" name="condiciones" id="c-condiciones" aria-describedby="c-e-condiciones"><span>Acepto las <a href="terminos.html">condiciones de la promoción</a>.</span></label>
+        <div id="c-e-condiciones" role="alert"></div>
+        <label class="casilla"><input type="checkbox" name="datos" id="c-datos" aria-describedby="c-e-datos"><span>Autorizo el tratamiento de mis datos para recibir el boletín, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+        <div id="c-e-datos" role="alert"></div>
+        <div class="acciones">
+          <button type="submit" class="boton">Quiero este regalo</button>
+          <button type="button" class="boton secundario" data-cerrar>Por el momento no</button>
+        </div>
+      </form>
+      <div class="listo" hidden></div>
+    </div>
+  </div>
+</dialog>
+
+<!-- ======================= D · Sea de los primeros en ver lo nuevo ======================= -->
+<dialog class="modal modal-d" id="modal-d" data-variante="D" aria-labelledby="d-t" aria-describedby="d-d">
+  <button type="button" class="cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="md-piezas" aria-hidden="true">
+    <svg viewBox="0 0 220 100"><g stroke="#5B4632" stroke-width="1.3" stroke-linejoin="round">
+      <path d="M44 92 Q34 70 41 52 Q47 39 45 28 L43 19 H65 L63 28 Q61 39 67 52 Q74 70 64 92 Z" fill="#FBFAF9"/>
+      <path d="M88 74 Q90 92 110 92 Q130 92 132 74 Z" fill="#F4D9A0"/>
+      <path d="M163 92 Q154 80 160 66 Q164 58 166 47 L166 36 H174 L174 47 Q176 58 180 66 Q186 80 177 92 Z" fill="#D9C7AE"/>
+      <path d="M170 36 Q168 22 172 9" fill="none"/></g>
+      <circle cx="172" cy="9" r="5" fill="#722F37"/><rect x="0" y="92" width="220" height="5" fill="#5B4632"/></svg>
+  </div>
+  <div class="m-cuerpo md">
+    <p class="ante">Boletín</p>
+    <h2 class="m-titulo" id="d-t">Nuevas piezas y nuevas ofertas</h2>
+    <p class="m-linea" id="d-d"><strong style="color:var(--tinta);font-weight:500">Suscríbase y entérese de todo.</strong> Le avisamos sobre ofertas exclusivas y nuestros nuevos productos.</p>
+    <form class="mform" novalidate data-sin-codigo data-nombre-obligatorio data-celular-obligatorio data-msg-correo="Escriba su correo para avisarle." data-msg-datos="Para avisarle, autorice el tratamiento de sus datos.">
+      <div class="dos">
+      <div class="campo"><label for="d-nombre">Nombre y apellido</label>
+        <input id="d-nombre" name="nombre" type="text" autocomplete="name" aria-describedby="d-e-nombre"><div id="d-e-nombre" role="alert"></div></div>
+      <div class="campo"><label for="d-correo">Correo electrónico</label>
+        <input id="d-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="d-e-correo"><div id="d-e-correo" role="alert"></div></div>
+      </div>
+      <div class="dos">
+      <div class="campo"><label for="d-celular">Celular</label>
+        <input id="d-celular" name="celular" type="tel" autocomplete="tel-national" inputmode="tel" aria-describedby="d-a-celular d-e-celular"><span class="letra-chica" id="d-a-celular" style="display:block;text-align:left;margin-top:var(--s1)">Diez dígitos. Por ahí le avisamos por WhatsApp.</span><div id="d-e-celular" role="alert"></div></div>
+      <div class="campo"><label for="d-empresa">Empresa <small>(opcional)</small></label>
+        <input id="d-empresa" name="empresa" type="text" autocomplete="organization" aria-describedby="d-a-empresa"><span class="letra-chica" id="d-a-empresa" style="display:block;text-align:left;margin-top:var(--s1)">Si compra para un negocio, le contamos también sobre los precios al por mayor.</span></div>
+      </div>
+      <label class="casilla"><input type="checkbox" name="datos" id="d-datos" aria-describedby="d-e-datos"><span>Autorizo el tratamiento de mis datos para recibir novedades y ofertas por correo y WhatsApp, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+      <div id="d-e-datos" role="alert"></div>
+      <div class="acciones">
+        <button type="submit" class="boton">Sí, quiero suscribirme</button>
+        <button type="button" class="boton secundario" data-cerrar>Por el momento no</button>
+        <p class="letra-chica">Puede darse de baja cuando quiera, desde cualquier correo.</p>
+      </div>
+    </form>
+    <div class="listo" hidden></div>
+  </div>
+</dialog>
+
+<script>
+/* [PROTOTIPO] Los eventos van a dataLayer; en producción, a la analítica que se elija */
+const track = (evento, datos = {}) => (window.dataLayer = window.dataLayer || []).push({ event: evento, ...datos });
+const $ = id => document.getElementById(id);
+const menosMovimiento = matchMedia('(prefers-reduced-motion: reduce)');
+const CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/* ---------- Ruleta: seis premios. [EJEMPLO] Los pesos son las probabilidades y van publicadas en las condiciones ---------- */
+const PREMIOS = [
+  { l1: '5 %', l2: 'de descuento', texto: '5 % de descuento en su primera compra', codigo: 'RULETA5', peso: 30 },
+  { l1: 'Envío gratis', l2: 'desde $150.000', texto: 'Envío gratis en su primera compra desde $150.000', codigo: 'ENVIO150', peso: 15 },
+  { l1: '10 %', l2: 'de descuento', texto: '10 % de descuento en su primera compra', codigo: 'RULETA10', peso: 25 },
+  { l1: 'Empaque', l2: 'de regalo', texto: 'Empaque de regalo sin costo en su primer pedido', codigo: 'EMPAQUE', peso: 10 },
+  { l1: '15 %', l2: 'de descuento', texto: '15 % de descuento en su primera compra', codigo: 'RULETA15', peso: 5 },
+  { l1: 'Envío gratis', l2: 'desde $150.000', texto: 'Envío gratis en su primera compra desde $150.000', codigo: 'ENVIO150', peso: 15 },
+];
+(function dibujarRueda() {
+  const c = 160, r = 150, colores = ['#E8DCC6', '#FBFAF9', '#F4D9A0'];
+  const punto = a => [c + r * Math.cos(a), c + r * Math.sin(a)].map(n => n.toFixed(2)).join(' ');
+  let svg = `<circle cx="${c}" cy="${c}" r="${r + 6}" fill="#2A1E17"/>`;
+  PREMIOS.forEach((p, i) => {
+    const a0 = (-120 + i * 60) * Math.PI / 180, a1 = a0 + Math.PI / 3;   // el espacio 0 queda centrado arriba, bajo el puntero
+    svg += `<path d="M${c} ${c} L${punto(a0)} A${r} ${r} 0 0 1 ${punto(a1)} Z" fill="${colores[i % 3]}" stroke="#3B2A20" stroke-width="1.5"/>`;
+    svg += `<g transform="rotate(${i * 60} ${c} ${c})"><text x="${c}" y="62" text-anchor="middle" font-family="Jost, sans-serif" font-weight="500" font-size="15" fill="#312620">${p.l1}</text>`
+         + `<text x="${c}" y="79" text-anchor="middle" font-family="Jost, sans-serif" font-size="10.5" fill="#5B4632">${p.l2}</text></g>`;
+  });
+  for (let k = 0; k < 12; k++) { const a = (k * 30 - 90) * Math.PI / 180; svg += `<circle cx="${(c + (r + 3) * Math.cos(a)).toFixed(2)}" cy="${(c + (r + 3) * Math.sin(a)).toFixed(2)}" r="2.6" fill="#F4D9A0"/>`; }
+  svg += `<circle cx="${c}" cy="${c}" r="30" fill="#3B2A20" stroke="#F4D9A0" stroke-width="2"/><text x="${c}" y="${c + 10}" text-anchor="middle" font-family="Cormorant Garamond, Georgia, serif" font-weight="600" font-size="30" fill="#F4D9A0">H</text>`;
+  $('rueda').innerHTML = svg;
+})();
+function sortearPremio() {
+  // [PROTOTIPO] En producción lo decide el servidor, con las mismas probabilidades publicadas
+  const total = PREMIOS.reduce((s, p) => s + p.peso, 0);
+  let n = Math.random() * total;
+  return PREMIOS.findIndex(p => (n -= p.peso) < 0);
+}
+function girar(i) {
+  return new Promise(listo => {
+    const rueda = $('rueda'), ajuste = Math.random() * 36 - 18;   // dentro del espacio, nunca en el borde
+    const final = 360 * 6 + (360 - i * 60) % 360 + ajuste;
+    if (menosMovimiento.matches) { rueda.style.transform = `rotate(${final}deg)`; return listo(); }
+    rueda.classList.add('girando');
+    rueda.style.transform = `rotate(${final}deg)`;
+    const fin = () => { rueda.removeEventListener('transitionend', fin); clearTimeout(t); listo(); };
+    const t = setTimeout(fin, 5300);
+    rueda.addEventListener('transitionend', fin);
+  });
+}
+
+/* ---------- Abrir, cerrar y volver a empezar ---------- */
+function reiniciar(d) {
+  const f = d.querySelector('form'), listo = d.querySelector('.listo');
+  f.reset(); f.hidden = false; listo.hidden = true; listo.replaceChildren();
+  f.querySelectorAll('[role=alert]').forEach(e => e.replaceChildren());
+  f.querySelectorAll('[aria-invalid]').forEach(e => e.removeAttribute('aria-invalid'));
+  const b = f.querySelector('[type=submit]'); b.disabled = false; b.removeAttribute('aria-busy');
+  if (d.id === 'modal-b') { const r = $('rueda'); r.classList.remove('girando'); r.style.transform = 'rotate(0deg)'; $('b-estado').textContent = ''; }
+  d.dataset.suscrito = '';
+}
+document.querySelectorAll('[data-abrir]').forEach(b => b.addEventListener('click', () => {
+  const d = $(b.dataset.abrir); reiniciar(d); d.showModal(); track('modal_bienvenida_ver', { variante: d.dataset.variante });
+}));
+document.querySelectorAll('dialog.modal').forEach(d => {
+  d.addEventListener('click', e => { if (e.target === d) d.close('fuera'); if (e.target.closest('[data-cerrar]')) d.close('cerrar'); });
+  d.addEventListener('close', () => { if (!d.dataset.suscrito) track('modal_bienvenida_cerrar', { variante: d.dataset.variante, como: d.returnValue || 'esc' }); });
+});
+
+/* ---------- Validación: junto a cada campo; el foco va al primero que falte ---------- */
+function marcar(f, id, mensaje) {
+  const caja = $(id.replace(/^(.)-/, '$1-e-')), campo = $(id);
+  if (caja) { caja.replaceChildren(); if (mensaje) { const p = document.createElement('p'); p.className = 'error'; p.textContent = mensaje; caja.append(p); } }
+  if (campo && campo.type !== 'checkbox' && campo.type !== 'radio') campo.setAttribute('aria-invalid', mensaje ? 'true' : 'false');
+}
+function validar(f) {
+  const v = f.closest('dialog').dataset.variante.toLowerCase(), el = f.elements, fallas = [];
+  const correo = el.correo.value.trim();
+  if (el.nombre && f.hasAttribute('data-nombre-obligatorio')) fallas.push([`${v}-nombre`, el.nombre.value.trim().includes(' ') ? '' : 'Escriba su nombre y su apellido.']);
+  fallas.push([`${v}-correo`, !correo ? (f.dataset.msgCorreo || 'Escriba su correo para enviarle el código.') : !CORREO.test(correo) ? 'Revise el correo: le falta la @ o el dominio.' : '']);
+  if (el.celular) {
+    const cel = el.celular.value.replace(/\D/g, '').replace(/^57(?=3\d{9}$)/, ''), oblig = f.hasAttribute('data-celular-obligatorio');
+    fallas.push([`${v}-celular`, !cel && oblig ? 'Escriba su celular: diez dígitos que empiecen por 3.' : cel && !/^3\d{9}$/.test(cel) ? (oblig ? 'Escriba un celular de diez dígitos que empiece por 3. Ejemplo: 300 123 4567.' : 'Escriba un celular de diez dígitos que empiece por 3, o déjelo vacío.') : '']);
+  }
+  if (el.regalo) fallas.push([`${v}-regalo`, el.regalo.value ? '' : 'Elija uno de los tres regalos.']);
+  if (el.condiciones) fallas.push([`${v}-condiciones`, el.condiciones.checked ? '' : 'Para continuar, acepte las condiciones.']);
+  fallas.push([`${v}-datos`, el.datos.checked ? '' : (f.dataset.msgDatos || 'Para enviarle el código, autorice el tratamiento de sus datos.')]);
+  fallas.forEach(([id, m]) => marcar(f, id, m));
+  // El foco va al primer campo con error en el orden en que se ven
+  const campo = id => id.endsWith('-regalo') ? f.querySelector('[name=regalo]') : $(id);
+  const conError = fallas.filter(([, m]) => m).map(([id]) => campo(id))
+    .sort((a, b) => a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
+  if (conError.length) { conError[0].focus(); return false; }
+  return true;
+}
+document.addEventListener('change', e => {
+  const f = e.target.form; if (!f || !f.classList.contains('mform')) return;
+  const v = f.closest('dialog').dataset.variante.toLowerCase();
+  if (e.target.type === 'checkbox' && e.target.checked) marcar(f, e.target.id, '');
+  if (e.target.name === 'regalo') marcar(f, `${v}-regalo`, '');
+});
+
+/* ---------- Listo: el código en pantalla y en el correo ---------- */
+function mostrarListo(d, beneficio, codigo, correo) {
+  const f = d.querySelector('form'), listo = d.querySelector('.listo');
+  d.dataset.suscrito = '1';
+  listo.innerHTML = `<h3 tabindex="-1">Listo, ya está suscrito</h3><p class="beneficio"></p>
+    <p class="codigo"><span>Su código</span><strong></strong><button type="button" class="enlace-boton" data-copiar>Copiar el código</button></p>
+    <p class="envio">También se lo enviamos a <b></b>. Vale para su primera compra. <span class="pendiente">[PROTOTIPO: no se envía nada]</span></p>
+    <p class="sr" role="status"></p><button type="button" class="boton" data-cerrar>Seguir mirando</button>`;
+  listo.querySelector('.beneficio').textContent = beneficio;
+  listo.querySelector('strong').textContent = codigo;
+  listo.querySelector('.envio b').textContent = correo;
+  f.hidden = true; listo.hidden = false; listo.querySelector('h3').focus();
+  listo.querySelector('[data-copiar]').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(codigo); listo.querySelector('[role=status]').textContent = 'Código copiado.'; }
+    catch (e) { listo.querySelector('[role=status]').textContent = `Su código es ${codigo}.`; }
+  });
+}
+/* [PROTOTIPO] D: la frase del título se elige en su tarjeta para compararla dentro del modal */
+$('frase-d').addEventListener('change', e => { $('d-t').textContent = e.target.value; });
+
+/* D: sin código; la confirmación dice a qué correo le avisaremos */
+function mostrarAviso(d, correo) {
+  const f = d.querySelector('form'), listo = d.querySelector('.listo');
+  const cel = f.elements.celular.value.replace(/\D/g, '').slice(-10).replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+  d.dataset.suscrito = '1';
+  listo.innerHTML = `<h3 tabindex="-1">Listo, le avisaremos</h3><p class="beneficio">Le escribiremos a <b class="c"></b> y por WhatsApp al <b class="w"></b> cuando lleguen piezas nuevas o haya ofertas.</p>
+    <p class="envio" style="margin-top:var(--s2)"><span class="pendiente">[PROTOTIPO: no se envía nada]</span></p><button type="button" class="boton" data-cerrar>Seguir mirando</button>`;
+  listo.querySelector('.c').textContent = correo;
+  listo.querySelector('.w').textContent = cel;
+  f.hidden = true; listo.hidden = false; listo.querySelector('h3').focus();
+}
+document.querySelectorAll('form.mform').forEach(f => f.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validar(f)) return;
+  const d = f.closest('dialog'), correo = f.elements.correo.value.trim();
+  if (f.hasAttribute('data-sin-codigo')) {
+    // Con empresa, el suscriptor queda marcado como negocio [POR CONFIRMAR: si recibe también lo de por mayor]
+    track('suscripcion_bienvenida', { variante: 'D', beneficio: 'novedades', negocio: !!f.elements.empresa.value.trim() });
+    return mostrarAviso(d, correo);
+  }
+  if (f.hasAttribute('data-ruleta')) {
+    const b = f.querySelector('[type=submit]'); b.disabled = true; b.setAttribute('aria-busy', 'true'); b.textContent = 'Girando…';
+    f.inert = true; $('b-estado').textContent = 'La ruleta está girando.';
+    track('ruleta_girar');
+    const i = sortearPremio(); await girar(i); f.inert = false; b.textContent = 'Girar la ruleta';
+    track('suscripcion_bienvenida', { variante: 'B', beneficio: PREMIOS[i].codigo });
+    return mostrarListo(d, 'Le salió: ' + PREMIOS[i].texto + '.', PREMIOS[i].codigo, correo);
+  }
+  const elegido = f.querySelector('[name=regalo]:checked');
+  const fuente = elegido || f;
+  track('suscripcion_bienvenida', { variante: d.dataset.variante, beneficio: fuente.dataset.codigo });
+  mostrarListo(d, fuente.dataset.beneficio + '.', fuente.dataset.codigo, correo);
+}));
+</script>
+</body>
+</html>

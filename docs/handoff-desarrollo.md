@@ -11,7 +11,10 @@ Versión 1 · 15/11/2026 · De: diseño de producto · Para: Agente Arquitecto d
 | `prototipos/inicio.html` | Inicio |
 | `prototipos/categoria.html` | Categoría con filtros, orden, vista de estantería y de cuadrícula |
 | `prototipos/ficha-producto.html` | Ficha con variantes, oferta, carrito en hoja, reseñas, visor 3D |
-| `prototipos/pago.html` | Pago en tres pasos, regalo, estados de pago y confirmación |
+| `prototipos/pago.html` | Pago en dos pasos (datos y entrega, pago), regalo, estados de pago y confirmación |
+| `prototipos/modal-bienvenida.html` | Cuatro variantes del modal de bienvenida; la elegida es la D y ya está en el inicio: (A) suscripción con descuento, (B) ruleta con premios, (C) elegir el regalo y (D) suscribirse para enterarse de lo nuevo y los descuentos, con nombre, correo y celular obligatorios y empresa opcional (marca al suscriptor como negocio). Reglas de aparición y pendientes legales |
+| `prototipos/favoritos.html` | Mis favoritos: las piezas guardadas con el corazón y los avisos de llegada de las agotadas, con «Cancelar el aviso» |
+| `docs/shopify-modelo-de-contenido.md` | Cómo queda administrable en Shopify: dónde se edita cada cosa, metacampos, colecciones, metaobjetos, secciones del inicio, Historias como blog con cuatro plantillas, páginas, apps necesarias, límites del pago y rutina del equipo |
 | `prototipos/quiz-orientacion.html` | Cuestionario de orientación y solicitud de cotización por mayor |
 | `prototipos/cargas.html` | Demostración del sistema de cargas |
 | `prototipos/base.css`, `base.js` | Fuente compartida de inicio y categoría (va incrustada en esos dos HTML) |
@@ -26,15 +29,36 @@ Añadidas el 17/11/2026: `colecciones.html`, `coleccion.html`, `historias.html`,
 
 Añadidas el 17/11/2026 con las mismas plantillas: `porcelanas.html`, `flores-artificiales.html`, `mesa.html` con sus subcategorías (`mesa-vajillas.html`, `mesa-cristaleria.html`, `mesa-accesorios.html`), `centros-de-mesa.html`, `esculturas.html`, `decoracion.html` (con acceso a Lámparas), `coleccion-primer-hogar.html` y `coleccion-regalos.html`. Los filtros de cada categoría muestran solo los valores que tienen sus piezas. Los generadores están en `herramientas/`.
 
-Faltan por diseñar: las fichas de las demás piezas (usan la plantilla de `ficha-producto.html`), la ficha de una lámpara de un solo tono y los textos legales.
+Añadidas el 18/11/2026: una ficha por cada pieza del catálogo (`pieza-*.html`, 36) y por cada lámpara (`ficha-lampara.html`, `lampara-2.html` a `lampara-6.html`), todas desde la plantilla `ficha-producto.html`. Cada ficha trae su precio, su oferta con el descuento real, su estado agotado, su miga de pan, su origen y tres piezas de la misma categoría en «Piezas que combinan». Las lámparas de un solo tono ocultan el selector de tono. La pieza viaja de la repisa a su ficha y vuelve desde cualquier categoría o colección. También: `coleccion-protagonistas.html`, tres guías (`historia-pesebre.html`, `historia-anfora.html`, `historia-primer-jarron.html`), `cuenta.html` (ingreso con enlace al correo, pedidos, datos de envío, comunicaciones y cerrar sesión) y `404.html`. Las fichas tienen ahora el mismo menú y la misma navegación de escritorio que las demás páginas.
+
+**Diseño completo en prototipo.** Lo que falta ya no es diseño de pantallas: es contenido real, decisiones del negocio, construcción en la plataforma y pruebas con personas (secciones 2, 8 y 13).
+
+Añadido el 19/11/2026: **estados de la pieza desde un solo catálogo** (`herramientas/catalogo.py`). Oferta, «quedan pocas» y agotada salen de ahí y se ven igual en la tienda (`tienda.html`), las categorías, las colecciones, `descuentos.html`, las fichas, el inicio (estantería y galería de colecciones) y la búsqueda. Las fichas agotadas tienen aviso de llegada y piezas parecidas disponibles. Detalle en la sección 3b.
+
+Cambio del 19/11/2026: **la ficha ya no calcula el envío y el pago tiene dos pasos.** Junto al precio de la ficha dice «IVA incluido · El envío se suma al pagar, según su ciudad». **Hay un solo tipo de envío** («Envío a domicilio», de 2 a 5 días hábiles, $12.000 o gratis desde $300.000 [POR CONFIRMAR: operador, tarifa por ciudad y tiempo]). Como no hay nada que elegir, **ya no existe el paso «Envío» ni su «Cambiar»**: el pago es «Datos y entrega» → «Pago».
+- **Antes de la ciudad:** en «Su pedido», el envío dice «Según su ciudad» y el total se lee «Total sin envío, IVA incluido». Si el pedido ya tiene envío gratis, dice «Gratis» desde el inicio. La nota «Le faltan $X para el envío gratis» está bajo los totales.
+- **Al cerrar el paso 1:** el resumen del paso suma una línea «Envío a domicilio a [ciudad] · [costo] · De 2 a 5 días hábiles», el envío entra en el total y el botón dice «Pagar $X». El único «Cambiar» es el del paso 1, porque cambiar la ciudad o la dirección es lo único que cambia el envío.
+- **El aviso del embalaje para piezas frágiles** pasó al comienzo del paso «Pago».
+- **Con sesión iniciada:** los datos y la dirección guardados en la cuenta llenan el paso 1, que queda resumido como «Con su cuenta · …» con su línea de envío, y el pago abre directo en «Pago». El paso 1 dice «Usamos los datos y la dirección guardados en su cuenta. Puede cambiarlos solo para este pedido.» Con sesión no se ofrece crear cuenta al final. Mi cuenta muestra esos datos en «Mis datos de envío». [PROTOTIPO] La sesión de ejemplo (botón de Mi cuenta) guarda datos ficticios en el navegador (`hqh-sesion`); en producción vienen de la cuenta de la plataforma.
+- **Términos y privacidad, en casillas separadas** (las dos sin marcar): «Acepto los términos y condiciones de compra» y «Autorizo el tratamiento de mis datos personales según la política de privacidad». Cada una tiene su propio error («Para pagar, acepte los términos y condiciones de compra.» / «Para pagar, autorice el tratamiento de sus datos personales.») y el resumen de errores nombra solo las que faltan. [POR CONFIRMAR: textos legales]
+- **En Shopify:** con una sola tarifa de envío, el checkout la muestra como una línea, sin opciones. Hasta donde revisamos, el checkout estándar no trae dos casillas legales separadas. Hay tres opciones: una extensión de checkout (solo Plus), ponerlas en el carrito antes de pagar, o usar los enlaces legales que el checkout ya muestra. [POR CONFIRMAR al elegir plataforma]
+
+Añadido el 23/11/2026: **modal de bienvenida en el inicio (variante D).** Título «Nuevas piezas y nuevas ofertas» y la línea «Suscríbase y entérese de todo. Le avisamos sobre ofertas exclusivas y nuestros nuevos productos». Hay ofertas generales y ofertas solo para suscriptores.
+- **Campos:** nombre y apellido, correo y celular, obligatorios; empresa, opcional. Si se escribe la empresa, el suscriptor queda marcado como negocio y recibe también lo de por mayor.
+- **Consentimiento:** una casilla sin marcar para novedades y ofertas por correo y WhatsApp, con enlace a la política de privacidad.
+- **Botones:** «Sí, quiero suscribirme» y «Por el momento no», del mismo tamaño y con borde. La mayoría de las clientas no identifica un enlace pequeño.
+- **Letra:** los textos de ayuda y la letra chica no bajan de 15 px.
+- **Cuándo aparece:** una vez, desde la segunda página de la visita, a los 20 segundos o al bajar la mitad de la página, lo que pase primero; en computador, también al ir a salir de la pestaña. No interrumpe a quien está escribiendo en un campo.
+- **Cuándo no aparece:** no vuelve en 14 días si se cierra, ni nunca si ya se suscribió; tampoco en carrito, pago, Mi cuenta ni ayuda. [POR CONFIRMAR con prueba A/B: los 20 segundos y los 14 días]
+- **Prototipo:** guarda `hqh-bienvenida` (cerrado o suscrito) y cuenta las páginas de la visita en `hqh-paginas`; el botón «[PROTOTIPO] Ver el modal de bienvenida» lo abre sin esperar. En producción, la suscripción y el consentimiento los guarda la plataforma, por ejemplo Shopify Forms o el formulario de clientes con consentimiento de marketing. [POR CONFIRMAR al elegir plataforma]
 
 ## 2. Decisiones del negocio que bloquean
 
 | Decisión | Afecta a |
 |---|---|
-| Plataforma: Shopify o Next.js | URLs, pago, filtros, estantería en React (sección 9) |
-| Pasarela y medios de pago; contraentrega | Paso 3 del pago |
-| Operador logístico, tarifas y tiempos | Calculadora de envío, paso 2, confirmación |
+| Plataforma: Shopify (23/11/2026); falta el plan, estándar o Plus | Pago, apps y estantería (secciones 9 y `docs/shopify-modelo-de-contenido.md`) |
+| Pasarela y medios de pago; contraentrega | Paso 2 del pago |
+| Operador logístico, tarifas y tiempos | Línea de envío del pago (resumen del paso 1 y «Su pedido»), confirmación |
 | Política de roturas, cambios, garantía y retracto | Ficha, pago, páginas de ayuda |
 | Monto del envío gratis y cobertura | Barra del carrito |
 | Si se ofrece empaque de regalo y su valor | Ficha y pago |
@@ -48,10 +72,12 @@ Faltan por diseñar: las fichas de las demás piezas (usan la plantilla de `fich
 
 | Componente | Propósito | Variantes y estados | Accesibilidad |
 |---|---|---|---|
-| Cabecera | Marca, menú, buscar, carrito | Móvil con botón de menú; escritorio con cinco enlaces; contador del carrito | Enlace «Saltar al contenido»; el carrito dice «Carrito, 2 piezas» |
-| Menú | Navegar y buscar | Panel lateral; categoría actual marcada | `dialog` modal: el foco entra, queda dentro, Esc cierra y vuelve al botón |
+| Cabecera | Marca, Lo nuevo y Descuentos, cuenta, favoritos, carrito | Escritorio: Tienda, Lo nuevo (con punto), Descuentos (píldora borgoña), Colecciones, Historias y Por mayor, y a la derecha Buscar, Cuenta («Ingresar» o «Hola, [nombre]»), Favoritos y Carrito con texto bajo el ícono; de 960 a 1199 px, Historias pasa al menú y los íconos van sin texto. Celular: Menú, marca en dos líneas, Cuenta, Favoritos y Carrito con texto, y debajo una fila de atajos (Buscar, Lo nuevo, Descuentos, Toda la tienda, Colecciones) | Enlace «Saltar al contenido»; contadores leídos como «Carrito, 2 piezas» y «Favoritos, 3 guardadas»; íconos de 44 px o más |
+| Menú | Navegar y buscar | Panel lateral; arriba, Lo nuevo y Descuentos como dos tarjetas; Toda la tienda primero; sección «Su cuenta» con favoritos y avisos | `dialog` modal: el foco entra, queda dentro, Esc cierra y vuelve al botón; «Buscar» abre el menú con el foco en el buscador |
+| Favoritos | Guardar piezas y ver las agotadas con aviso | Corazón sobre la foto de cada tarjeta (tienda, categorías, colecciones, inicio); en la ficha, botón grande con texto «Guardar en favoritos» / «Guardada en favoritos»; página `favoritos.html` con «Piezas guardadas» y «Avisos de llegada», con «Cancelar el aviso» | Botón con `aria-pressed`; cada cambio se anuncia («… quedó guardada en sus favoritos») |
+| Pie | Boletín y enlaces | Franja del boletín (mismos campos y reglas del modal D) y cuatro columnas: Tienda, Ayuda, Su cuenta y La marca (con Términos, Datos y Cookies); datos del vendedor y la SIC | Errores junto al campo; quien ya se suscribió ve el agradecimiento en lugar del formulario |
 | Botón | Acción | Principal (uno por pantalla), secundario, claro sobre fondo oscuro, enlace; ocupado, deshabilitado | Mínimo 48 px de alto; ocupado con `aria-busy` y texto «Aplicando…» |
-| Tarjeta de pieza | Llevar a la ficha | Cuadrícula o estantería; normal, oferta, «Exclusivo», agotada, cargando | Un solo enlace por tarjeta; oferta leída como «Ahora… Antes…»; «Agotado» en texto |
+| Tarjeta de pieza | Llevar a la ficha | Cuadrícula o estantería; normal, oferta, «Exclusivo», agotada, cargando · La línea bajo el nombre dice «material · marca»; sin marca queda solo el material. El país no va en la tarjeta | Un solo enlace por tarjeta; oferta leída como «Ahora… Antes…»; «Agotado» en texto |
 | Sello «Exclusivo» | Destacar piezas | Sobre la foto; en la ficha con «¿Qué significa?» | Nunca sugiere escasez; no va en títulos, metadatos ni schema |
 | Precio | Mostrar el valor | Normal; oferta con anterior tachado, sello y vigencia | Formato `$189.900`, «IVA incluido»; cambio por variante anunciado en `aria-live` |
 | Galería | Ver la pieza | Cuatro tomas: fondo limpio, ambiente, detalle, escala; ampliar | Botones anterior y siguiente, flechas del teclado, «Foto 2 de 4» |
@@ -59,7 +85,7 @@ Faltan por diseñar: las fichas de las demás piezas (usan la plantilla de `fich
 | Cantidad | Elegir unidades | 1 a 20 | Botones «Quitar una unidad» y «Agregar una unidad»; campo numérico |
 | Barra de compra | Comprar sin subir | Aparece cuando el botón principal no está a la vista | Fija, no desplaza el contenido; el foco no queda tapado |
 | Hoja del carrito | Confirmar y seguir | Vacía, con piezas, con envío gratis logrado; dos recomendadas | `dialog` modal; barra de envío con `progress` y texto; cambios anunciados |
-| Reseñas | Confianza | Resumen de tres bajo el botón; lista completa; vacío | Estrellas como «4 de 5 estrellas»; sin reseñas reales el bloque no se muestra |
+| Reseñas | Confianza | Resumen de tres bajo el botón; lista completa; vacío. En el inicio (sección 4) solo las de 3 estrellas o más; en la ficha, todas | Estrellas como «4 de 5 estrellas»; sin reseñas reales el bloque no se muestra |
 | Ficha técnica | Datos de la pieza | Lista de definiciones | Medidas, peso, material, acabado, cuidados, contenido, origen, garantía |
 | Hecho · Diseño · Historia | Relato en tres niveles | Con o sin hecho; tipo de relato: origen, costumbres, por comenzar | `details` nativo; el contenido está en el HTML; el hecho lleva fuente |
 | Acordeón | Secciones y preguntas | Abierto, cerrado | `details` y `summary`; anuncia su estado |
@@ -74,6 +100,28 @@ Faltan por diseñar: las fichas de las demás piezas (usan la plantilla de `fich
 | Cuestionario | Orientar la compra | Portada, pregunta, datos mayoristas, resultado | Una pregunta por pantalla; progreso real; foco al título de cada paso |
 | WhatsApp flotante | Ayuda consistente | Mismo lugar en todas las páginas | 56 px; por encima de las barras inferiores |
 | Esqueleto y marcador de imagen | Esperas de 1 a 3 s | Tarjeta, ficha, carrito, búsqueda | `aria-busy` y anuncio; fijo con movimiento reducido |
+
+## 3b. Estados de la pieza: oferta, quedan pocas y agotada
+
+**Una sola fuente.** Cada pieza tiene en el catálogo su precio anterior (si está en oferta) y sus unidades. En la plataforma, esto lo dan el precio de comparación y el inventario de cada variante; ninguna página escribe su propio estado.
+
+| Estado | Regla | Tarjeta (tienda, categorías, colecciones, descuentos, inicio, galería, búsqueda) | Ficha |
+|---|---|---|---|
+| Oferta | Solo con una rebaja real, precio anterior verificable y fechas [POR CONFIRMAR: regla del precio anterior, por ejemplo el de los últimos 30 días] | Etiqueta borgoña «Oferta» sobre la foto; junto al precio, el anterior tachado y «−N %», leído como «Ahora… Antes… Descuento del N %». El porcentaje no se repite arriba | Precio, anterior tachado, «−N %», «Ahorra $X» y vigencia de la oferta |
+| Quedan pocas | Solo con el conteo real; se muestra con [POR CONFIRMAR: 3] unidades o menos. Nunca se inventa ni lleva cuenta regresiva | Etiqueta «Quedan pocas» sobre la foto y, abajo, el número: «Quedan N unidades» | Estado «Quedan N unidades» y la cantidad no pasa de N; si se intenta, «Solo quedan N unidades». En el inicio, «Agregar al carrito» no suma más de las que hay |
+| Agotada | Unidades en 0. Una pieza agotada no se anuncia como oferta ni sale en Descuentos | Etiqueta «Agotada» sobre la foto, foto atenuada y, abajo, la acción: «**Suscríbase** para que le avisemos cuando llegue». En la estantería del inicio y en la galería, el botón «Avisarme cuando llegue» reemplaza esa línea y abre la ficha en el aviso | Estado «Agotada por ahora», sin cantidad ni «Agregar»; bloque «Avísenme cuando llegue» y «Parecidas y disponibles» (tres piezas de la misma categoría y precio cercano) |
+
+**Aviso de llegada (ficha agotada):**
+- **Sin sesión:** correo y la casilla de autorización de datos, que empieza sin marcar. Errores junto al campo: «Revise el correo: le falta la @ o el dominio.» y «Para avisarle, marque la autorización de datos.»
+- **Con sesión:** «Le avisamos a [correo de la cuenta] apenas vuelva.» y un solo botón, «Avisarme cuando llegue». Debajo, «Usar otro correo desde Mi cuenta».
+- **Después:** «Listo. Le avisaremos a [correo] cuando la pieza vuelva.», con «Cancelar el aviso». El aviso aparece en Mi cuenta, en «Avisos de llegada».
+- **Promesa:** se escribe una sola vez, cuando hay existencias, y el aviso no suscribe a otros correos. La plataforma guarda el aviso y lo envía.
+- **Barra de compra fija:** en una pieza agotada dice «Avisarme cuando llegue» y lleva al aviso.
+- **Prototipo:** se guarda en el navegador (`hqh-avisos`, y la sesión de ejemplo en `hqh-sesion`). La ficha trae controles para ver cada estado y la sesión iniciada.
+
+**Regla de las tarjetas:** arriba va la etiqueta y abajo el dato o la acción, sin repetir. **Accesibilidad:** cada estado tiene texto, no solo color; las etiquetas «Oferta» y «Quedan pocas» no se leen dos veces (el lector oye el descuento y las unidades junto al precio); el foco va al campo o a la confirmación; los errores usan `role="alert"` y la confirmación `role="status"`.
+
+**Evento nuevo:** `aviso_llegada` (con `sesion: true` o `false`).
 
 ## 4. Presupuesto de rendimiento
 
@@ -100,6 +148,8 @@ Peso objetivo de la ficha, sin el 3D: [POR CONFIRMAR con desarrollo]. Propuesta:
 5. **Encontrar y filtrar:** categoría → filtrar por material y precio → sin resultados → borrar filtros → ficha.
 6. **Pago rechazado:** intentar pagar → rechazo → cambiar de medio sin volver a escribir datos.
 7. **Solo teclado y lector de pantalla:** repetir el recorrido 1 completo.
+8. **Pieza agotada:** desde la tienda o la galería del inicio → «Avisarme cuando llegue» → la ficha abre en el aviso → sin sesión, correo y autorización; con sesión, un toque → confirmación → verlo en Mi cuenta → cancelar.
+9. **Quedan pocas y oferta:** una pieza con oferta y 2 unidades → la tarjeta y la ficha muestran los dos estados → intentar llevar 3 → el tope y el mensaje «Solo quedan 2 unidades».
 
 ## 6. Visibilidad: SEO, respuestas e IA
 
@@ -122,8 +172,12 @@ Los prototipos ya los envían a `dataLayer`.
 | `abrir_historia` | Al abrir «Hecho, diseño e historia» |
 | `ver_3d` | Al cargar el visor |
 | `agregar_al_carrito`, `agregar_recomendada` | Al agregar desde la ficha o desde la hoja |
+| `aviso_llegada` | Al pedir el aviso de una pieza agotada (`sesion: true` o `false`) |
+| `favorito_agregar`, `favorito_quitar` | Al tocar el corazón de una pieza (con `pieza`) |
+| `suscripcion_boletin` | Al suscribirse desde el pie (`lugar: 'pie'`, `negocio: true` si escribió la empresa) |
+| `modal_bienvenida_ver`, `modal_bienvenida_cerrar`, `suscripcion_bienvenida`, `ruleta_girar` | En el modal de bienvenida (con `variante` y `beneficio`; al cerrar, `como`: X, «Ahora no», Esc o fuera) |
 | `filtrar`, `cambiar_vista` | En la categoría |
-| `iniciar_pago`, `elegir_envio`, `agregar_pago`, `compra` | En el pago |
+| `iniciar_pago`, `confirmar_envio`, `agregar_pago`, `compra` | En el pago. `iniciar_pago` y `confirmar_envio` salen juntos al cerrar el paso 1: con un solo tipo de envío, el envío queda definido con la dirección |
 | `quiz_inicio`, `quiz_paso`, `quiz_resultado`, `quiz_whatsapp` | En el cuestionario |
 | `cotizacion_mayorista_lista` | Al terminar la solicitud por mayor |
 | Por añadir | `busqueda_interna`, `busqueda_sin_resultados`, `guardar_pinterest`, `reportar_pieza_rota` |
@@ -196,7 +250,7 @@ Probado con medición de contraste, revisión del código y recorridos automatiz
 | 3.2.6 Ayuda consistente | A | Todas | Revisado | WhatsApp en el mismo lugar |
 | 4.1.3 Mensajes de estado | AA | Carrito, filtros, precio | Revisado en código | Falta oírlos con lector de pantalla |
 
-Pendiente conocido: el botón de WhatsApp puede quedar sobre el borde de un campo al desplazarse en el pago.
+Resuelto el 23/11/2026: en el pago, WhatsApp va como enlace «Ayuda» en la cabecera; ya no hay un botón flotante sobre los campos.
 
 ## 11. Revisión heurística
 
@@ -219,7 +273,7 @@ Pendiente conocido: el botón de WhatsApp puede quedar sobre el borde de un camp
 
 | Regla | Estado |
 |---|---|
-| 1. Origen honesto | ✅ «Hecho en China» en ficha técnica y tarjetas |
+| 1. Origen honesto | ✅ El país de origen va solo en la ficha técnica de cada pieza; los textos generales remiten a ella sin nombrar países |
 | 2. Nada inventado | ✅ Todo dato de ejemplo va marcado; sin reseñas ni cifras falsas |
 | 3. La historia acompaña la compra | ✅ Compra arriba; historia en sección propia |
 | 4. Tres niveles | ✅ Rótulo y tipografía distintos; el hecho exige fuente |

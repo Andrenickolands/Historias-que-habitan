@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBFAF9">
+<title>Descuentos · Historias que Habitan</title>
+<meta name="description" content="Piezas de decoración con descuento, con el precio anterior a la vista. Envíos a todo Colombia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
+<style>
+/* Historias que Habitan · estilos compartidos de inicio y categoría. Tokens del manual de marca (07 a 09). */
+:root{
+  --tinta:#312620; --cafe-humo:#705C51; --piedra:#BBB2A8; --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6; --suave:#F3F0ED;
+  --borgona:#722F37; --mocha:#5B4632; --espresso:#3B2A20; --champagne:#F4D9A0;
+  --error:#8E2B33; --error-fondo:#F5E3E4; --info:#3E5A73; --info-fondo:#E4EAF0;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+  --dur:200ms; --curva:cubic-bezier(.2,.7,.2,1);
+  --titulo:"Cormorant Garamond",Georgia,serif;
+  --texto:"Jost",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@view-transition{navigation:auto}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:80px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--hueso);color:var(--tinta);font:400 1rem/1.5 var(--texto);touch-action:manipulation;-webkit-tap-highlight-color:rgba(49,38,32,.12);caret-color:var(--tinta)}
+::selection{background:var(--oatmeal);color:var(--tinta)}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--tinta);outline-offset:3px}
+h1,h2,h3{font-family:var(--titulo);font-weight:600;margin:0;text-wrap:balance}
+p{margin:0}
+.icono{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.oculto-visual{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.salto{position:absolute;left:var(--s4);top:-100px;background:var(--tinta);color:var(--hueso);padding:var(--s3) var(--s4);z-index:40}
+.salto:focus{top:var(--s2)}
+.ancho{max-width:1200px;margin:0 auto;padding:0 var(--s4)}
+.pendiente{display:inline-block;font:400 .8125rem/1.4 var(--texto);font-style:normal;color:var(--info);background:var(--info-fondo);padding:2px var(--s2);border-radius:2px}
+.proto{background:var(--info-fondo);color:var(--info);font-size:.875rem;padding:var(--s2) var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:center}
+.proto label{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px}
+.proto select{font:inherit;min-height:36px;color:var(--tinta);background:#fff;border:1px solid var(--info);border-radius:2px;padding:0 var(--s2)}
+
+/* Cabecera */
+.cabecera{position:sticky;top:0;z-index:20;background:var(--hueso);border-bottom:1px solid var(--perla)}
+.cabecera .ancho{display:flex;align-items:center;gap:var(--s1);min-height:64px}
+.marca{font:500 .75rem/1.2 var(--texto);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;margin-right:auto;min-height:44px;display:inline-flex;align-items:center;padding:0 var(--s2)}
+.boton-icono{position:relative;display:inline-grid;place-content:center;width:44px;height:44px;background:none;border:0;color:inherit;border-radius:2px;cursor:pointer}
+.boton-icono:hover{background:var(--suave)}
+.nav-escritorio{display:none}
+
+/* Botones y enlaces */
+.boton{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 var(--s5);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;text-decoration:none;text-align:center;border-radius:2px;border:1px solid var(--tinta);cursor:pointer;background:var(--tinta);color:var(--hueso);transition:background-color var(--dur) var(--curva)}
+.boton:hover{background:#1F1814}
+.boton.secundario{background:transparent;color:var(--tinta)}
+.boton.secundario:hover{background:var(--oatmeal)}
+.boton.claro{background:transparent;color:var(--hueso);border-color:var(--hueso)}
+.boton.claro:hover{background:rgba(251,250,249,.14)}
+.enlace{display:inline-flex;align-items:center;min-height:44px;background:none;border:0;padding:0;font:inherit;color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;cursor:pointer}
+.foto{background:var(--perla);display:grid;place-content:center;text-align:center;font-size:.75rem;padding:var(--s2);color:var(--tinta)}
+
+/* Paneles: menú lateral y hoja de filtros */
+dialog.panel{border:0;padding:0;background:var(--hueso);color:var(--tinta);overscroll-behavior:contain;flex-direction:column}
+dialog.panel[open]{display:flex}
+dialog.panel::backdrop{background:rgba(49,38,32,.45)}
+.panel-cab{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s2) var(--s2) var(--s2) var(--s4);border-bottom:1px solid var(--perla)}
+.panel-cab h2{font-size:1.5rem;line-height:1.25}
+.panel-cab h2:focus{outline:none}
+.panel-cuerpo{flex:1;min-height:0;overflow-y:auto;padding:var(--s4)}
+.panel-pie{display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4) calc(var(--s3) + env(safe-area-inset-bottom));border-top:1px solid var(--perla)}
+.panel-pie .boton{flex:1}
+#menu{margin:0;width:min(88vw,380px);max-width:none;height:100dvh;max-height:100dvh}
+#menu[open]{animation:de-lado 300ms var(--curva)}
+@keyframes de-lado{from{transform:translateX(-100%)}}
+@keyframes subir{from{transform:translateY(100%)}}
+.buscar{display:flex;gap:var(--s2);margin-bottom:var(--s5)}
+.buscar input{flex:1;min-width:0;min-height:48px;padding:0 var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.menu-lista{list-style:none;margin:0 0 var(--s5);padding:0}
+.menu-lista a{display:flex;align-items:center;min-height:48px;text-decoration:none;border-bottom:1px solid var(--perla)}
+.menu-lista a:hover{background:var(--suave)}
+.menu-lista a[aria-current]{font-weight:500}
+.menu-titulo{font:500 .75rem/1.33 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--cafe-humo);margin:0 0 var(--s1)}
+.menu-lista.grande a{font:600 1.375rem/1.2 var(--titulo)}
+
+/* Tarjeta de producto */
+.rejilla{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5) var(--s3);list-style:none;margin:0;padding:0}
+.tarjeta a{display:block;text-decoration:none}
+.tarjeta .foto{position:relative;aspect-ratio:4/5;margin-bottom:var(--s2)}
+.tarjeta h3{font-size:1.25rem;line-height:1.2}
+.tarjeta a:hover h3{text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+.tarjeta .meta{font-size:.875rem;color:var(--cafe-humo);margin-top:2px}
+.tarjeta .precio{margin-top:var(--s1);font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px var(--s2)}
+.tarjeta .precio strong{font-weight:500}
+.tarjeta .precio s{font-size:.875rem;color:var(--cafe-humo)}
+.oferta{font-size:.8125rem;font-weight:500;color:var(--hueso);background:var(--borgona);padding:3px 8px;border-radius:2px}
+.sello{position:absolute;left:var(--s2);top:var(--s2);font:500 .6875rem/1.4 var(--texto);letter-spacing:.12em;text-transform:uppercase;background:var(--hueso);border:1px solid var(--tinta);padding:2px 6px;border-radius:2px}
+/* Estados de la pieza (catálogo único): oferta, quedan pocas, agotada. Mismos textos y colores en todo el sitio */
+.chips{position:absolute;right:var(--s2);top:var(--s2);z-index:2;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.chip-estado{font:500 .75rem/1.3 var(--texto);padding:3px 8px;border-radius:2px;white-space:nowrap}
+.chip-oferta{background:var(--borgona);color:var(--hueso)}
+.chip-pocas{background:#F6E7C6;color:#5B4632;border:1px solid #C9A46A}
+.chip-agotada{background:#E6E3DF;color:#5F5953;border:1px solid #BBB2A8}
+.agotado-txt{font-size:.875rem;color:var(--error);margin-top:2px}
+.agotado-txt b{font-weight:600}
+.pocas-txt{font-size:.875rem;color:#7A5A1E;margin-top:2px}
+.tarjeta.agotada .arte,.tarjeta.agotada .recorte{opacity:.5;filter:grayscale(.6)}
+.tarjeta.agotada .precio strong{color:var(--cafe-humo);font-weight:400}
+.estanteria .chips{top:0;right:0}
+
+/* Estantería: las piezas se apoyan en una repisa flotante. Cada tarjeta dibuja su tramo y los tramos se unen por fila,
+   así funciona con cualquier número de columnas y con los filtros. Necesita fotos recortadas, sin fondo. */
+.rejilla{--hueco:var(--s3)}
+.recorte{display:contents}
+.tarjeta .foto:has(.arte){display:flex;align-items:flex-end;justify-content:center;padding:var(--s3) var(--s3) 0}
+.arte{display:block;height:100%;width:auto;max-width:100%}
+.estanteria{row-gap:var(--s6)}
+.estanteria .tarjeta{text-align:center}
+.estanteria .tarjeta .foto{background:none;display:flex;align-items:flex-end;justify-content:center;padding:0 var(--s2);margin-bottom:0}
+.estanteria .tarjeta .foto::after{content:"";position:absolute;left:calc(var(--hueco) / -2 - 1px);right:calc(var(--hueco) / -2 - 1px);top:100%;height:16px;background:linear-gradient(to bottom,#E2DDD6 0,#FBFAF9 8px,#fff 8px,#E7E2DB 16px);box-shadow:0 1px 0 rgba(49,38,32,.06),0 20px 22px -14px rgba(49,38,32,.36)}
+.estanteria .arte{position:relative;z-index:1;translate:0 7px;transition:translate var(--dur) var(--curva)}
+.estanteria .tarjeta a:hover .arte{translate:0 3px}
+.estanteria .recorte{display:grid;place-content:center;width:64%;height:74%;padding:var(--s1);font-size:.6875rem;line-height:1.3;background:var(--suave);border:1px dashed var(--cafe-humo)}
+.estanteria .tarjeta h3{margin-top:calc(16px + var(--s4))}
+.estanteria .tarjeta .precio{justify-content:center}
+.estanteria .sello{top:0;left:0}
+/* La pieza viaja de la repisa a la ficha y vuelve */
+::view-transition-group(pieza){animation-duration:550ms;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
+::view-transition-old(pieza),::view-transition-new(pieza){width:100%;height:100%;object-fit:contain}
+@media (min-width:640px){.rejilla{--hueco:var(--s4)}.estanteria .tarjeta .foto{aspect-ratio:1}}
+
+.contador{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--tinta);color:var(--hueso);font:500 .6875rem/18px var(--texto);text-align:center;font-variant-numeric:tabular-nums}
+.cookies{position:fixed;left:var(--s4);right:88px;bottom:calc(var(--s4) + env(safe-area-inset-bottom));z-index:25;max-width:460px;background:var(--hueso);border:1px solid var(--tinta);border-radius:6px;padding:var(--s4);font-size:.9375rem;box-shadow:0 12px 28px -14px rgba(49,38,32,.45)}
+.cookies p{margin-bottom:var(--s3)}
+.cookies div{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.cookies .boton{flex:1;min-height:44px;padding:0 var(--s3);white-space:nowrap}
+
+/* Pie */
+.pie{margin-top:var(--s8);border-top:1px solid var(--perla);padding:var(--s6) 0 calc(var(--s8) + var(--s6));font-size:.875rem;color:var(--cafe-humo)}
+.pie ul{list-style:none;display:flex;flex-wrap:wrap;gap:var(--s1) var(--s5);padding:0;margin:0 0 var(--s4)}
+.pie a{display:inline-flex;align-items:center;min-height:44px;color:var(--tinta)}
+.pie p{margin:0 0 var(--s2)}
+.wa-flotante{position:fixed;right:var(--s4);bottom:calc(var(--s4) + env(safe-area-inset-bottom));z-index:14;width:56px;height:56px;border-radius:50%;background:var(--tinta);color:var(--hueso);display:grid;place-content:center;box-shadow:0 4px 16px rgba(49,38,32,.28)}
+.wa-flotante:hover{background:#1F1814}
+.wa-flotante svg{width:28px;height:28px}
+
+@media (prefers-reduced-motion:reduce){
+  @view-transition{navigation:none}
+  *{transition-duration:0ms!important;animation:none!important;scroll-behavior:auto!important}
+}
+@media (min-width:640px){
+  .rejilla{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s6) var(--s4)}
+}
+@media (min-width:960px){
+  .ancho{padding:0 var(--s6)}
+  .cabecera .ancho{min-height:72px}
+  .nav-escritorio{display:flex;gap:var(--s5);margin-right:var(--s5)}
+  .nav-escritorio a,.nav-escritorio button{font:inherit;background:none;border:0;padding:0;color:inherit;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+  .nav-escritorio a:hover,.nav-escritorio button:hover{text-decoration:underline;text-underline-offset:3px}
+  .solo-movil{display:none}
+  .rejilla{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .wa-flotante{right:var(--s5);bottom:var(--s5)}
+}
+
+/* ===== Sitio: cabecera, atajos, menú, favoritos y pie con boletín (herramientas/sitio.py) ===== */
+[hidden]{display:none!important}
+/* El menú cerrado no se ve nunca, aunque la página use otra clase .panel (la galería del inicio la usa) */
+dialog.panel:not([open]){display:none!important}
+#menu:modal{position:fixed;flex:none}
+.cabecera .ancho{display:flex;align-items:center;gap:0;min-height:64px}
+.marca{margin-right:auto;max-width:10em;line-height:1.3;padding:0 var(--s2)}
+.utiles{display:flex;align-items:center}
+.util{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:52px;min-height:56px;padding:4px 2px;background:none;border:0;border-radius:4px;color:var(--tinta);font:500 .75rem/1.15 var(--texto);text-decoration:none;cursor:pointer}
+.util:hover{background:var(--suave)}
+.util .icono{width:24px;height:24px}
+.util .contador{top:2px;right:calc(50% - 24px)}
+.util.con-sesion .icono{color:var(--borgona)}
+.u-largo{display:none}
+.solo-escritorio{display:none!important}
+.icono.chico{width:18px;height:18px}
+/* Atajos de celular y tableta: Buscar, Lo nuevo y Descuentos siempre a la vista, con texto */
+.atajos{background:var(--hueso);border-bottom:1px solid var(--perla)}
+.atajos .ancho{display:flex;gap:var(--s2);overflow-x:auto;padding-top:var(--s2);padding-bottom:var(--s2);scrollbar-width:none;overscroll-behavior-x:contain}
+.atajos .ancho::-webkit-scrollbar{display:none}
+.atajo{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 var(--s4);border:1px solid var(--perla);border-radius:999px;background:#fff;color:var(--tinta);font:500 .9375rem/1 var(--texto);text-decoration:none;white-space:nowrap;cursor:pointer}
+.atajo:hover{background:var(--suave)}
+.atajo[aria-current]{border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.atajo-nuevo::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#B7872F}
+.atajo-desc{background:#F6E9EA;color:var(--borgona);border-color:#E3C3C7}
+.atajo-desc:hover{background:#F0DCDE}
+/* Menú: Lo nuevo y Descuentos como dos tarjetas arriba */
+.menu-destacados{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin:0 0 var(--s5)}
+.menu-dest{display:flex;flex-direction:column;gap:4px;min-height:92px;padding:var(--s3);border-radius:6px;background:var(--suave);color:var(--tinta);text-decoration:none}
+.menu-dest b{font:600 1.375rem/1.15 var(--titulo)}
+.menu-dest span{font-size:.875rem;line-height:1.35;color:var(--cafe-humo)}
+.menu-dest.nuevo b::after{content:"";display:inline-block;width:8px;height:8px;margin-left:6px;border-radius:50%;background:#B7872F;vertical-align:middle}
+.menu-dest.desc{background:#F6E9EA}
+.menu-dest.desc b{color:var(--borgona)}
+.menu-lista a.sub{padding-left:var(--s4);font:400 1rem/1.5 var(--texto)}
+/* Favoritos: el corazón sobre la foto de cada pieza */
+.tarjeta{position:relative}
+.fav{position:absolute;top:var(--s2);right:var(--s2);z-index:3;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:rgba(251,250,249,.94);color:var(--tinta);box-shadow:0 1px 4px rgba(49,38,32,.14);cursor:pointer}
+.fav:hover{background:#fff}
+.fav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fav[aria-pressed=true]{color:var(--borgona)}
+.fav[aria-pressed=true] svg{fill:currentColor}
+.tarjeta:has(.fav) .chips{top:60px}
+/* En la ficha: botón con texto, grande y con borde */
+.fav-ficha{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);width:100%;min-height:52px;margin-top:var(--s3);padding:0 var(--s5);border:2px solid var(--tinta);border-radius:2px;background:transparent;color:var(--tinta);font:500 1rem/1.2 var(--texto);cursor:pointer}
+.fav-ficha:hover{background:var(--suave)}
+.fav-ficha svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fav-ficha[aria-pressed=true]{border-color:var(--borgona);color:var(--borgona)}
+.fav-ficha[aria-pressed=true] svg{fill:currentColor}
+@media (prefers-reduced-motion:no-preference){
+  .fav[aria-pressed=true] svg,.fav-ficha[aria-pressed=true] svg{animation:latido 320ms var(--curva)}
+  @keyframes latido{50%{transform:scale(1.2)}}
+}
+/* Pie con el boletín */
+.pie{display:block;margin-top:var(--s8);border-top:0;padding:0 0 calc(var(--s8) + var(--s6));font-size:.9375rem;color:var(--cafe-humo)}
+.pie-boletin{background:var(--oatmeal);color:var(--tinta);padding:var(--s7) 0}
+.pie-boletin .ancho{display:grid;gap:var(--s5)}
+.pie .pie-titulo{font-size:2rem;line-height:1.1}
+.pie .pie-linea{margin-top:var(--s2);max-width:44ch;color:var(--mocha)}
+.pie .pie-linea strong{color:var(--tinta);font-weight:500}
+.pf-dos{display:grid;gap:0 var(--s3)}
+@media (min-width:480px){.pf-dos{grid-template-columns:1fr 1fr}}
+.pf-campo{margin-bottom:var(--s3)}
+.pf-campo label{display:block;margin-bottom:var(--s1);font-weight:500;color:var(--tinta)}
+.pf-campo label small{font-weight:400;font-size:.9375rem;color:var(--mocha)}
+.pf-campo input{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.pf-campo [aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.pf-ayuda{display:block;margin-top:var(--s1);font-size:.9375rem;color:var(--mocha)}
+.pf-casilla{display:flex;gap:var(--s3);align-items:flex-start;min-height:44px;padding:var(--s1) 0;color:var(--tinta);cursor:pointer}
+.pf-casilla input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--tinta)}
+.pf-casilla a,.pie .pf-casilla a{display:inline;min-height:0}
+.pf-error{display:flex;gap:var(--s2);margin:var(--s1) 0 var(--s2);padding:var(--s2) var(--s3);font-size:.9375rem;color:var(--error);background:var(--error-fondo);border-radius:2px}
+.pf-error::before{content:"!";flex:none;width:18px;height:18px;display:grid;place-content:center;font-weight:500;font-size:.75rem;border:1.5px solid currentColor;border-radius:50%}
+.pf-boton{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:var(--s3);padding:0 var(--s6);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--tinta);border-radius:2px;background:var(--tinta);color:var(--hueso);cursor:pointer}
+.pf-boton:hover{background:#1F1814}
+.pie .pf-chica{margin-top:var(--s2);font-size:.9375rem;color:var(--mocha)}
+.pf-ok{padding:var(--s5);background:var(--hueso);border-radius:6px;color:var(--tinta)}
+.pf-ok:focus{outline:2px solid var(--tinta);outline-offset:3px}
+.pie .pf-ok-t{font:600 1.5rem/1.2 var(--titulo)}
+.pie .pf-ok-d{margin-top:var(--s2)}
+.pie-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5) var(--s4);padding:var(--s7) 0 var(--s5)}
+.pie-h{margin-bottom:var(--s2);font:500 .8125rem/1.3 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta)}
+.pie .pie-cols ul{display:block;margin:0;padding:0;list-style:none}
+.pie-cols a{display:flex;align-items:center;min-height:44px;color:var(--tinta);text-decoration:none}
+.pie-cols a:hover{text-decoration:underline;text-underline-offset:3px}
+.pie-legal{padding-top:var(--s4);border-top:1px solid var(--perla)}
+.pie-legal p{margin:0 0 var(--s2)}
+.pie-legal a{display:inline;min-height:0}
+@media (min-width:960px){
+  .atajos{display:none}
+  .solo-escritorio{display:inline-flex!important}
+  .solo-movil{display:none!important}
+  .cabecera .ancho{min-height:72px}
+  .marca{max-width:none;margin-right:var(--s5)}
+  .u-corto{display:none}.u-largo{display:inline}
+  .nav-escritorio{display:flex;align-items:center;gap:var(--s4);margin-right:auto}
+  .nav-escritorio a,.nav-escritorio button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;font:inherit;color:inherit;background:none;border:0;text-decoration:none;cursor:pointer}
+  .nav-escritorio a:hover,.nav-escritorio button:hover{text-decoration:underline;text-underline-offset:4px}
+  .nav-escritorio a[aria-current]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px}
+  .nav-escritorio .nav-nuevo::after{content:"";align-self:flex-start;width:7px;height:7px;margin-top:10px;border-radius:50%;background:#B7872F}
+  .nav-escritorio .nav-desc{min-height:38px;padding:0 var(--s4);border:1px solid #E3C3C7;border-radius:999px;background:#F6E9EA;color:var(--borgona);font-weight:500}
+  .nav-escritorio .nav-desc:hover{background:#F0DCDE;text-decoration:none}
+  .util{min-width:66px}
+  .pie-boletin .ancho{grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start;gap:var(--s7)}
+  .pf-boton{width:auto}
+  .pie-cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (min-width:960px) and (max-width:1199px){
+  .nav-escritorio .nav-opcional{display:none}
+  .nav-escritorio{gap:var(--s3)}
+  .util .u-txt{display:none}
+  .util{min-width:48px;min-height:48px}
+  .util .contador{right:2px}
+}
+@media (max-width:359px){.util .u-txt{display:none}.util{min-width:44px}}
+</style>
+<style>
+.migas{font-size:.875rem;padding:var(--s2) 0}
+.migas ol{list-style:none;display:flex;flex-wrap:wrap;gap:var(--s2);margin:0;padding:0}
+.migas li+li::before{content:"/";margin-right:var(--s2);color:var(--cafe-humo)}
+.migas a{display:inline-flex;align-items:center;min-height:44px}
+.migas [aria-current]{display:inline-flex;align-items:center;min-height:44px;color:var(--cafe-humo)}
+.intro h1{font-size:2.25rem;line-height:1.1}
+.intro p{margin-top:var(--s3);max-width:62ch}
+.barra-lista{position:sticky;top:64px;z-index:10;background:var(--hueso);display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;margin-top:var(--s5);border-top:1px solid var(--tinta);border-bottom:1px solid var(--perla)}
+.barra-lista .boton{min-height:44px;padding:0 var(--s4)}
+#n-filtros{margin-left:.4em}
+.barra-lista label{margin-left:auto;font-size:.875rem;color:var(--cafe-humo)}
+.barra-lista select{min-height:44px;max-width:150px;font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px;padding:0 var(--s2)}
+.estado-lista{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);padding:var(--s3) 0 var(--s4)}
+.estado-lista p{margin-right:var(--s2);font-variant-numeric:tabular-nums}
+.ficha-filtro{display:inline-flex;align-items:center;gap:var(--s1);min-height:36px;padding:0 var(--s1) 0 var(--s3);font:inherit;font-size:.875rem;color:var(--tinta);background:var(--oatmeal);border:1px solid var(--tinta);border-radius:999px;cursor:pointer}
+.ficha-filtro svg{width:18px;height:18px}
+.ficha-filtro:hover{background:var(--piedra)}
+.vacio{padding:var(--s6) var(--s4);background:var(--suave);border-radius:6px;display:grid;gap:var(--s3);justify-items:start}
+.vacio h2{font-size:1.5rem}
+.mas{display:flex;justify-content:center;padding-top:var(--s6)}
+.vistas{display:inline-flex;margin-left:auto;border:1px solid var(--cafe-humo);border-radius:2px;overflow:hidden}
+.vistas button{min-height:44px;padding:0 var(--s3);font:inherit;font-size:.875rem;color:var(--tinta);background:var(--hueso);border:0;cursor:pointer}
+.vistas button:focus-visible{outline-offset:-3px}
+.vistas button[aria-pressed=true]{background:var(--tinta);color:var(--hueso)}
+.texto-cat{margin-top:var(--s8);display:grid;gap:var(--s6)}
+.texto-cat h2{font-size:1.75rem;line-height:1.2;margin-bottom:var(--s3)}
+.texto-cat p{max-width:62ch}
+.faq{border-top:1px solid var(--perla);max-width:68ch}
+.faq summary{min-height:48px;padding:var(--s3) 0;cursor:pointer;font-weight:500}
+.faq p{padding-bottom:var(--s4)}
+#filtros{margin:auto 0 0;width:100%;max-width:100%;max-height:86dvh;border-radius:12px 12px 0 0}
+#filtros[open]{animation:subir 300ms var(--curva)}
+#filtros fieldset{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
+#filtros legend{font-weight:500;padding:0;margin-bottom:var(--s1)}
+.casilla{display:flex;align-items:center;gap:var(--s3);min-height:44px;cursor:pointer}
+.casilla input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--tinta)}
+.dos-col{display:grid;grid-template-columns:1fr 1fr;column-gap:var(--s4)}
+.cargando .tarjeta .foto,.cargando .tarjeta h3,.cargando .tarjeta .meta,.cargando .tarjeta .precio{color:transparent;background:linear-gradient(100deg,var(--suave) 30%,var(--oatmeal) 50%,var(--suave) 70%) 0 0/300% 100%;border-radius:2px;animation:brillo 1.4s linear infinite}
+.cargando .tarjeta *{color:transparent!important;border-color:transparent!important}
+.cargando .tarjeta .sello,.cargando .tarjeta .oferta,.cargando .tarjeta s{visibility:hidden}
+@keyframes brillo{to{background-position:-150% 0}}
+@media (min-width:640px){.intro h1{font-size:2.75rem}}
+@media (min-width:960px){
+  .barra-lista{top:72px}
+  .texto-cat{grid-template-columns:1fr 1fr;gap:var(--s8)}
+  #filtros{margin:0 0 0 auto;width:440px;height:100dvh;max-height:100dvh;border-radius:0}
+}
+
+.subcats{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4)}
+.subcats a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s4);border:1px solid var(--cafe-humo);border-radius:999px;text-decoration:none;font-size:.9375rem}
+.subcats a:hover{background:var(--suave)}
+.subcats a[aria-current]{background:var(--tinta);color:var(--hueso);border-color:var(--tinta)}
+.destacado{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--s3) var(--s5);margin-top:var(--s5);padding:var(--s4);background:var(--espresso);color:var(--hueso);border-radius:6px}
+.destacado h2{font-size:1.5rem;line-height:1.2;color:var(--champagne)}
+.destacado p{margin-top:var(--s1);max-width:46ch}
+.destacado .boton{border-color:var(--hueso);color:var(--hueso);background:transparent}
+.destacado .boton:hover{background:rgba(251,250,249,.14)}
+.destacado :focus-visible{outline-color:var(--hueso)}
+</style>
+<script>
+/* Al volver de una ficha, la pieza regresa a su lugar en la repisa */
+addEventListener('pagereveal', e => {
+  document.documentElement.dataset.transicion = e.viewTransition ? 'si' : 'no';
+  if (e.viewTransition) { e.viewTransition.ready.catch(() => {}); e.viewTransition.finished.catch(() => {}); }   // si el navegador cancela la transición, no es un error
+  const de = window.navigation && navigation.activation && navigation.activation.from;
+  if (!e.viewTransition || !de) return;
+  const archivo = de.url.split('/').pop().split(/[?#]/)[0];
+  if (!/^(pieza-|ficha-|lampara-)/.test(archivo)) return;
+  const arte = document.querySelector('.tarjeta a[href="' + archivo + '"] .arte'); if (!arte) return;
+  arte.style.viewTransitionName = 'pieza';
+  const limpiar = () => arte.style.viewTransitionName = '';
+  e.viewTransition.finished.then(limpiar, limpiar);
+});
+</script>
+</head>
+<body>
+<a class="salto" href="#contenido">Saltar al contenido</a>
+<header class="cabecera">
+  <div class="ancho">
+    <button class="util solo-movil" type="button" data-abrir-menu aria-label="Abrir el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="u-txt" aria-hidden="true">Menú</span></button>
+    <!-- [LOGO SVG PENDIENTE] -->
+    <a class="marca" href="inicio-estructura.html" translate="no">Historias que Habitan</a>
+    <nav class="nav-escritorio" aria-label="Principal">
+      <button type="button" data-abrir-menu>Tienda</button>
+      <a class="nav-nuevo" href="lo-nuevo.html">Lo nuevo</a>
+      <a class="nav-desc" href="descuentos.html" aria-current="page">Descuentos</a>
+      <a href="colecciones.html">Colecciones</a>
+      <a class="nav-opcional" href="historias.html">Historias</a>
+      <a href="por-mayor.html">Por mayor</a>
+    </nav>
+    <div class="utiles">
+      <button class="util solo-escritorio" type="button" data-abrir-menu data-buscar aria-label="Buscar en la tienda"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="u-txt" aria-hidden="true">Buscar</span></button>
+      <a class="util" href="cuenta.html" data-cuenta><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 20.2c1.2-3.5 3.9-5.4 7.2-5.4s6 1.9 7.2 5.4"/></svg><span class="u-txt"><span class="u-corto">Ingresar</span><span class="u-largo">Ingresar</span></span></a>
+      <a class="util" href="favoritos.html" data-favoritos aria-label="Favoritos"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg><span class="u-txt" aria-hidden="true">Favoritos</span></a>
+      <a class="util" href="carrito.html" id="carrito" data-contador data-carrito aria-label="Carrito, 0 piezas"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="u-txt" aria-hidden="true">Carrito</span><span class="contador" id="contador" aria-hidden="true" hidden>0</span></a>
+    </div>
+  </div>
+</header>
+<nav class="atajos" aria-label="Atajos de la tienda">
+  <div class="ancho">
+    <button type="button" class="atajo" data-abrir-menu data-buscar><svg class="icono chico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Buscar</button>
+    <a class="atajo atajo-nuevo" href="lo-nuevo.html">Lo nuevo</a>
+    <a class="atajo atajo-desc" href="descuentos.html" aria-current="page">Descuentos</a>
+    <a class="atajo" href="tienda.html">Toda la tienda</a>
+    <a class="atajo" href="colecciones.html">Colecciones</a>
+  </div>
+</nav>
+
+<dialog class="panel" id="menu" aria-labelledby="t-menu">
+  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-cuerpo">
+    <form class="buscar" role="search">
+      <label class="oculto-visual" for="q">Buscar en la tienda</label>
+      <input id="q" name="q" type="search" placeholder="Buscar: jarrón, vajilla…" autocomplete="off" enterkeyhint="search">
+      <button class="boton secundario" type="submit">Buscar</button>
+    </form>
+    <div class="menu-destacados">
+      <a class="menu-dest nuevo" href="lo-nuevo.html"><b>Lo nuevo</b><span>Las piezas que acaban de llegar</span></a>
+      <a class="menu-dest desc" href="descuentos.html"><b>Descuentos</b><span>Con el precio anterior a la vista</span></a>
+    </div>
+    <nav aria-label="Menú de la tienda">
+      <p class="menu-titulo" id="m-tienda">Tienda</p>
+      <ul class="menu-lista grande" aria-labelledby="m-tienda">
+        <li><a href="tienda.html">Toda la tienda</a></li>
+        <li><a href="porcelanas.html">Porcelanas y figuras</a></li>
+        <li><a href="categoria.html">Jarrones y recipientes</a></li>
+        <li><a href="flores-artificiales.html">Flores artificiales</a></li>
+        <li><a href="mesa.html">Mesa</a></li>
+        <li><a href="centros-de-mesa.html">Centros de mesa</a></li>
+        <li><a href="esculturas.html">Esculturas pequeñas</a></li>
+        <li><a href="decoracion.html">Decoraciones del hogar</a></li>
+        <li><a class="sub" href="lamparas.html">Lámparas</a></li>
+      </ul>
+      <p class="menu-titulo" id="m-col">Colecciones</p>
+      <ul class="menu-lista" aria-labelledby="m-col">
+        <li><a href="coleccion.html">La mesa que recibe</a></li>
+        <li><a href="coleccion-primer-hogar.html">Primer hogar</a></li>
+        <li><a href="coleccion-regalos.html">Regalos que se guardan</a></li>
+      </ul>
+      <p class="menu-titulo" id="m-cuenta">Su cuenta</p>
+      <ul class="menu-lista" aria-labelledby="m-cuenta">
+        <li><a href="cuenta.html" data-cuenta-menu>Ingresar a mi cuenta</a></li>
+        <li><a href="favoritos.html">Mis favoritos y avisos de llegada</a></li>
+        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
+      </ul>
+      <ul class="menu-lista">
+        <li><a href="historias.html">Historias</a></li>
+        <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
+        <li><a href="por-mayor.html">Por mayor</a></li>
+        <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
+      </ul>
+    </nav>
+  </div>
+</dialog>
+
+<div class="proto" role="region" aria-label="Controles del prototipo">
+  <span>Prototipo: las piezas, los precios y los textos son de ejemplo. Los dibujos ocupan el lugar de las fotos recortadas reales.</span>
+  <label>Ver estado <select id="ver-estado"><option value="lista">Lista</option><option value="cargando">Cargando</option></select></label>
+</div>
+<main id="contenido" class="ancho">
+  <nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio-estructura.html">Inicio</a></li><li><a href="tienda.html">Toda la tienda</a></li><li><span aria-current="page">Descuentos</span></li></ol></nav>
+  <header class="intro">
+    <h1>Descuentos</h1>
+    <p>Piezas con el precio rebajado. Al lado de cada precio está el anterior, para que vea cuánto ahorra. <span class="pendiente">[POR CONFIRMAR: fechas y condiciones de cada descuento]</span></p>
+  </header>
+
+  <div class="barra-lista">
+    <button class="boton secundario" type="button" id="abrir-filtros">Filtrar<span id="n-filtros"></span></button>
+    <label for="orden">Ordenar</label>
+    <select id="orden"><option value="rec">Recomendadas</option><option value="menor">Precio: menor a mayor</option><option value="mayor">Precio: mayor a menor</option></select>
+  </div>
+  <div class="estado-lista"><p id="cuenta" role="status">6 piezas</p><span id="fichas"></span><div class="vistas" role="group" aria-label="Ver las piezas como"><button type="button" data-vista="estanteria" aria-pressed="true">Estantería</button><button type="button" data-vista="cuadricula" aria-pressed="false">Cuadrícula</button></div></div>
+
+  <h2 class="oculto-visual">Piezas de esta categoría</h2>
+  <ul class="rejilla estanteria" id="lista">
+    <li class="tarjeta en-oferta" data-material="Cerámica" data-color="Arena" data-tamano="Pequeño" data-ambiente="Mesa" data-precio="79900"><a href="pieza-recipiente-pequeno-de-ceramica.html"><div class="foto"><span class="chips"><span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz93-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(108,100,87,1.00)"/><stop offset="0.08" stop-color="rgba(174,159,139,1.00)"/><stop offset="0.18" stop-color="rgba(231,220,205,1.00)"/><stop offset="0.34" stop-color="rgba(217,199,174,1.00)"/><stop offset="0.6" stop-color="rgba(195,179,157,1.00)"/><stop offset="0.82" stop-color="rgba(148,135,118,1.00)"/><stop offset="0.94" stop-color="rgba(191,177,158,1.00)"/><stop offset="1" stop-color="rgba(113,103,90,1.00)"/></linearGradient><linearGradient id="pz93-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz93-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz93-k"><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="48.0" ry="6" fill="url(#pz93-s)"/><ellipse cx="100" cy="286.4" rx="28.8" ry="1.3" fill="#000" opacity=".3"/><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z" fill="url(#pz93-c)"/><g clip-path="url(#pz93-k)"><rect x="52" y="214" width="96" height="72" fill="url(#pz93-v)"/><rect x="65.4" y="214" width="12.5" height="72" fill="#fff" opacity=".26"/><rect x="72.2" y="224" width="3.4" height="48" rx="1.5" fill="#fff" opacity=".7"/><rect x="134.6" y="224" width="2.7" height="48" rx="1" fill="#fff" opacity=".24"/></g><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z" fill="none" stroke="rgba(108,100,87,0.40)" stroke-width=".7"/></svg></div><h3>[Recipiente pequeño de cerámica]</h3><p class="meta">Cerámica</p><p class="precio"><span class="oculto-visual">Ahora </span><strong>$79.900</strong><span class="oculto-visual">. Antes </span><s>$99.900</s><span class="oferta"><span class="oculto-visual">. Descuento del 20 %. </span><span aria-hidden="true">−20 %</span></span></p></a><button type="button" class="fav" data-fav="pieza-recipiente-pequeno-de-ceramica.html" data-nombre="Recipiente pequeño de cerámica" aria-pressed="false" aria-label="Guardar Recipiente pequeño de cerámica en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta en-oferta" data-material="Porcelana" data-color="Blanco" data-tamano="Pequeño" data-ambiente="Mesa" data-precio="74900"><a href="pieza-esfera-de-porcelana.html"><div class="foto"><span class="chips"><span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span><span class="chip-estado chip-pocas" aria-hidden="true">Quedan pocas</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz94-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(120,119,116,1.00)"/><stop offset="0.08" stop-color="rgba(193,190,186,1.00)"/><stop offset="0.18" stop-color="rgba(246,244,241,1.00)"/><stop offset="0.34" stop-color="rgba(241,238,232,1.00)"/><stop offset="0.6" stop-color="rgba(217,214,209,1.00)"/><stop offset="0.82" stop-color="rgba(164,162,158,1.00)"/><stop offset="0.94" stop-color="rgba(209,206,202,1.00)"/><stop offset="1" stop-color="rgba(125,124,121,1.00)"/></linearGradient><linearGradient id="pz94-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz94-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz94-k"><path d="M72 286 H128 L122 262 H108 Q136 250 136 214 Q136 176 100 176 Q64 176 64 214 Q64 250 92 262 H78 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="36.0" ry="6" fill="url(#pz94-s)"/><ellipse cx="100" cy="286.4" rx="21.6" ry="1.3" fill="#000" opacity=".3"/><path d="M72 286 H128 L122 262 H108 Q136 250 136 214 Q136 176 100 176 Q64 176 64 214 Q64 250 92 262 H78 Z" fill="url(#pz94-c)"/><g clip-path="url(#pz94-k)"><rect x="64" y="176" width="72" height="110" fill="url(#pz94-v)"/><rect x="74.1" y="176" width="9.4" height="110" fill="#fff" opacity=".26"/><rect x="79.1" y="186" width="2.5" height="86" rx="1.5" fill="#fff" opacity=".7"/><rect x="125.9" y="186" width="2.0" height="86" rx="1" fill="#fff" opacity=".24"/></g><path d="M72 286 H128 L122 262 H108 Q136 250 136 214 Q136 176 100 176 Q64 176 64 214 Q64 250 92 262 H78 Z" fill="none" stroke="rgba(120,119,116,0.40)" stroke-width=".7"/></svg></div><h3>[Esfera de porcelana]</h3><p class="meta">Porcelana</p><p class="precio"><span class="oculto-visual">Ahora </span><strong>$74.900</strong><span class="oculto-visual">. Antes </span><s>$89.900</s><span class="oferta"><span class="oculto-visual">. Descuento del 17 %. </span><span aria-hidden="true">−17 %</span></span></p><p class="pocas-txt">Quedan 2 unidades</p></a><button type="button" class="fav" data-fav="pieza-esfera-de-porcelana.html" data-nombre="Esfera de porcelana" aria-pressed="false" aria-label="Guardar Esfera de porcelana en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta en-oferta" data-material="Látex" data-color="Champaña" data-tamano="Mediano" data-ambiente="Entrada" data-precio="99900"><a href="pieza-ramo-en-cuenco-blanco.html"><div class="foto"><span class="chips"><span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz95-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(122,121,119,1.00)"/><stop offset="0.08" stop-color="rgba(195,194,190,1.00)"/><stop offset="0.18" stop-color="rgba(248,247,244,1.00)"/><stop offset="0.34" stop-color="rgba(244,242,238,1.00)"/><stop offset="0.6" stop-color="rgba(220,218,214,1.00)"/><stop offset="0.82" stop-color="rgba(166,165,162,1.00)"/><stop offset="0.94" stop-color="rgba(211,209,206,1.00)"/><stop offset="1" stop-color="rgba(127,126,124,1.00)"/></linearGradient><linearGradient id="pz95-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz95-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz95-k"><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="54.0" ry="6" fill="url(#pz95-s)"/><ellipse cx="100" cy="286.4" rx="32.4" ry="1.3" fill="#000" opacity=".3"/><path d="M100 246 Q96 206 78 168" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 V150" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q106 206 124 162" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q90 226 66 196" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q112 222 136 190" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M94 216 q-16 -6 -20 -18 q14 0 20 18z" fill="#7C8C74"/><path d="M106 206 q16 -6 20 -18 q-14 0 -20 18z" fill="#7C8C74"/><circle cx="78" cy="168" r="13" fill="#E7C3BB"/><circle cx="74" cy="164" r="4" fill="#fff" opacity=".35"/><circle cx="100" cy="150" r="15" fill="#F4D9A0"/><circle cx="95" cy="145" r="5" fill="#fff" opacity=".35"/><circle cx="124" cy="162" r="13" fill="#E7C3BB"/><circle cx="120" cy="158" r="4" fill="#fff" opacity=".35"/><circle cx="66" cy="196" r="10" fill="#F1EEE8"/><circle cx="63" cy="193" r="3" fill="#fff" opacity=".35"/><circle cx="136" cy="190" r="11" fill="#F4D9A0"/><circle cx="133" cy="187" r="3" fill="#fff" opacity=".35"/><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="url(#pz95-c)"/><g clip-path="url(#pz95-k)"><rect x="46" y="236" width="108" height="50" fill="url(#pz95-v)"/><rect x="61.1" y="236" width="14.0" height="50" fill="#fff" opacity=".26"/><rect x="68.7" y="246" width="3.8" height="26" rx="1.5" fill="#fff" opacity=".7"/><rect x="138.9" y="246" width="3.0" height="26" rx="1" fill="#fff" opacity=".24"/></g><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="none" stroke="rgba(122,121,119,0.40)" stroke-width=".7"/></svg></div><h3>[Ramo en cuenco blanco]</h3><p class="meta">Látex y cerámica</p><p class="precio"><span class="oculto-visual">Ahora </span><strong>$99.900</strong><span class="oculto-visual">. Antes </span><s>$119.900</s><span class="oferta"><span class="oculto-visual">. Descuento del 17 %. </span><span aria-hidden="true">−17 %</span></span></p></a><button type="button" class="fav" data-fav="pieza-ramo-en-cuenco-blanco.html" data-nombre="Ramo en cuenco blanco" aria-pressed="false" aria-label="Guardar Ramo en cuenco blanco en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta en-oferta" data-material="Cerámica" data-color="Verde" data-tamano="Mediano" data-ambiente="Comedor" data-precio="169900"><a href="pieza-juego-de-6-platos-verdes.html"><div class="foto"><span class="chips"><span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz96-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(69,77,65,1.00)"/><stop offset="0.08" stop-color="rgba(110,123,104,1.00)"/><stop offset="0.18" stop-color="rgba(182,192,178,1.00)"/><stop offset="0.34" stop-color="rgba(138,154,130,1.00)"/><stop offset="0.6" stop-color="rgba(124,139,117,1.00)"/><stop offset="0.82" stop-color="rgba(94,105,88,1.00)"/><stop offset="0.94" stop-color="rgba(131,143,125,1.00)"/><stop offset="1" stop-color="rgba(72,80,68,1.00)"/></linearGradient><linearGradient id="pz96-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz96-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz96-k"><path d="M34 250 H166 Q170 250 168 256 L160 278 Q157 286 148 286 H52 Q43 286 40 278 L32 256 Q30 250 34 250 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="68.0" ry="6" fill="url(#pz96-s)"/><ellipse cx="100" cy="286.4" rx="40.8" ry="1.3" fill="#000" opacity=".3"/><path d="M34 250 H166 Q170 250 168 256 L160 278 Q157 286 148 286 H52 Q43 286 40 278 L32 256 Q30 250 34 250 Z" fill="url(#pz96-c)"/><g clip-path="url(#pz96-k)"><rect x="32" y="250" width="136" height="36" fill="url(#pz96-v)"/><rect x="51.0" y="250" width="17.7" height="36" fill="#fff" opacity=".26"/><rect x="60.6" y="260" width="4.8" height="12" rx="1.5" fill="#fff" opacity=".7"/><rect x="149.0" y="260" width="3.8" height="12" rx="1" fill="#fff" opacity=".24"/></g><path d="M34 250 H166 Q170 250 168 256 L160 278 Q157 286 148 286 H52 Q43 286 40 278 L32 256 Q30 250 34 250 Z" fill="none" stroke="rgba(69,77,65,0.40)" stroke-width=".7"/><path d="M38 262 H162 M42 272 H158" stroke="#000" stroke-opacity=".08" stroke-width="1.5"/></svg></div><h3>[Juego de 6 platos verdes]</h3><p class="meta">Cerámica</p><p class="precio"><span class="oculto-visual">Ahora </span><strong>$169.900</strong><span class="oculto-visual">. Antes </span><s>$199.900</s><span class="oferta"><span class="oculto-visual">. Descuento del 15 %. </span><span aria-hidden="true">−15 %</span></span></p></a><button type="button" class="fav" data-fav="pieza-juego-de-6-platos-verdes.html" data-nombre="Juego de 6 platos verdes" aria-pressed="false" aria-label="Guardar Juego de 6 platos verdes en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta en-oferta" data-material="Cerámica" data-color="Blanco" data-tamano="Grande" data-ambiente="Comedor" data-precio="149900"><a href="pieza-centro-de-mesa-en-cuenco-blanco.html"><div class="foto"><span class="chips"><span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz97-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(122,121,119,1.00)"/><stop offset="0.08" stop-color="rgba(195,194,190,1.00)"/><stop offset="0.18" stop-color="rgba(248,247,244,1.00)"/><stop offset="0.34" stop-color="rgba(244,242,238,1.00)"/><stop offset="0.6" stop-color="rgba(220,218,214,1.00)"/><stop offset="0.82" stop-color="rgba(166,165,162,1.00)"/><stop offset="0.94" stop-color="rgba(211,209,206,1.00)"/><stop offset="1" stop-color="rgba(127,126,124,1.00)"/></linearGradient><linearGradient id="pz97-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz97-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz97-k"><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="54.0" ry="6" fill="url(#pz97-s)"/><ellipse cx="100" cy="286.4" rx="32.4" ry="1.3" fill="#000" opacity=".3"/><path d="M100 246 Q96 206 78 168" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 V150" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q106 206 124 162" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q90 226 66 196" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q112 222 136 190" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M94 216 q-16 -6 -20 -18 q14 0 20 18z" fill="#7C8C74"/><path d="M106 206 q16 -6 20 -18 q-14 0 -20 18z" fill="#7C8C74"/><circle cx="78" cy="168" r="13" fill="#E7C3BB"/><circle cx="74" cy="164" r="4" fill="#fff" opacity=".35"/><circle cx="100" cy="150" r="15" fill="#F4D9A0"/><circle cx="95" cy="145" r="5" fill="#fff" opacity=".35"/><circle cx="124" cy="162" r="13" fill="#E7C3BB"/><circle cx="120" cy="158" r="4" fill="#fff" opacity=".35"/><circle cx="66" cy="196" r="10" fill="#F1EEE8"/><circle cx="63" cy="193" r="3" fill="#fff" opacity=".35"/><circle cx="136" cy="190" r="11" fill="#F4D9A0"/><circle cx="133" cy="187" r="3" fill="#fff" opacity=".35"/><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="url(#pz97-c)"/><g clip-path="url(#pz97-k)"><rect x="46" y="236" width="108" height="50" fill="url(#pz97-v)"/><rect x="61.1" y="236" width="14.0" height="50" fill="#fff" opacity=".26"/><rect x="68.7" y="246" width="3.8" height="26" rx="1.5" fill="#fff" opacity=".7"/><rect x="138.9" y="246" width="3.0" height="26" rx="1" fill="#fff" opacity=".24"/></g><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="none" stroke="rgba(122,121,119,0.40)" stroke-width=".7"/></svg></div><h3>[Centro de mesa en cuenco blanco]</h3><p class="meta">Látex y cerámica</p><p class="precio"><span class="oculto-visual">Ahora </span><strong>$149.900</strong><span class="oculto-visual">. Antes </span><s>$169.900</s><span class="oferta"><span class="oculto-visual">. Descuento del 12 %. </span><span aria-hidden="true">−12 %</span></span></p></a><button type="button" class="fav" data-fav="pieza-centro-de-mesa-en-cuenco-blanco.html" data-nombre="Centro de mesa en cuenco blanco" aria-pressed="false" aria-label="Guardar Centro de mesa en cuenco blanco en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta en-oferta" data-material="Cerámica" data-color="Café" data-tamano="Pequeño" data-ambiente="Sala" data-precio="119900"><a href="pieza-ave-de-ceramica-cafe.html"><div class="foto"><span class="chips"><span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz98-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(61,46,36,1.00)"/><stop offset="0.08" stop-color="rgba(98,74,58,1.00)"/><stop offset="0.18" stop-color="rgba(173,154,142,1.00)"/><stop offset="0.34" stop-color="rgba(122,92,72,1.00)"/><stop offset="0.6" stop-color="rgba(110,83,65,1.00)"/><stop offset="0.82" stop-color="rgba(83,63,49,1.00)"/><stop offset="0.94" stop-color="rgba(119,96,81,1.00)"/><stop offset="1" stop-color="rgba(63,48,37,1.00)"/></linearGradient><linearGradient id="pz98-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz98-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz98-k"><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="37.0" ry="6" fill="url(#pz98-s)"/><ellipse cx="100" cy="286.4" rx="22.2" ry="1.3" fill="#000" opacity=".3"/><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z" fill="url(#pz98-c)"/><g clip-path="url(#pz98-k)"><rect x="68" y="158" width="74" height="128" fill="url(#pz98-v)"/><rect x="78.4" y="158" width="9.6" height="128" fill="#fff" opacity=".26"/><rect x="83.5" y="168" width="2.6" height="104" rx="1.5" fill="#fff" opacity=".7"/><rect x="131.6" y="168" width="2.1" height="104" rx="1" fill="#fff" opacity=".24"/></g><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z" fill="none" stroke="rgba(61,46,36,0.40)" stroke-width=".7"/></svg></div><h3>[Ave de cerámica café]</h3><p class="meta">Cerámica</p><p class="precio"><span class="oculto-visual">Ahora </span><strong>$119.900</strong><span class="oculto-visual">. Antes </span><s>$139.900</s><span class="oferta"><span class="oculto-visual">. Descuento del 14 %. </span><span aria-hidden="true">−14 %</span></span></p></a><button type="button" class="fav" data-fav="pieza-ave-de-ceramica-cafe.html" data-nombre="Ave de cerámica café" aria-pressed="false" aria-label="Guardar Ave de cerámica café en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+  </ul>
+  <div class="vacio" id="vacio" hidden>
+    <h2>Ninguna pieza coincide con esos filtros</h2>
+    <p>Quite algún filtro o déjenos orientarle con unas preguntas.</p>
+    <button class="boton secundario" type="button" id="borrar-vacio">Borrar los filtros</button>
+    <a class="enlace" href="quiz-orientacion.html">Ayúdeme a elegir</a>
+  </div>
+  <div class="mas" id="mas" hidden></div>
+
+  <div class="texto-cat">
+    <section aria-labelledby="t-elegir">
+      <h2 id="t-elegir">Cómo leemos un descuento</h2>
+      <p><span class="pendiente">[TEXTO PENDIENTE: lo escribe el agente de contenido]</span> Espacio para dos o tres párrafos que respondan qué tamaño conviene según el espacio y qué material según el uso.</p>
+    </section>
+    <section aria-labelledby="t-faq">
+      <h2 id="t-faq">Preguntas frecuentes</h2>
+      <details class="faq"><summary>¿El precio anterior es real?</summary><p>Sí. Es el precio al que se vendió la pieza antes de la rebaja. <span class="pendiente">[POR CONFIRMAR: regla del precio anterior, por ejemplo el de los últimos 30 días]</span></p></details>
+      <details class="faq"><summary>¿Hasta cuándo dura cada descuento?</summary><p><span class="pendiente">[POR CONFIRMAR: fecha de fin de cada descuento]</span></p></details>
+      <details class="faq"><summary>¿Las piezas con descuento tienen cambio?</summary><p>Sí, con las mismas condiciones de Cambios, garantía y retracto. <span class="pendiente">[POR CONFIRMAR]</span></p></details>
+    </section>
+  </div>
+</main>
+
+<dialog class="panel" id="filtros" aria-labelledby="t-filtros">
+  <div class="panel-cab"><h2 id="t-filtros" tabindex="-1">Filtrar</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar los filtros"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <form class="panel-cuerpo" id="form-filtros">
+<fieldset><legend>Material</legend><div class="dos-col"><label class="casilla"><input type="checkbox" name="material" value="Cerámica"><span>Cerámica</span></label><label class="casilla"><input type="checkbox" name="material" value="Porcelana"><span>Porcelana</span></label><label class="casilla"><input type="checkbox" name="material" value="Látex"><span>Látex</span></label></div></fieldset>
+<fieldset><legend>Color</legend><div class="dos-col"><label class="casilla"><input type="checkbox" name="color" value="Arena"><span>Arena</span></label><label class="casilla"><input type="checkbox" name="color" value="Blanco"><span>Blanco</span></label><label class="casilla"><input type="checkbox" name="color" value="Champaña"><span>Champaña</span></label><label class="casilla"><input type="checkbox" name="color" value="Verde"><span>Verde</span></label><label class="casilla"><input type="checkbox" name="color" value="Café"><span>Café</span></label></div></fieldset>
+<fieldset><legend>Tamaño</legend><div class="dos-col"><label class="casilla"><input type="checkbox" name="tamano" value="Pequeño"><span>Pequeño</span></label><label class="casilla"><input type="checkbox" name="tamano" value="Mediano"><span>Mediano</span></label><label class="casilla"><input type="checkbox" name="tamano" value="Grande"><span>Grande</span></label></div></fieldset>
+<fieldset><legend>Ambiente</legend><div class="dos-col"><label class="casilla"><input type="checkbox" name="ambiente" value="Mesa"><span>Mesa</span></label><label class="casilla"><input type="checkbox" name="ambiente" value="Entrada"><span>Entrada</span></label><label class="casilla"><input type="checkbox" name="ambiente" value="Comedor"><span>Comedor</span></label><label class="casilla"><input type="checkbox" name="ambiente" value="Sala"><span>Sala</span></label></div></fieldset>
+<fieldset><legend>Precio <span class="pendiente">[POR CONFIRMAR: rangos]</span></legend>
+      <label class="casilla"><input type="radio" name="precio" value="" checked><span>Cualquier precio</span></label>
+      <label class="casilla"><input type="radio" name="precio" value="0-100000"><span>Hasta $100.000</span></label>
+      <label class="casilla"><input type="radio" name="precio" value="100000-250000"><span>De $100.000 a $250.000</span></label>
+      <label class="casilla"><input type="radio" name="precio" value="250000-9999999"><span>Más de $250.000</span></label>
+    </fieldset>
+  </form>
+  <div class="panel-pie"><button class="enlace" type="button" id="borrar-panel">Borrar todo</button><button class="boton" type="submit" form="form-filtros" id="ver-piezas">Ver 6 piezas</button></div>
+</dialog>
+
+<footer class="pie">
+  <section class="pie-boletin" aria-labelledby="pie-t">
+    <div class="ancho">
+      <div>
+        <h2 class="pie-titulo" id="pie-t">Nuevas piezas y nuevas ofertas</h2>
+        <p class="pie-linea"><strong>Suscríbase y entérese de todo.</strong> Le avisamos sobre ofertas exclusivas y nuestros nuevos productos.</p>
+      </div>
+      <div>
+        <form class="pie-form" novalidate data-boletin>
+          <div class="pf-dos">
+            <div class="pf-campo"><label for="pf-nombre">Nombre y apellido</label>
+              <input id="pf-nombre" name="nombre" type="text" autocomplete="name" aria-describedby="pf-e-nombre"><div id="pf-e-nombre" role="alert"></div></div>
+            <div class="pf-campo"><label for="pf-correo">Correo electrónico</label>
+              <input id="pf-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="pf-e-correo"><div id="pf-e-correo" role="alert"></div></div>
+          </div>
+          <div class="pf-dos">
+            <div class="pf-campo"><label for="pf-celular">Celular</label>
+              <input id="pf-celular" name="celular" type="tel" autocomplete="tel-national" inputmode="tel" aria-describedby="pf-a-celular pf-e-celular"><span class="pf-ayuda" id="pf-a-celular">Diez dígitos. Por ahí le avisamos por WhatsApp.</span><div id="pf-e-celular" role="alert"></div></div>
+            <div class="pf-campo"><label for="pf-empresa">Empresa <small>(opcional)</small></label>
+              <input id="pf-empresa" name="empresa" type="text" autocomplete="organization" aria-describedby="pf-a-empresa"><span class="pf-ayuda" id="pf-a-empresa">Si compra para un negocio, le contamos también sobre los precios al por mayor.</span></div>
+          </div>
+          <label class="pf-casilla"><input type="checkbox" id="pf-datos" name="datos" aria-describedby="pf-e-datos"><span>Autorizo el tratamiento de mis datos para recibir novedades y ofertas por correo y WhatsApp, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+          <div id="pf-e-datos" role="alert"></div>
+          <button type="submit" class="pf-boton">Sí, quiero suscribirme</button>
+          <p class="pf-chica">Puede darse de baja cuando quiera, desde cualquier correo.</p>
+        </form>
+        <div class="pf-ok" tabindex="-1" hidden><p class="pf-ok-t">Listo, le avisaremos</p><p class="pf-ok-d"></p></div>
+      </div>
+    </div>
+  </section>
+  <div class="ancho">
+    <div class="pie-cols">
+      <div><h2 class="pie-h">Tienda</h2><ul><li><a href="tienda.html">Toda la tienda</a></li><li><a href="lo-nuevo.html">Lo nuevo</a></li><li><a href="descuentos.html">Descuentos</a></li><li><a href="colecciones.html">Colecciones</a></li><li><a href="lamparas.html">Lámparas</a></li><li><a href="por-mayor.html">Por mayor</a></li></ul></div>
+      <div><h2 class="pie-h">Ayuda</h2><ul><li><a href="envios.html">Envíos</a></li><li><a href="cambios-y-garantia.html">Cambios y garantía</a></li><li><a href="pieza-rota.html">Reportar una pieza rota</a></li><li><a href="seguimiento.html">Seguir mi pedido</a></li><li><a href="preguntas.html">Preguntas frecuentes</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li></ul></div>
+      <div><h2 class="pie-h">Su cuenta</h2><ul><li><a href="cuenta.html">Mi cuenta</a></li><li><a href="favoritos.html">Mis favoritos</a></li><li><a href="favoritos.html#avisos">Avisos de llegada</a></li></ul></div>
+      <div><h2 class="pie-h">La marca</h2><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="historias.html">Historias</a></li><li><a href="terminos.html">Términos y condiciones</a></li><li><a href="politica-de-datos.html">Tratamiento de datos</a></li><li><a href="politica-de-cookies.html">Política de cookies</a></li></ul></div>
+    </div>
+    <div class="pie-legal">
+      <p>Historias que Habitan · Decoración y objetos para el hogar · Bogotá, con envíos a todo Colombia · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
+      <p>Superintendencia de Industria y Comercio: <a href="https://www.sic.gov.co" rel="noopener">www.sic.gov.co</a></p>
+    </div>
+  </div>
+</footer>
+<div class="cookies" id="cookies" role="region" aria-label="Aviso de cookies" hidden>
+  <p>Usamos cookies necesarias para que la tienda funcione y, si usted acepta, otras para medir las visitas. <a href="politica-de-cookies.html">Política de cookies</a> <span class="pendiente">[POR CONFIRMAR: texto legal]</span></p>
+  <div><button class="boton secundario" type="button" data-cookies="necesarias">Solo las necesarias</button><button class="boton secundario" type="button" data-cookies="todas">Aceptar todas</button></div>
+</div>
+<a class="wa-flotante" href="#" data-wa aria-label="Ayuda por WhatsApp"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0-7.3 12.85L3.5 20.5l4.3-1.1A8.5 8.5 0 1 0 12 3.5Z"/><path d="M9.2 8.6c-.3 2.9 2.3 5.8 5.3 6.2l1-1.3-1.7-1-.7.7c-.9-.4-1.7-1.2-2.1-2.1l.7-.7-1-1.7z"/></svg></a>
+<p id="aviso-proto" hidden style="position:fixed;left:16px;right:88px;bottom:16px;z-index:30;max-width:420px;background:var(--tinta);color:var(--hueso);padding:12px 16px;border-radius:6px;font-size:.9375rem">Prototipo: esta página todavía no existe.</p>
+<p class="oculto-visual" id="anuncio" aria-live="polite"></p>
+<script>
+/* Historias que Habitan · comportamiento compartido de inicio y categoría (prototipo). */
+const WHATSAPP = ''; // [POR CONFIRMAR: número de la marca]
+const anuncio = document.getElementById('anuncio');
+window.anunciar = t => { anuncio.textContent = ''; requestAnimationFrame(() => anuncio.textContent = t); };
+window.track = (event, datos) => (window.dataLayer = window.dataLayer || []).push({ event, ...datos });
+
+/* Menú: el foco entra al abrir, Esc lo cierra y el foco vuelve al botón (comportamiento nativo de dialog) */
+const menu = document.getElementById('menu');
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-abrir-menu]')) { menu.showModal(); return; }
+  const panel = e.target.closest('dialog.panel');
+  if (panel && (e.target === panel || e.target.closest('[data-cerrar]'))) return panel.close();
+  const wa = e.target.closest('[data-wa]');
+  if (wa) { e.preventDefault(); return window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Buen día. Tengo una pregunta sobre Historias que Habitan.')}`, '_blank', 'noopener'); }
+  const proto = e.target.closest('[data-proto]');
+  if (proto) { e.preventDefault(); anunciar('Prototipo: esta página todavía no existe.'); const a = document.getElementById('aviso-proto'); a.hidden = false; clearTimeout(a.t); a.t = setTimeout(() => a.hidden = true, 3500); }
+});
+document.querySelector('.buscar')?.addEventListener('submit', e => { e.preventDefault(); const q = e.target.elements.q.value.trim(); location.href = 'buscar.html' + (q ? '?q=' + encodeURIComponent(q) : ''); });
+
+/* La pieza que se toca es la que viaja a la ficha */
+document.addEventListener('click', e => {
+  const a = e.target.closest('.tarjeta a[href$=".html"]'); if (!a) return;
+  document.querySelectorAll('.arte').forEach(x => x.style.viewTransitionName = '');
+  const arte = a.querySelector('.arte'); if (arte) arte.style.viewTransitionName = 'pieza';
+});
+
+/* El contador del carrito, la cuenta y los favoritos de la cabecera: ver SITIO_JS en herramientas/sitio.py */
+
+/* Aviso de cookies: no bloquea la página, las dos opciones pesan lo mismo y nada viene aceptado */
+try {
+  const aviso = document.getElementById('cookies');
+  if (aviso && !localStorage.getItem('hqh-cookies')) aviso.hidden = false;
+  aviso?.addEventListener('click', e => { const b = e.target.closest('[data-cookies]'); if (!b) return; localStorage.setItem('hqh-cookies', b.dataset.cookies); aviso.hidden = true; anunciar(b.dataset.cookies === 'todas' ? 'Cookies aceptadas' : 'Solo cookies necesarias'); });
+} catch (e) {}
+
+/* Sitio: cuenta, carrito, favoritos, avisos de llegada y boletín del pie (herramientas/sitio.py) */
+(() => {
+  const leer = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const decir = t => { if (window.anunciar) window.anunciar(t); };
+  const evento = (e, x) => (window.dataLayer = window.dataLayer || []).push({ event: e, ...x });
+  const archivo = () => location.pathname.split('/').pop() || 'inicio-estructura.html';
+
+  /* Cuenta: con sesión saluda por el nombre; sin sesión invita a ingresar. Se repinta al ingresar o salir */
+  function pintarCuenta() {
+    const ses = leer('hqh-sesion', null), nombre = ses ? (ses.nombre || '').trim().split(' ')[0] : '';
+    document.querySelectorAll('[data-cuenta]').forEach(a => {
+      a.classList.toggle('con-sesion', !!ses);
+      a.querySelector('.u-corto').textContent = ses ? 'Mi cuenta' : 'Ingresar';
+      a.querySelector('.u-largo').textContent = ses ? (nombre ? 'Hola, ' + nombre : 'Mi cuenta') : 'Ingresar';
+    });
+    document.querySelectorAll('[data-cuenta-menu]').forEach(a => { a.textContent = ses ? (nombre ? `Mi cuenta (${nombre})` : 'Mi cuenta') : 'Ingresar a mi cuenta'; });
+  }
+  pintarCuenta();
+
+  /* Buscar: abre el menú con el buscador listo para escribir */
+  document.addEventListener('click', e => { if (e.target.closest('[data-buscar]')) setTimeout(() => document.getElementById('q')?.focus(), 60); });
+
+  /* Carrito: el número de piezas guardadas, en la cabecera de todas las páginas */
+  function pintarCarrito() {
+    const n = leer('hqh-carrito', []).reduce((t, x) => t + (x.cantidad || 0), 0);
+    document.querySelectorAll('[data-contador]').forEach(a => {
+      a.setAttribute('aria-label', `Carrito, ${n} ${n === 1 ? 'pieza' : 'piezas'}`);
+      let c = a.querySelector('.contador');
+      if (!c) { c = document.createElement('span'); c.className = 'contador'; c.setAttribute('aria-hidden', 'true'); a.append(c); }
+      c.hidden = !n; c.textContent = n;
+    });
+  }
+
+  /* Favoritos y avisos de llegada: el corazón guarda la pieza; las agotadas con aviso también cuentan como guardadas */
+  const FAV = 'hqh-favoritos';
+  const favs = () => leer(FAV, []), avisos = () => leer('hqh-avisos', []);
+  const urlDe = b => (b.dataset.fav === 'auto' ? archivo() : b.dataset.fav);
+  const nombreDe = b => (b.dataset.nombre || document.querySelector('h1')?.textContent.trim() || 'La pieza').replace(/^\[|\]$/g, '');   // sin los corchetes de los nombres de ejemplo
+  function pintarFavoritos() {
+    const urls = favs().map(x => x.url);
+    document.querySelectorAll('[data-fav]').forEach(b => {
+      const on = urls.includes(urlDe(b)), nombre = nombreDe(b), txt = b.querySelector('.fav-txt');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (txt) txt.textContent = on ? 'Guardada en favoritos' : 'Guardar en favoritos';
+      else b.setAttribute('aria-label', `Guardar ${nombre} en favoritos`);
+    });
+    const n = favs().length + avisos().length;
+    document.querySelectorAll('[data-favoritos]').forEach(a => {
+      a.setAttribute('aria-label', n ? `Favoritos, ${n} ${n === 1 ? 'guardada' : 'guardadas'}` : 'Favoritos');
+      let c = a.querySelector('.contador');
+      if (!c) { c = document.createElement('span'); c.className = 'contador'; c.setAttribute('aria-hidden', 'true'); a.append(c); }
+      c.hidden = !n; c.textContent = n;
+    });
+    document.dispatchEvent(new CustomEvent('hqh:favoritos'));
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-fav]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const url = urlDe(b), nombre = nombreDe(b), ya = favs().some(x => x.url === url);
+    guardar(FAV, ya ? favs().filter(x => x.url !== url) : favs().concat({ url, nombre, fecha: Date.now() }));
+    pintarFavoritos();
+    decir(ya ? `${nombre} salió de sus favoritos.` : `${nombre} quedó guardada en sus favoritos.`);
+    evento(ya ? 'favorito_quitar' : 'favorito_agregar', { pieza: nombre });
+  });
+  window.hqhSitio = { favs, avisos, guardarAvisos: v => guardar('hqh-avisos', v), pintarFavoritos, pintarCarrito, pintarCuenta };
+  document.addEventListener('hqh:carrito', pintarCarrito);
+  document.addEventListener('hqh:sesion', pintarCuenta);
+  addEventListener('storage', e => { if (e.key === 'hqh-carrito') pintarCarrito(); if (e.key === FAV || e.key === 'hqh-avisos') pintarFavoritos(); if (e.key === 'hqh-sesion') pintarCuenta(); });
+  pintarCarrito(); pintarFavoritos();
+
+  /* Boletín del pie: los mismos campos y reglas del modal de bienvenida. Quien ya se suscribió ve el agradecimiento */
+  const f = document.querySelector('form[data-boletin]');
+  if (!f) return;
+  const ok = f.parentElement.querySelector('.pf-ok');
+  if ((leer('hqh-bienvenida', null) || {}).suscrito) {
+    f.hidden = true; ok.hidden = false; ok.querySelector('.pf-ok-t').textContent = 'Ya está suscrito';
+    ok.querySelector('.pf-ok-d').textContent = 'Le avisamos sobre ofertas exclusivas y nuestros nuevos productos. Gracias.';
+  }
+  const $ = id => document.getElementById(id);
+  function marcar(id, m) {
+    const caja = $('pf-e-' + id), campo = $('pf-' + id);
+    caja.replaceChildren();
+    if (m) { const p = document.createElement('p'); p.className = 'pf-error'; p.textContent = m; caja.append(p); }
+    if (campo.type !== 'checkbox') campo.setAttribute('aria-invalid', m ? 'true' : 'false');
+  }
+  f.addEventListener('change', e => { if (e.target.id === 'pf-datos' && e.target.checked) marcar('datos', ''); });
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const el = f.elements, correo = el.correo.value.trim(), cel = el.celular.value.replace(/\D/g, '').replace(/^57(?=3\d{9}$)/, '');
+    const fallas = [
+      ['nombre', el.nombre.value.trim().includes(' ') ? '' : 'Escriba su nombre y su apellido.'],
+      ['correo', !correo ? 'Escriba su correo para avisarle.' : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo) ? '' : 'Revise el correo: le falta la @ o el dominio.'],
+      ['celular', !cel ? 'Escriba su celular: diez dígitos que empiecen por 3.' : /^3\d{9}$/.test(cel) ? '' : 'Escriba un celular de diez dígitos que empiece por 3. Ejemplo: 300 123 4567.'],
+      ['datos', el.datos.checked ? '' : 'Para avisarle, autorice el tratamiento de sus datos.'],
+    ];
+    fallas.forEach(([id, m]) => marcar(id, m));
+    const primera = fallas.find(([, m]) => m);
+    if (primera) return $('pf-' + primera[0]).focus();
+    guardar('hqh-bienvenida', { suscrito: true, fecha: Date.now() });   // [PROTOTIPO] en producción lo guarda la plataforma; el modal ya no aparece
+    evento('suscripcion_boletin', { lugar: 'pie', negocio: !!el.empresa.value.trim() });
+    f.hidden = true; ok.hidden = false;
+    ok.querySelector('.pf-ok-d').textContent = `Le escribiremos a ${correo} y por WhatsApp al ${cel.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3')} cuando lleguen piezas nuevas o haya ofertas.`;
+    ok.focus();
+  });
+})();
+</script>
+<script>
+/* Filtros de la categoría. En producción las tarjetas llegan en el HTML del servidor y la URL refleja los filtros. */
+const $ = id => document.getElementById(id);
+const lista = $('lista'), tarjetas = [...lista.children], formF = $('form-filtros'), panelF = $('filtros');
+const GRUPOS = ['material', 'color', 'tamano', 'ambiente'];
+const elegidos = () => Object.fromEntries(GRUPOS.map(g => [g, [...formF.querySelectorAll(`[name=${g}]:checked`)].map(i => i.value)]));
+const rango = () => (formF.precio.value || '0-99999999').split('-').map(Number);
+const pasa = (t, f, [min, max]) => GRUPOS.every(g => !f[g].length || f[g].includes(t.dataset[g])) && +t.dataset.precio >= min && +t.dataset.precio <= max;
+const cuantas = () => { const f = elegidos(), r = rango(); return tarjetas.filter(t => pasa(t, f, r)).length; };
+const piezas = n => n === 1 ? '1 pieza' : `${n} piezas`;
+
+function aplicar(anunciarlo) {
+  const f = elegidos(), r = rango(); let n = 0;
+  tarjetas.forEach(t => { const ok = pasa(t, f, r); t.hidden = !ok; if (ok) n++; });
+  const activos = GRUPOS.flatMap(g => f[g].map(v => [g, v])).concat(formF.precio.value ? [['precio', formF.querySelector('[name=precio]:checked').nextElementSibling.textContent]] : []);
+  $('cuenta').textContent = piezas(n);
+  $('n-filtros').textContent = activos.length ? `(${activos.length})` : '';
+  $('fichas').replaceChildren(...activos.map(([g, v]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ficha-filtro'; b.dataset.grupo = g; b.dataset.valor = v;
+    b.setAttribute('aria-label', `Quitar el filtro ${v}`);
+    b.innerHTML = '<span></span><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>'; b.firstChild.textContent = v; return b;
+  }));
+  $('vacio').hidden = n > 0; lista.hidden = n === 0; $('mas').hidden = n === 0 || activos.length > 0;
+  try { const q = new URLSearchParams(activos.map(([g, v]) => [g, v])); history.replaceState(null, '', q.toString() ? '?' + q : location.pathname); } catch (e) {}
+  if (anunciarlo) { anunciar(n ? `${piezas(n)} con esos filtros` : 'Ninguna pieza coincide con esos filtros'); track('filtrar', { filtros: activos.length, resultados: n }); }
+}
+function borrar() { formF.reset(); $('ver-piezas').textContent = `Ver ${piezas(tarjetas.length)}`; aplicar(true); }
+
+$('abrir-filtros').onclick = () => { panelF.showModal(); $('t-filtros').focus(); };
+formF.addEventListener('change', () => { const n = cuantas(); $('ver-piezas').textContent = n ? `Ver ${piezas(n)}` : 'Sin piezas con esos filtros'; });
+formF.addEventListener('submit', e => { e.preventDefault(); aplicar(true); panelF.close(); });
+$('borrar-panel').onclick = borrar; $('borrar-vacio').onclick = () => { borrar(); $('abrir-filtros').focus(); };
+$('fichas').addEventListener('click', e => {
+  const b = e.target.closest('.ficha-filtro'); if (!b) return;
+  if (b.dataset.grupo === 'precio') formF.precio.value = ''; else formF.querySelector(`[name=${b.dataset.grupo}][value="${b.dataset.valor}"]`).checked = false;
+  $('ver-piezas').textContent = `Ver ${piezas(cuantas())}`; aplicar(true); $('abrir-filtros').focus();
+});
+$('orden').addEventListener('change', e => {
+  const v = e.target.value, orden = v === 'rec' ? tarjetas : [...tarjetas].sort((a, b) => (a.dataset.precio - b.dataset.precio) * (v === 'menor' ? 1 : -1));
+  lista.append(...orden); anunciar(`Orden: ${e.target.selectedOptions[0].textContent}`);
+});
+document.querySelector('.vistas').addEventListener('click', e => {
+  const b = e.target.closest('[data-vista]'); if (!b) return;
+  lista.classList.toggle('estanteria', b.dataset.vista === 'estanteria');
+  document.querySelectorAll('[data-vista]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  anunciar(`Vista de ${b.textContent.toLowerCase()}`); track('cambiar_vista', { vista: b.dataset.vista });
+});
+$('ver-estado').addEventListener('change', e => {
+  const c = e.target.value === 'cargando'; lista.classList.toggle('cargando', c); lista.setAttribute('aria-busy', c);
+  $('cuenta').textContent = c ? 'Cargando piezas…' : piezas(tarjetas.filter(t => !t.hidden).length);
+});
+</script>
+</body>
+</html>

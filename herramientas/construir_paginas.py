@@ -1,6 +1,23 @@
 import io, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from arte import arte
+import time
+# Windows a veces bloquea un archivo un instante (antivirus o indexador) y la escritura falla con OSError 22: se reintenta
+_abrir = io.open
+def _abrir_con_reintento(archivo, modo='r', *a, **k):
+    if 'w' not in modo:
+        return _abrir(archivo, modo, *a, **k)
+    for intento in range(6):
+        try:
+            return _abrir(archivo, modo, *a, **k)
+        except OSError:
+            if intento == 5:
+                raise
+            time.sleep(.25)
+io.open = _abrir_con_reintento
+from catalogo import estado as estado_pieza, pct as pct_pieza, pesos as pesos_cat, texto_pocas, texto_unidades
+# Cabecera, menú, pie con boletín y favoritos: una sola fuente para todas las páginas
+from sitio import cabecera as cabecera_sitio, FOOTER as PIE_SITIO, EXTRAS as EXTRAS_SITIO, SITIO_CSS, SITIO_JS, sincronizar, CORAZON as CORAZON_SITIO
 dest = sys.argv[1]
 
 FUENTES = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
@@ -30,7 +47,7 @@ def cabecera(actual):
   <div class="ancho">
     <button class="boton-icono solo-movil" type="button" data-abrir-menu aria-label="Abrir el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     <!-- [LOGO SVG PENDIENTE] -->
-    <a class="marca" href="inicio.html" translate="no">Historias que Habitan</a>
+    <a class="marca" href="inicio-estructura.html" translate="no">Historias que Habitan</a>
     <nav class="nav-escritorio" aria-label="Principal">
       <button type="button" data-abrir-menu>Tienda</button>
       <a href="/colecciones" data-proto>Colecciones</a>
@@ -67,6 +84,7 @@ def cabecera(actual):
         <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
         <li><a href="/por-mayor" data-proto>Por mayor</a></li>
         <li><a href="/seguimiento" data-proto>Seguir mi pedido</a></li>
+        <li><a href="cuenta.html">Mi cuenta</a></li>
         <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
       </ul>
     </nav>
@@ -75,12 +93,16 @@ def cabecera(actual):
 '''
 
 
+def cabecera(actual):  # la cabecera sale de sitio.py (la de arriba queda como referencia del diseño anterior)
+    return cabecera_sitio(actual)
+
+
 PIE = '''<footer class="pie">
   <div class="ancho">
     <ul>
       <li><a href="/envios" data-proto>Envíos</a></li><li><a href="/cambios-y-garantia" data-proto>Cambios y garantía</a></li>
       <li><a href="/pieza-rota" data-proto>Reportar una pieza rota</a></li><li><a href="/seguimiento" data-proto>Seguir mi pedido</a></li>
-      <li><a href="/nosotros" data-proto>Nosotros</a></li><li><a href="/por-mayor" data-proto>Por mayor</a></li>
+      <li><a href="/nosotros" data-proto>Nosotros</a></li><li><a href="cuenta.html">Mi cuenta</a></li><li><a href="/por-mayor" data-proto>Por mayor</a></li>
       <li><a href="/politica-de-datos" data-proto>Tratamiento de datos</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
     </ul>
     <p>Historias que Habitan · Decoración y objetos para el hogar · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
@@ -98,17 +120,80 @@ PIE = '''<footer class="pie">
 <script src="base.js"></script>
 '''
 
+PIE = PIE_SITIO + EXTRAS_SITIO + '<script src="base.js"></script>\n'  # el pie sale de sitio.py
 
-def tarjeta(nombre, meta, precio, antes=None, sello=False, agotado=False, datos='', href=None, dibujo=None):
+
+# Registro de piezas: cada tarjeta con precio recibe su propia ficha (la genera fichas.py)
+import re
+REG = {}
+
+
+def slug(texto):
+    import unicodedata
+    t = unicodedata.normalize('NFD', texto.lower())
+    t = ''.join(c for c in t if unicodedata.category(c) != 'Mn')
+    return re.sub(r'[^a-z0-9]+', '-', t).strip('-')
+
+
+def numero(texto):
+    d = re.sub(r'\D', '', (texto or '').split('<')[0])
+    return int(d) if d else None
+
+
+def registrar(nombre, meta, precio, antes, sello, agotado, datos, dibujo, marca=None):
+    if numero(precio) is None:
+        return None
+    archivo = 'pieza-' + slug(nombre) + '.html'
+    dm = dict(re.findall(r'data-(\w+)="([^"]*)"', datos or ''))
+    if archivo not in REG:
+        material, _, origen = meta.partition(' · ')
+        e = estado_pieza(nombre)
+        REG[archivo] = dict(archivo=archivo, nombre=nombre, precio=numero(precio), antes=e['antes'] or numero(antes), sello=sello, agotado=agotado or e['agotada'],
+                            unidades=e['unidades'], pocas=e['pocas'], material=material, origen=origen, dibujo=dibujo, color=None, tamano=None, marca=marca)
+    r = REG[archivo]
+    r['color'] = r['color'] or dm.get('color')
+    r['tamano'] = r['tamano'] or dm.get('tamano')
+    return archivo
+
+
+def linea_tarjeta(meta, marca=None):
+    """Material y marca. El país de origen va solo en la ficha técnica; sin marca, ese espacio queda en blanco."""
+    partes = [p for p in meta.split(' · ') if not p.startswith('Hecho en') and p != '[Origen]']
+    return ' · '.join(partes + ([marca] if marca else []))
+
+
+def tarjeta(nombre, meta, precio, antes=None, sello=False, agotado=False, datos='', href=None, dibujo=None, marca=None):
+    # El catálogo manda: la misma pieza tiene la misma oferta y las mismas existencias en todo el sitio
+    e = estado_pieza(nombre)
+    if e['antes']:
+        antes = pesos_cat(e['antes'])
+    agotado = agotado or e['agotada']
+    if not href:
+        href = registrar(nombre, meta, precio, antes, sello, agotado, datos, dibujo, marca)
     p = '<strong>%s</strong>' % precio
     if antes:
+        pct = round((1 - numero(precio) / numero(antes)) * 100) if numero(precio) and numero(antes) else 20
         p = ('<span class="oculto-visual">Ahora </span><strong>%s</strong><span class="oculto-visual">. Antes </span><s>%s</s>'
-             '<span class="oferta"><span class="oculto-visual">. Descuento del 20 %%. </span><span aria-hidden="true">−20 %%</span></span>') % (precio, antes)
+             '<span class="oferta"><span class="oculto-visual">. Descuento del %d %%. </span><span aria-hidden="true">−%d %%</span></span>') % (precio, antes, pct, pct)
     a = '<a href="%s">' % href if href else '<a href="/jarrones/ejemplo" data-proto>'
-    return ('    <li class="tarjeta"%s>%s<div class="foto">%s%s</div><h3>%s</h3><p class="meta">%s</p><p class="precio">%s</p>%s</a></li>\n'
-            % (datos, a, '<span class="sello">Exclusivo</span>' if sello else '',
-               arte(*dibujo) if dibujo else '<span class="recorte">[FOTO DEL PRODUCTO]</span>', nombre, meta, p,
-               '<p class="agotado-txt">Agotado por ahora</p>' if agotado else ''))
+    # Etiquetas sobre la foto: se ven de un vistazo en la rejilla y la estantería
+    chips = ''
+    if antes and not agotado:
+        chips += '<span class="chip-estado chip-oferta" aria-hidden="true">Oferta</span>'  # el porcentaje va junto al precio
+    if e['pocas'] and not agotado:
+        chips += '<span class="chip-estado chip-pocas" aria-hidden="true">Quedan pocas</span>'  # el número va abajo
+    if agotado:
+        chips += '<span class="chip-estado chip-agotada">Agotada</span>'
+    abajo = ('<p class="agotado-txt"><b>Suscríbase</b> para que le avisemos cuando llegue</p>' if agotado
+             else '<p class="pocas-txt">%s</p>' % texto_unidades(e['unidades']) if e['pocas'] else '')
+    clase = ' agotada' if agotado else ' en-oferta' if antes else ''
+    limpio = nombre.strip('[]')
+    fav = ('<button type="button" class="fav" data-fav="%s" data-nombre="%s" aria-pressed="false" aria-label="Guardar %s en favoritos">%s</button>'
+           % (href, limpio, limpio, '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + CORAZON_SITIO + '</svg>') if href else '')
+    return ('    <li class="tarjeta%s"%s>%s<div class="foto">%s%s%s</div><h3>%s</h3><p class="meta">%s</p><p class="precio">%s</p>%s</a>%s</li>\n'
+            % (clase, datos, a, '<span class="sello">Exclusivo</span>' if sello else '',
+               '<span class="chips">%s</span>' % chips if chips else '',
+               arte(*dibujo) if dibujo else '<span class="recorte">[FOTO DEL PRODUCTO]</span>', nombre, linea_tarjeta(meta, marca), p, abajo, fav))
 
 
 def pagina(titulo, descripcion, estilos, cuerpo, actual=None, guion=''):
@@ -255,7 +340,7 @@ CUERPO_INICIO = ('''<main id="contenido">
     <section class="tramo metodo" aria-labelledby="t-metodo">
       <div>
         <h2 id="t-metodo">Cómo contamos cada pieza</h2>
-        <p class="origen" style="margin-top:var(--s4)">Nuestras piezas vienen de China y Panamá, y lo decimos en cada ficha.</p>
+        <p class="origen" style="margin-top:var(--s4)">De cada pieza decimos su origen en la ficha técnica, junto al material y las medidas.</p>
       </div>
       <dl>
         <dt>Hecho</dt><dd>Lo que se puede comprobar: material, medidas, origen y, cuando existe, un dato histórico con su fuente.</dd>
@@ -394,7 +479,7 @@ CUERPO_CAT = '''<div class="proto" role="region" aria-label="Controles del proto
   <label>Ver estado <select id="ver-estado"><option value="lista">Lista</option><option value="cargando">Cargando</option></select></label>
 </div>
 <main id="contenido" class="ancho">
-  <nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio.html">Inicio</a></li><li><span aria-current="page">Jarrones y recipientes</span></li></ol></nav>
+  <nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio-estructura.html">Inicio</a></li><li><span aria-current="page">Jarrones y recipientes</span></li></ol></nav>
   <header class="intro">
     <h1>Jarrones y recipientes</h1>
     <p>Jarrones, floreros y recipientes decorativos de cerámica, porcelana y vidrio, para usar solos o con flores y ramas. En cada pieza encuentra las medidas, el material y el origen. <span class="pendiente">[TEXTO DE EJEMPLO]</span></p>
@@ -506,6 +591,9 @@ CSS_LUZ = CSS_CAT + r"""
 .interruptor button[aria-checked=true] .perilla{translate:26px 0;background:var(--champagne)}
 #estado-luz{min-width:9ch;color:var(--cafe-humo)}
 .tonos{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2) var(--s3);border:0;padding:0;margin:0;min-width:0}
+.tonos:not([hidden]){animation:aparecer-tono 250ms var(--curva)}
+@keyframes aparecer-tono{from{opacity:0;translate:-6px 0}}
+@media (prefers-reduced-motion:reduce){.tonos:not([hidden]){animation:none}}
 .tonos legend{float:left;padding:0;margin-right:var(--s3)}
 .tonos div{display:inline-flex;border:1px solid var(--cafe-humo);border-radius:2px;overflow:hidden}
 .tonos label{position:relative;cursor:pointer}
@@ -518,7 +606,6 @@ CSS_LUZ = CSS_CAT + r"""
 .luces{--tono:#FFB259;--nucleo:#FFE9C6}
 .luces[data-tono=neutra]{--tono:#FFE2B0;--nucleo:#FFF7E8}
 .luces[data-tono=fria]{--tono:#C9DEFF;--nucleo:#F3F8FF}
-.luces li[data-tonos="1"]{--tono:#FFB259;--nucleo:#FFE9C6}
 .escena{position:relative;aspect-ratio:4/5;background:#DAD3C9;overflow:hidden;margin-bottom:var(--s2)}
 .escena::before,.escena .halo{content:"";position:absolute;inset:0;opacity:0;transition:opacity 350ms var(--curva)}
 .escena::before{background:#2A1D16}
@@ -527,9 +614,9 @@ CSS_LUZ = CSS_CAT + r"""
 .escena .pantalla{fill:#EDE7DE;stroke:#B9AFA3;stroke-width:1;transition:fill 350ms var(--curva),filter 350ms var(--curva),stroke 350ms var(--curva)}
 .escena .metal{fill:#3B2A20}.escena .trazo{fill:none;stroke:#3B2A20;stroke-width:3;stroke-linecap:round}
 .escena .ceramica{fill:#F1EEE8;stroke:#B9AFA3}.escena .mesa{fill:#C9BFB2}
-:is(.luces[data-luz=on] li[data-tonos="3"],.luces[data-luz=on][data-tono=calida] li[data-tonos="1"]) .escena::before{opacity:.5;transition-duration:700ms}
-:is(.luces[data-luz=on] li[data-tonos="3"],.luces[data-luz=on][data-tono=calida] li[data-tonos="1"]) .halo{opacity:1;transition-duration:700ms,500ms}
-:is(.luces[data-luz=on] li[data-tonos="3"],.luces[data-luz=on][data-tono=calida] li[data-tonos="1"]) .pantalla{fill:var(--nucleo);stroke:var(--tono);filter:drop-shadow(0 0 9px var(--tono));transition-duration:700ms}
+.luces li.prendida .escena::before{opacity:.5;transition-duration:700ms}
+.luces li.prendida .halo{opacity:1;transition-duration:700ms,500ms}
+.luces li.prendida .pantalla{fill:var(--nucleo);stroke:var(--tono);filter:drop-shadow(0 0 9px var(--tono));transition-duration:700ms}
 .luces .tarjeta h3{font-size:1.25rem;line-height:1.2}
 .luz-nota.apagada{border-style:dashed;color:var(--cafe-humo)}
 .luz-nota{display:inline-block;margin-top:var(--s1);font-size:.8125rem;border:1px solid var(--cafe-humo);border-radius:999px;padding:1px var(--s2)}
@@ -538,38 +625,46 @@ CSS_LUZ = CSS_CAT + r"""
 
 MESA = '<rect class="mesa" x="0" y="232" width="200" height="18"/>'
 LAMPARAS = [
-    ('[Lámpara de mesa con base de cerámica]', '$249.900', 3, 50, 40, MESA
+    ('[Lámpara de mesa con base de cerámica]', '$249.900', ('calida', 'neutra', 'fria'), 50, 40, MESA
      + '<path class="ceramica" d="M92 232 H108 L112 224 Q124 200 116 176 Q110 160 104 150 H96 Q90 160 84 176 Q76 200 88 224 Z"/>'
        '<rect class="metal" x="98" y="126" width="4" height="26"/><path class="pantalla" d="M68 128 L84 68 H116 L132 128 Z"/>'),
-    ('[Colgante de vidrio en globo]', '$189.900', 1, 50, 60,
+    ('[Colgante de vidrio en globo]', '$189.900', ('calida',), 50, 60,
      '<path class="trazo" d="M100 0 V118" stroke-width="2"/><rect class="metal" x="93" y="116" width="14" height="10" rx="2"/><circle class="pantalla" cx="100" cy="152" r="27"/>'),
-    ('[Aplique doble de pared]', '$159.900', 3, 50, 50,
+    ('[Aplique doble de pared]', '$159.900', ('calida', 'fria'), 50, 50,
      '<rect class="pantalla" x="86" y="68" width="28" height="40" rx="7"/><rect class="pantalla" x="86" y="144" width="28" height="40" rx="7"/><rect class="metal" x="91" y="102" width="18" height="48" rx="4"/>'),
-    ('[Lámpara de mesa tipo hongo]', '$219.900', 3, 50, 40, MESA
+    ('[Lámpara de mesa tipo hongo]', '$219.900', ('calida', 'neutra'), 50, 40, MESA
      + '<path class="metal" d="M76 232 H124 L118 222 H82 Z"/><rect class="metal" x="96" y="118" width="8" height="106"/><path class="pantalla" d="M58 122 Q58 70 100 70 Q142 70 142 122 Z"/>'),
-    ('[Colgante de tres globos]', '$389.900', 1, 50, 54,
+    ('[Colgante de tres globos]', '$389.900', ('calida',), 50, 54,
      '<path class="trazo" d="M100 0 V94" stroke-width="2"/><path class="trazo" d="M58 122 Q58 94 100 94 Q142 94 142 122"/>'
      '<circle class="pantalla" cx="58" cy="136" r="15"/><circle class="pantalla" cx="100" cy="136" r="15"/><circle class="pantalla" cx="142" cy="136" r="15"/>'),
-    ('[Farol de mesa]', '$129.900', 1, 50, 64, MESA
+    ('[Farol de mesa]', '$129.900', ('calida',), 50, 64, MESA
      + '<path class="trazo" d="M84 112 Q100 84 116 112"/><rect class="pantalla" x="82" y="120" width="36" height="100" rx="2"/>'
        '<path class="trazo" d="M78 114 H122 V228 H78 Z M100 114 V228" stroke-width="2.5"/>'),
 ]
 
 
+NOMBRE_TONO = {'calida': 'cálida', 'neutra': 'neutra', 'fria': 'fría'}
+
+
+def describir_tonos(tonos):
+    n = [NOMBRE_TONO[t] for t in tonos]
+    return '3 tonos de luz' if len(n) == 3 else 'Luz %s y %s' % tuple(n) if len(n) == 2 else 'Solo luz %s' % n[0]
+
+
 def lampara(nombre, precio, tonos, lx, ly, dibujo):
-    nota = '3 tonos de luz' if tonos == 3 else 'Solo luz cálida'
-    return ('    <li class="tarjeta" data-tonos="%d"><a href="/decoracion/lamparas/ejemplo" data-proto>'
+    nota = describir_tonos(tonos)
+    return ('    <li class="tarjeta" data-tonos="%s"><a href="/decoracion/lamparas/ejemplo" data-proto>'
             '<div class="escena" style="--lx:%d%%;--ly:%d%%"><span class="halo"></span>'
             '<svg viewBox="0 0 200 250" aria-hidden="true" focusable="false">%s</svg></div>'
-            '<h3>%s</h3><p class="meta">[Material] · [Origen]</p><p class="precio"><strong>%s</strong></p>'
-            '<span class="luz-nota">%s</span></a></li>\n' % (tonos, lx, ly, dibujo, nombre, precio, nota))
+            '<h3>%s</h3><p class="meta">[Material]</p><p class="precio"><strong>%s</strong></p>'
+            '<span class="luz-nota">%s</span></a></li>\n' % (' '.join(tonos), lx, ly, dibujo, nombre, precio, nota))
 
 
 CUERPO_LUZ = ("""<div class="proto" role="region" aria-label="Controles del prototipo">
   <span>Prototipo: las lámparas son dibujos y la luz está simulada. En producción cada estado es una foto real de la misma lámpara, con el mismo encuadre: apagada y encendida en cada tono.</span>
 </div>
 <main id="contenido" class="ancho">
-  <nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio.html">Inicio</a></li><li><a href="/decoracion" data-proto>Decoraciones del hogar</a></li><li><span aria-current="page">Lámparas</span></li></ol></nav>
+  <nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio-estructura.html">Inicio</a></li><li><a href="/decoracion" data-proto>Decoraciones del hogar</a></li><li><span aria-current="page">Lámparas</span></li></ol></nav>
   <header class="intro">
     <h1>Lámparas</h1>
     <p>Lámparas de mesa, colgantes y apliques. Enciéndalas para ver cómo iluminan; algunas cambian entre luz cálida, neutra y fría. <span class="pendiente">[TEXTO DE EJEMPLO]</span> <span class="pendiente">[POR CONFIRMAR: si es categoría propia]</span></p>
@@ -579,13 +674,13 @@ CUERPO_LUZ = ("""<div class="proto" role="region" aria-label="Controles del prot
     <div class="interruptor"><span id="et-luz">Luz</span>
       <button type="button" role="switch" aria-checked="false" aria-labelledby="et-luz" id="luz"><span class="perilla"></span></button>
       <span id="estado-luz" aria-hidden="true">Apagadas</span></div>
-    <fieldset class="tonos"><legend>Tono</legend><div>
+    <fieldset class="tonos" hidden><legend>Tono</legend><div>
       <label><input type="radio" name="tono" value="calida" checked><span><i style="background:#FFB259"></i>Cálida</span></label>
       <label><input type="radio" name="tono" value="neutra"><span><i style="background:#FFE2B0"></i>Neutra</span></label>
       <label><input type="radio" name="tono" value="fria"><span><i style="background:#C9DEFF"></i>Fría</span></label>
     </div></fieldset>
   </div>
-  <div class="estado-lista"><p id="cuenta">6 lámparas</p><p style="color:var(--cafe-humo);font-size:.875rem;margin:0" id="nota-tonos">Las lámparas que no vienen en el tono elegido se apagan.</p></div>
+  <div class="estado-lista"><p id="cuenta">6 lámparas</p><p style="color:var(--cafe-humo);font-size:.875rem;margin:0" id="nota-tonos" hidden>Las lámparas que no vienen en el tono elegido se apagan.</p></div>
 
   <h2 class="oculto-visual">Lámparas de esta sección</h2>
   <ul class="rejilla luces" id="lista" data-luz="off" data-tono="calida">
@@ -599,19 +694,23 @@ JS_LUZ = r"""<script>
 /* Encender y apagar las lámparas y elegir el tono. La que no viene en el tono elegido se apaga y lo dice. */
 const lista = document.getElementById('lista'), llave = document.getElementById('luz');
 const TONOS = { calida: 'cálida', neutra: 'neutra', fria: 'fría' };
+const describir = t => t.length === 3 ? '3 tonos de luz' : t.length === 2 ? `Luz ${TONOS[t[0]]} y ${TONOS[t[1]]}` : `Solo luz ${TONOS[t[0]]}`;
 function refrescar(decir = true) {
   const on = lista.dataset.luz === 'on', tono = lista.dataset.tono, total = lista.children.length;
   let encendidas = 0;
   [...lista.children].forEach(li => {
-    const prende = on && (li.dataset.tonos === '3' || tono === 'calida'); if (prende) encendidas++;
-    const nota = li.querySelector('.luz-nota'); if (li.dataset.tonos !== '1') return;
-    const apagada = on && !prende; nota.classList.toggle('apagada', apagada);
-    nota.textContent = apagada ? `Apagada: no viene en luz ${TONOS[tono]}` : 'Solo luz cálida';
+    const suyos = li.dataset.tonos.split(' '), prende = on && suyos.includes(tono);
+    li.classList.toggle('prendida', prende); if (prende) encendidas++;
+    const nota = li.querySelector('.luz-nota'), apagada = on && !prende;
+    nota.classList.toggle('apagada', apagada);
+    nota.textContent = apagada ? `Apagada: no viene en luz ${TONOS[tono]}` : describir(suyos);
   });
   llave.setAttribute('aria-checked', on);
+  // El tono solo se elige con la luz encendida
+  document.querySelector('.tonos').hidden = document.getElementById('nota-tonos').hidden = !on;
   document.getElementById('estado-luz').textContent = on ? 'Encendidas' : 'Apagadas';
   document.getElementById('cuenta').textContent = on ? `${encendidas} de ${total} encendidas` : `${total} lámparas`;
-  if (decir) anunciar(on ? `Luz ${TONOS[tono]}: ${encendidas} de ${total} lámparas encendidas` : 'Lámparas apagadas');
+  if (decir) anunciar(on ? `Luz ${TONOS[tono]}: ${encendidas} de ${total} lámparas encendidas. Ya puede elegir el tono.` : 'Lámparas apagadas');
   track('luz_lamparas', { encendidas: on, tono });
 }
 llave.addEventListener('click', () => { lista.dataset.luz = lista.dataset.luz === 'on' ? 'off' : 'on'; refrescar(); });
@@ -628,8 +727,8 @@ EXTRA = []
 exec(io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'paginas_extra.py'), encoding='utf-8').read())
 
 # Los estilos y el guion compartidos se incrustan: así cada prototipo abre solo, sin depender de otros archivos.
-css = io.open(dest + '/base.css', encoding='utf-8').read()
-js = io.open(dest + '/base.js', encoding='utf-8').read()
+css = io.open(dest + '/base.css', encoding='utf-8').read() + '\n' + SITIO_CSS
+js = io.open(dest + '/base.js', encoding='utf-8').read() + '\n' + SITIO_JS
 for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = io.open(dest + '/' + nombre, encoding='utf-8').read()
     a, b = '<link rel="stylesheet" href="base.css">', '<script src="base.js"></script>'
@@ -639,27 +738,32 @@ for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
 print('incrustado')
 
 # El viaje de la pieza entre páginas: la lista debe estar pintada antes de la transición.
-CABEZA = """<link rel="expect" blocking="render" href="#%s">
-<script>
-/* Al volver de la ficha, la pieza regresa a su lugar en la repisa */
+CABEZA = """<script>
+/* Al volver de una ficha, la pieza regresa a su lugar en la repisa */
 addEventListener('pagereveal', e => {
   document.documentElement.dataset.transicion = e.viewTransition ? 'si' : 'no';
+  if (e.viewTransition) { e.viewTransition.ready.catch(() => {}); e.viewTransition.finished.catch(() => {}); }   // si el navegador cancela la transición, no es un error
   const de = window.navigation && navigation.activation && navigation.activation.from;
-  if (!e.viewTransition || !de || !de.url.includes('ficha-producto')) return;
-  const arte = document.querySelector('.tarjeta a[href*="ficha-producto"] .arte'); if (!arte) return;
+  if (!e.viewTransition || !de) return;
+  const archivo = de.url.split('/').pop().split(/[?#]/)[0];
+  if (!/^(pieza-|ficha-|lampara-)/.test(archivo)) return;
+  const arte = document.querySelector('.tarjeta a[href="' + archivo + '"] .arte'); if (!arte) return;
   arte.style.viewTransitionName = 'pieza';
-  e.viewTransition.finished.finally(() => arte.style.viewTransitionName = '');
+  const limpiar = () => arte.style.viewTransitionName = '';
+  e.viewTransition.finished.then(limpiar, limpiar);
 });
 </script>
 </head>"""
-for nombre, lista in (('inicio.html', 'piezas'), ('categoria.html', 'lista')):
+for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = io.open(dest + '/' + nombre, encoding='utf-8').read()
+    if 'class="rejilla' not in h:
+        continue
     assert h.count('</head>') == 1
-    io.open(dest + '/' + nombre, 'w', encoding='utf-8', newline='\n').write(h.replace('</head>', CABEZA % lista))
+    io.open(dest + '/' + nombre, 'w', encoding='utf-8', newline='\n').write(h.replace('</head>', CABEZA))
 print('viaje listo')
 
 # Enlaces reales entre las páginas del prototipo
-MAPA = [('/colecciones/primer-hogar', 'coleccion-primer-hogar.html'), ('/colecciones/regalos-que-se-guardan', 'coleccion-regalos.html'), ('/porcelanas', 'porcelanas.html'), ('/flores-artificiales', 'flores-artificiales.html'), ('/mesa', 'mesa.html'), ('/centros-de-mesa', 'centros-de-mesa.html'), ('/esculturas', 'esculturas.html'), ('/decoracion', 'decoracion.html'), ('/jarrones', 'categoria.html'), ('/colecciones', 'colecciones.html'), ('/politica-de-datos', 'politica-de-datos.html'), ('/terminos', 'terminos.html'), ('/politica-de-cookies', 'politica-de-cookies.html'), ('/carrito', 'carrito.html'), ('/colecciones/la-mesa-que-recibe', 'coleccion.html'), ('/historias/como-poner-la-mesa-para-recibir', 'historia.html'), ('/historias', 'historias.html'), ('/por-mayor', 'por-mayor.html'), ('/seguimiento', 'seguimiento.html'), ('/pieza-rota', 'pieza-rota.html'), ('/envios', 'envios.html'), ('/cambios-y-garantia', 'cambios-y-garantia.html'), ('/nosotros', 'nosotros.html'), ('/preguntas', 'preguntas.html')]
+MAPA = [('/historias/el-pesebre-en-casa', 'historia-pesebre.html'), ('/historias/la-forma-del-anfora', 'historia-anfora.html'), ('/historias/el-primer-jarron', 'historia-primer-jarron.html'), ('/colecciones/primer-hogar', 'coleccion-primer-hogar.html'), ('/colecciones/regalos-que-se-guardan', 'coleccion-regalos.html'), ('/porcelanas', 'porcelanas.html'), ('/flores-artificiales', 'flores-artificiales.html'), ('/mesa', 'mesa.html'), ('/centros-de-mesa', 'centros-de-mesa.html'), ('/esculturas', 'esculturas.html'), ('/decoracion', 'decoracion.html'), ('/jarrones', 'categoria.html'), ('/colecciones', 'colecciones.html'), ('/politica-de-datos', 'politica-de-datos.html'), ('/terminos', 'terminos.html'), ('/politica-de-cookies', 'politica-de-cookies.html'), ('/carrito', 'carrito.html'), ('/colecciones/la-mesa-que-recibe', 'coleccion.html'), ('/historias/como-poner-la-mesa-para-recibir', 'historia.html'), ('/historias', 'historias.html'), ('/por-mayor', 'por-mayor.html'), ('/seguimiento', 'seguimiento.html'), ('/pieza-rota', 'pieza-rota.html'), ('/envios', 'envios.html'), ('/cambios-y-garantia', 'cambios-y-garantia.html'), ('/nosotros', 'nosotros.html'), ('/preguntas', 'preguntas.html')]
 for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = io.open(dest + '/' + nombre, encoding='utf-8').read()
     for ruta, archivo in MAPA:
@@ -667,3 +771,12 @@ for nombre in ['inicio.html', 'categoria.html', 'lamparas.html'] + EXTRA:
     h = h.replace('href="/carrito" aria-label="Carrito, 0 piezas" data-proto', 'href="carrito.html" aria-label="Carrito, 0 piezas" data-contador')
     io.open(dest + '/' + nombre, 'w', encoding='utf-8', newline='\n').write(h)
 print('enlaces listos')
+
+# La plantilla de la ficha recibe la misma cabecera y el mismo pie antes de copiarse a todas las fichas
+_fp = dest + '/ficha-producto.html'
+_html = sincronizar(io.open(_fp, encoding='utf-8').read())   # primero se lee: abrir para escribir vacía el archivo
+io.open(_fp, 'w', encoding='utf-8', newline='\n').write(_html)
+print('cabecera y pie en la plantilla de la ficha')
+
+# Fichas de todas las piezas y lámparas
+exec(io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fichas.py'), encoding='utf-8').read())

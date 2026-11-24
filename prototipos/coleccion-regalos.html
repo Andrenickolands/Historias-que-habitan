@@ -94,7 +94,18 @@ dialog.panel::backdrop{background:rgba(49,38,32,.45)}
 .tarjeta .precio s{font-size:.875rem;color:var(--cafe-humo)}
 .oferta{font-size:.8125rem;font-weight:500;color:var(--hueso);background:var(--borgona);padding:3px 8px;border-radius:2px}
 .sello{position:absolute;left:var(--s2);top:var(--s2);font:500 .6875rem/1.4 var(--texto);letter-spacing:.12em;text-transform:uppercase;background:var(--hueso);border:1px solid var(--tinta);padding:2px 6px;border-radius:2px}
-.agotado-txt{font-size:.875rem;color:var(--error)}
+/* Estados de la pieza (catálogo único): oferta, quedan pocas, agotada. Mismos textos y colores en todo el sitio */
+.chips{position:absolute;right:var(--s2);top:var(--s2);z-index:2;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.chip-estado{font:500 .75rem/1.3 var(--texto);padding:3px 8px;border-radius:2px;white-space:nowrap}
+.chip-oferta{background:var(--borgona);color:var(--hueso)}
+.chip-pocas{background:#F6E7C6;color:#5B4632;border:1px solid #C9A46A}
+.chip-agotada{background:#E6E3DF;color:#5F5953;border:1px solid #BBB2A8}
+.agotado-txt{font-size:.875rem;color:var(--error);margin-top:2px}
+.agotado-txt b{font-weight:600}
+.pocas-txt{font-size:.875rem;color:#7A5A1E;margin-top:2px}
+.tarjeta.agotada .arte,.tarjeta.agotada .recorte{opacity:.5;filter:grayscale(.6)}
+.tarjeta.agotada .precio strong{color:var(--cafe-humo);font-weight:400}
+.estanteria .chips{top:0;right:0}
 
 /* Estantería: las piezas se apoyan en una repisa flotante. Cada tarjeta dibuja su tramo y los tramos se unen por fila,
    así funciona con cualquier número de columnas y con los filtros. Necesita fotos recortadas, sin fondo. */
@@ -149,6 +160,122 @@ dialog.panel::backdrop{background:rgba(49,38,32,.45)}
   .rejilla{grid-template-columns:repeat(4,minmax(0,1fr))}
   .wa-flotante{right:var(--s5);bottom:var(--s5)}
 }
+
+/* ===== Sitio: cabecera, atajos, menú, favoritos y pie con boletín (herramientas/sitio.py) ===== */
+[hidden]{display:none!important}
+/* El menú cerrado no se ve nunca, aunque la página use otra clase .panel (la galería del inicio la usa) */
+dialog.panel:not([open]){display:none!important}
+#menu:modal{position:fixed;flex:none}
+.cabecera .ancho{display:flex;align-items:center;gap:0;min-height:64px}
+.marca{margin-right:auto;max-width:10em;line-height:1.3;padding:0 var(--s2)}
+.utiles{display:flex;align-items:center}
+.util{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:52px;min-height:56px;padding:4px 2px;background:none;border:0;border-radius:4px;color:var(--tinta);font:500 .75rem/1.15 var(--texto);text-decoration:none;cursor:pointer}
+.util:hover{background:var(--suave)}
+.util .icono{width:24px;height:24px}
+.util .contador{top:2px;right:calc(50% - 24px)}
+.util.con-sesion .icono{color:var(--borgona)}
+.u-largo{display:none}
+.solo-escritorio{display:none!important}
+.icono.chico{width:18px;height:18px}
+/* Atajos de celular y tableta: Buscar, Lo nuevo y Descuentos siempre a la vista, con texto */
+.atajos{background:var(--hueso);border-bottom:1px solid var(--perla)}
+.atajos .ancho{display:flex;gap:var(--s2);overflow-x:auto;padding-top:var(--s2);padding-bottom:var(--s2);scrollbar-width:none;overscroll-behavior-x:contain}
+.atajos .ancho::-webkit-scrollbar{display:none}
+.atajo{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 var(--s4);border:1px solid var(--perla);border-radius:999px;background:#fff;color:var(--tinta);font:500 .9375rem/1 var(--texto);text-decoration:none;white-space:nowrap;cursor:pointer}
+.atajo:hover{background:var(--suave)}
+.atajo[aria-current]{border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.atajo-nuevo::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#B7872F}
+.atajo-desc{background:#F6E9EA;color:var(--borgona);border-color:#E3C3C7}
+.atajo-desc:hover{background:#F0DCDE}
+/* Menú: Lo nuevo y Descuentos como dos tarjetas arriba */
+.menu-destacados{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin:0 0 var(--s5)}
+.menu-dest{display:flex;flex-direction:column;gap:4px;min-height:92px;padding:var(--s3);border-radius:6px;background:var(--suave);color:var(--tinta);text-decoration:none}
+.menu-dest b{font:600 1.375rem/1.15 var(--titulo)}
+.menu-dest span{font-size:.875rem;line-height:1.35;color:var(--cafe-humo)}
+.menu-dest.nuevo b::after{content:"";display:inline-block;width:8px;height:8px;margin-left:6px;border-radius:50%;background:#B7872F;vertical-align:middle}
+.menu-dest.desc{background:#F6E9EA}
+.menu-dest.desc b{color:var(--borgona)}
+.menu-lista a.sub{padding-left:var(--s4);font:400 1rem/1.5 var(--texto)}
+/* Favoritos: el corazón sobre la foto de cada pieza */
+.tarjeta{position:relative}
+.fav{position:absolute;top:var(--s2);right:var(--s2);z-index:3;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:rgba(251,250,249,.94);color:var(--tinta);box-shadow:0 1px 4px rgba(49,38,32,.14);cursor:pointer}
+.fav:hover{background:#fff}
+.fav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fav[aria-pressed=true]{color:var(--borgona)}
+.fav[aria-pressed=true] svg{fill:currentColor}
+.tarjeta:has(.fav) .chips{top:60px}
+/* En la ficha: botón con texto, grande y con borde */
+.fav-ficha{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);width:100%;min-height:52px;margin-top:var(--s3);padding:0 var(--s5);border:2px solid var(--tinta);border-radius:2px;background:transparent;color:var(--tinta);font:500 1rem/1.2 var(--texto);cursor:pointer}
+.fav-ficha:hover{background:var(--suave)}
+.fav-ficha svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fav-ficha[aria-pressed=true]{border-color:var(--borgona);color:var(--borgona)}
+.fav-ficha[aria-pressed=true] svg{fill:currentColor}
+@media (prefers-reduced-motion:no-preference){
+  .fav[aria-pressed=true] svg,.fav-ficha[aria-pressed=true] svg{animation:latido 320ms var(--curva)}
+  @keyframes latido{50%{transform:scale(1.2)}}
+}
+/* Pie con el boletín */
+.pie{display:block;margin-top:var(--s8);border-top:0;padding:0 0 calc(var(--s8) + var(--s6));font-size:.9375rem;color:var(--cafe-humo)}
+.pie-boletin{background:var(--oatmeal);color:var(--tinta);padding:var(--s7) 0}
+.pie-boletin .ancho{display:grid;gap:var(--s5)}
+.pie .pie-titulo{font-size:2rem;line-height:1.1}
+.pie .pie-linea{margin-top:var(--s2);max-width:44ch;color:var(--mocha)}
+.pie .pie-linea strong{color:var(--tinta);font-weight:500}
+.pf-dos{display:grid;gap:0 var(--s3)}
+@media (min-width:480px){.pf-dos{grid-template-columns:1fr 1fr}}
+.pf-campo{margin-bottom:var(--s3)}
+.pf-campo label{display:block;margin-bottom:var(--s1);font-weight:500;color:var(--tinta)}
+.pf-campo label small{font-weight:400;font-size:.9375rem;color:var(--mocha)}
+.pf-campo input{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.pf-campo [aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.pf-ayuda{display:block;margin-top:var(--s1);font-size:.9375rem;color:var(--mocha)}
+.pf-casilla{display:flex;gap:var(--s3);align-items:flex-start;min-height:44px;padding:var(--s1) 0;color:var(--tinta);cursor:pointer}
+.pf-casilla input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--tinta)}
+.pf-casilla a,.pie .pf-casilla a{display:inline;min-height:0}
+.pf-error{display:flex;gap:var(--s2);margin:var(--s1) 0 var(--s2);padding:var(--s2) var(--s3);font-size:.9375rem;color:var(--error);background:var(--error-fondo);border-radius:2px}
+.pf-error::before{content:"!";flex:none;width:18px;height:18px;display:grid;place-content:center;font-weight:500;font-size:.75rem;border:1.5px solid currentColor;border-radius:50%}
+.pf-boton{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:var(--s3);padding:0 var(--s6);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--tinta);border-radius:2px;background:var(--tinta);color:var(--hueso);cursor:pointer}
+.pf-boton:hover{background:#1F1814}
+.pie .pf-chica{margin-top:var(--s2);font-size:.9375rem;color:var(--mocha)}
+.pf-ok{padding:var(--s5);background:var(--hueso);border-radius:6px;color:var(--tinta)}
+.pf-ok:focus{outline:2px solid var(--tinta);outline-offset:3px}
+.pie .pf-ok-t{font:600 1.5rem/1.2 var(--titulo)}
+.pie .pf-ok-d{margin-top:var(--s2)}
+.pie-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5) var(--s4);padding:var(--s7) 0 var(--s5)}
+.pie-h{margin-bottom:var(--s2);font:500 .8125rem/1.3 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta)}
+.pie .pie-cols ul{display:block;margin:0;padding:0;list-style:none}
+.pie-cols a{display:flex;align-items:center;min-height:44px;color:var(--tinta);text-decoration:none}
+.pie-cols a:hover{text-decoration:underline;text-underline-offset:3px}
+.pie-legal{padding-top:var(--s4);border-top:1px solid var(--perla)}
+.pie-legal p{margin:0 0 var(--s2)}
+.pie-legal a{display:inline;min-height:0}
+@media (min-width:960px){
+  .atajos{display:none}
+  .solo-escritorio{display:inline-flex!important}
+  .solo-movil{display:none!important}
+  .cabecera .ancho{min-height:72px}
+  .marca{max-width:none;margin-right:var(--s5)}
+  .u-corto{display:none}.u-largo{display:inline}
+  .nav-escritorio{display:flex;align-items:center;gap:var(--s4);margin-right:auto}
+  .nav-escritorio a,.nav-escritorio button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;font:inherit;color:inherit;background:none;border:0;text-decoration:none;cursor:pointer}
+  .nav-escritorio a:hover,.nav-escritorio button:hover{text-decoration:underline;text-underline-offset:4px}
+  .nav-escritorio a[aria-current]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px}
+  .nav-escritorio .nav-nuevo::after{content:"";align-self:flex-start;width:7px;height:7px;margin-top:10px;border-radius:50%;background:#B7872F}
+  .nav-escritorio .nav-desc{min-height:38px;padding:0 var(--s4);border:1px solid #E3C3C7;border-radius:999px;background:#F6E9EA;color:var(--borgona);font-weight:500}
+  .nav-escritorio .nav-desc:hover{background:#F0DCDE;text-decoration:none}
+  .util{min-width:66px}
+  .pie-boletin .ancho{grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start;gap:var(--s7)}
+  .pf-boton{width:auto}
+  .pie-cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (min-width:960px) and (max-width:1199px){
+  .nav-escritorio .nav-opcional{display:none}
+  .nav-escritorio{gap:var(--s3)}
+  .util .u-txt{display:none}
+  .util{min-width:48px;min-height:48px}
+  .util .contador{right:2px}
+}
+@media (max-width:359px){.util .u-txt{display:none}.util{min-width:44px}}
 </style>
 <style>
 .migas{font-size:.875rem;padding:var(--s2) 0}
@@ -280,37 +407,71 @@ fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
 .casilla{display:flex;align-items:flex-start;gap:var(--s3);min-height:44px;cursor:pointer}
 @media (min-width:640px){.banda-col{margin:0;padding:var(--s7) var(--s6)}.banda-col h1{font-size:3.25rem}}
 </style>
+<script>
+/* Al volver de una ficha, la pieza regresa a su lugar en la repisa */
+addEventListener('pagereveal', e => {
+  document.documentElement.dataset.transicion = e.viewTransition ? 'si' : 'no';
+  if (e.viewTransition) { e.viewTransition.ready.catch(() => {}); e.viewTransition.finished.catch(() => {}); }   // si el navegador cancela la transición, no es un error
+  const de = window.navigation && navigation.activation && navigation.activation.from;
+  if (!e.viewTransition || !de) return;
+  const archivo = de.url.split('/').pop().split(/[?#]/)[0];
+  if (!/^(pieza-|ficha-|lampara-)/.test(archivo)) return;
+  const arte = document.querySelector('.tarjeta a[href="' + archivo + '"] .arte'); if (!arte) return;
+  arte.style.viewTransitionName = 'pieza';
+  const limpiar = () => arte.style.viewTransitionName = '';
+  e.viewTransition.finished.then(limpiar, limpiar);
+});
+</script>
 </head>
 <body>
 <a class="salto" href="#contenido">Saltar al contenido</a>
 <header class="cabecera">
   <div class="ancho">
-    <button class="boton-icono solo-movil" type="button" data-abrir-menu aria-label="Abrir el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="util solo-movil" type="button" data-abrir-menu aria-label="Abrir el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="u-txt" aria-hidden="true">Menú</span></button>
     <!-- [LOGO SVG PENDIENTE] -->
-    <a class="marca" href="inicio.html" translate="no">Historias que Habitan</a>
+    <a class="marca" href="inicio-estructura.html" translate="no">Historias que Habitan</a>
     <nav class="nav-escritorio" aria-label="Principal">
       <button type="button" data-abrir-menu>Tienda</button>
+      <a class="nav-nuevo" href="lo-nuevo.html">Lo nuevo</a>
+      <a class="nav-desc" href="descuentos.html">Descuentos</a>
       <a href="colecciones.html">Colecciones</a>
-      <a href="historias.html">Historias</a>
-      <a href="quiz-orientacion.html">Orientación</a>
+      <a class="nav-opcional" href="historias.html">Historias</a>
       <a href="por-mayor.html">Por mayor</a>
     </nav>
-    <button class="boton-icono" type="button" data-abrir-menu aria-label="Buscar"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
-    <a class="boton-icono" href="carrito.html" aria-label="Carrito, 0 piezas" data-contador><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+    <div class="utiles">
+      <button class="util solo-escritorio" type="button" data-abrir-menu data-buscar aria-label="Buscar en la tienda"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="u-txt" aria-hidden="true">Buscar</span></button>
+      <a class="util" href="cuenta.html" data-cuenta><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 20.2c1.2-3.5 3.9-5.4 7.2-5.4s6 1.9 7.2 5.4"/></svg><span class="u-txt"><span class="u-corto">Ingresar</span><span class="u-largo">Ingresar</span></span></a>
+      <a class="util" href="favoritos.html" data-favoritos aria-label="Favoritos"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg><span class="u-txt" aria-hidden="true">Favoritos</span></a>
+      <a class="util" href="carrito.html" id="carrito" data-contador data-carrito aria-label="Carrito, 0 piezas"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="u-txt" aria-hidden="true">Carrito</span><span class="contador" id="contador" aria-hidden="true" hidden>0</span></a>
+    </div>
   </div>
 </header>
+<nav class="atajos" aria-label="Atajos de la tienda">
+  <div class="ancho">
+    <button type="button" class="atajo" data-abrir-menu data-buscar><svg class="icono chico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Buscar</button>
+    <a class="atajo atajo-nuevo" href="lo-nuevo.html">Lo nuevo</a>
+    <a class="atajo atajo-desc" href="descuentos.html">Descuentos</a>
+    <a class="atajo" href="tienda.html">Toda la tienda</a>
+    <a class="atajo" href="colecciones.html">Colecciones</a>
+  </div>
+</nav>
 
 <dialog class="panel" id="menu" aria-labelledby="t-menu">
-  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="panel-cuerpo">
     <form class="buscar" role="search">
       <label class="oculto-visual" for="q">Buscar en la tienda</label>
       <input id="q" name="q" type="search" placeholder="Buscar: jarrón, vajilla…" autocomplete="off" enterkeyhint="search">
       <button class="boton secundario" type="submit">Buscar</button>
     </form>
+    <div class="menu-destacados">
+      <a class="menu-dest nuevo" href="lo-nuevo.html"><b>Lo nuevo</b><span>Las piezas que acaban de llegar</span></a>
+      <a class="menu-dest desc" href="descuentos.html"><b>Descuentos</b><span>Con el precio anterior a la vista</span></a>
+    </div>
     <nav aria-label="Menú de la tienda">
       <p class="menu-titulo" id="m-tienda">Tienda</p>
       <ul class="menu-lista grande" aria-labelledby="m-tienda">
+        <li><a href="tienda.html">Toda la tienda</a></li>
         <li><a href="porcelanas.html">Porcelanas y figuras</a></li>
         <li><a href="categoria.html">Jarrones y recipientes</a></li>
         <li><a href="flores-artificiales.html">Flores artificiales</a></li>
@@ -318,7 +479,7 @@ fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
         <li><a href="centros-de-mesa.html">Centros de mesa</a></li>
         <li><a href="esculturas.html">Esculturas pequeñas</a></li>
         <li><a href="decoracion.html">Decoraciones del hogar</a></li>
-        <li><a href="lamparas.html" style="padding-left:var(--s4);font:400 1rem/1.5 var(--texto)">Lámparas</a></li>
+        <li><a class="sub" href="lamparas.html">Lámparas</a></li>
       </ul>
       <p class="menu-titulo" id="m-col">Colecciones</p>
       <ul class="menu-lista" aria-labelledby="m-col">
@@ -326,11 +487,16 @@ fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
         <li><a href="coleccion-primer-hogar.html">Primer hogar</a></li>
         <li><a href="coleccion-regalos.html">Regalos que se guardan</a></li>
       </ul>
+      <p class="menu-titulo" id="m-cuenta">Su cuenta</p>
+      <ul class="menu-lista" aria-labelledby="m-cuenta">
+        <li><a href="cuenta.html" data-cuenta-menu>Ingresar a mi cuenta</a></li>
+        <li><a href="favoritos.html">Mis favoritos y avisos de llegada</a></li>
+        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
+      </ul>
       <ul class="menu-lista">
         <li><a href="historias.html">Historias</a></li>
         <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
         <li><a href="por-mayor.html">Por mayor</a></li>
-        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
         <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
       </ul>
     </nav>
@@ -338,7 +504,7 @@ fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
 </dialog>
 
 <main id="contenido" class="ancho">
-<nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio.html">Inicio</a></li><li><a href="colecciones.html">Colecciones</a></li><li><span aria-current="page">Regalos que se guardan</span></li></ol></nav>
+<nav class="migas" aria-label="Ruta de navegación"><ol><li><a href="inicio-estructura.html">Inicio</a></li><li><a href="colecciones.html">Colecciones</a></li><li><span aria-current="page">Regalos que se guardan</span></li></ol></nav>
   <header class="banda-col" style="background:var(--espresso)">
     <h1>Regalos que se guardan</h1>
     <p>Piezas para regalar en bodas, inauguraciones y fechas especiales, con la medida, el material y el origen a la vista.</p>
@@ -347,10 +513,10 @@ fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
   <div class="estado-lista" style="padding-top:var(--s5)"><p>4 piezas</p></div>
   <h2 class="oculto-visual">Piezas de la colección</h2>
   <ul class="rejilla estanteria">
-    <li class="tarjeta"><a href="/jarrones/ejemplo" data-proto><div class="foto"><span class="sello">Exclusivo</span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz58-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(122,121,119,1.00)"/><stop offset="0.08" stop-color="rgba(195,194,190,1.00)"/><stop offset="0.18" stop-color="rgba(248,247,244,1.00)"/><stop offset="0.34" stop-color="rgba(244,242,238,1.00)"/><stop offset="0.6" stop-color="rgba(220,218,214,1.00)"/><stop offset="0.82" stop-color="rgba(166,165,162,1.00)"/><stop offset="0.94" stop-color="rgba(211,209,206,1.00)"/><stop offset="1" stop-color="rgba(127,126,124,1.00)"/></linearGradient><linearGradient id="pz58-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz58-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz58-k"><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="37.0" ry="6" fill="url(#pz58-s)"/><ellipse cx="100" cy="286.4" rx="22.2" ry="1.3" fill="#000" opacity=".3"/><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z" fill="url(#pz58-c)"/><g clip-path="url(#pz58-k)"><rect x="68" y="158" width="74" height="128" fill="url(#pz58-v)"/><rect x="78.4" y="158" width="9.6" height="128" fill="#fff" opacity=".26"/><rect x="83.5" y="168" width="2.6" height="104" rx="1.5" fill="#fff" opacity=".7"/><rect x="131.6" y="168" width="2.1" height="104" rx="1" fill="#fff" opacity=".24"/></g><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z" fill="none" stroke="rgba(122,121,119,0.40)" stroke-width=".7"/></svg></div><h3>[Ave de porcelana blanca]</h3><p class="meta">Porcelana · Hecho en China</p><p class="precio"><strong>$89.900</strong></p></a></li>
-    <li class="tarjeta"><a href="/jarrones/ejemplo" data-proto><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz59-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(110,115,116,0.62)"/><stop offset="0.08" stop-color="rgba(177,184,186,0.62)"/><stop offset="0.18" stop-color="rgba(234,240,241,0.62)"/><stop offset="0.34" stop-color="rgba(221,230,232,0.62)"/><stop offset="0.6" stop-color="rgba(199,207,209,0.62)"/><stop offset="0.82" stop-color="rgba(150,156,158,0.62)"/><stop offset="0.94" stop-color="rgba(194,200,202,0.62)"/><stop offset="1" stop-color="rgba(115,120,121,0.62)"/></linearGradient><linearGradient id="pz59-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz59-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz59-k"><path d="M74 118 H126 Q130 166 106 186 Q103 188 103 192 V266 Q122 270 130 286 H70 Q78 270 97 266 V192 Q97 188 94 186 Q70 166 74 118 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="30.0" ry="6" fill="url(#pz59-s)"/><ellipse cx="100" cy="286.4" rx="18.0" ry="1.3" fill="#000" opacity=".3"/><path d="M74 118 H126 Q130 166 106 186 Q103 188 103 192 V266 Q122 270 130 286 H70 Q78 270 97 266 V192 Q97 188 94 186 Q70 166 74 118 Z" fill="url(#pz59-c)"/><g clip-path="url(#pz59-k)"><rect x="70" y="272" width="60" height="14" fill="rgba(122,127,128,0.50)"/><path d="M78 273 H122" stroke="#fff" stroke-opacity=".55"/><rect x="70" y="118" width="60" height="168" fill="url(#pz59-v)"/><rect x="78.4" y="118" width="7.8" height="168" fill="#fff" opacity=".26"/><rect x="82.6" y="128" width="2.1" height="144" rx="1.5" fill="#fff" opacity=".7"/><rect x="121.6" y="128" width="1.7" height="144" rx="1" fill="#fff" opacity=".24"/></g><path d="M74 118 H126 Q130 166 106 186 Q103 188 103 192 V266 Q122 270 130 286 H70 Q78 270 97 266 V192 Q97 188 94 186 Q70 166 74 118 Z" fill="none" stroke="rgba(110,115,116,0.40)" stroke-width=".7"/></svg></div><h3>[Juego de 6 copas de vino]</h3><p class="meta">Vidrio · Hecho en China</p><p class="precio"><strong>$149.900</strong></p></a></li>
-    <li class="tarjeta"><a href="/jarrones/ejemplo" data-proto><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz60-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(108,100,87,1.00)"/><stop offset="0.08" stop-color="rgba(174,159,139,1.00)"/><stop offset="0.18" stop-color="rgba(231,220,205,1.00)"/><stop offset="0.34" stop-color="rgba(217,199,174,1.00)"/><stop offset="0.6" stop-color="rgba(195,179,157,1.00)"/><stop offset="0.82" stop-color="rgba(148,135,118,1.00)"/><stop offset="0.94" stop-color="rgba(191,177,158,1.00)"/><stop offset="1" stop-color="rgba(113,103,90,1.00)"/></linearGradient><linearGradient id="pz60-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz60-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz60-k"><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="54.0" ry="6" fill="url(#pz60-s)"/><ellipse cx="100" cy="286.4" rx="32.4" ry="1.3" fill="#000" opacity=".3"/><path d="M100 246 Q96 206 78 168" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 V150" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q106 206 124 162" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q90 226 66 196" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q112 222 136 190" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M94 216 q-16 -6 -20 -18 q14 0 20 18z" fill="#7C8C74"/><path d="M106 206 q16 -6 20 -18 q-14 0 -20 18z" fill="#7C8C74"/><circle cx="78" cy="168" r="13" fill="#E7C3BB"/><circle cx="74" cy="164" r="4" fill="#fff" opacity=".35"/><circle cx="100" cy="150" r="15" fill="#F4D9A0"/><circle cx="95" cy="145" r="5" fill="#fff" opacity=".35"/><circle cx="124" cy="162" r="13" fill="#E7C3BB"/><circle cx="120" cy="158" r="4" fill="#fff" opacity=".35"/><circle cx="66" cy="196" r="10" fill="#F1EEE8"/><circle cx="63" cy="193" r="3" fill="#fff" opacity=".35"/><circle cx="136" cy="190" r="11" fill="#F4D9A0"/><circle cx="133" cy="187" r="3" fill="#fff" opacity=".35"/><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="url(#pz60-c)"/><g clip-path="url(#pz60-k)"><rect x="46" y="236" width="108" height="50" fill="url(#pz60-v)"/><rect x="61.1" y="236" width="14.0" height="50" fill="#fff" opacity=".26"/><rect x="68.7" y="246" width="3.8" height="26" rx="1.5" fill="#fff" opacity=".7"/><rect x="138.9" y="246" width="3.0" height="26" rx="1" fill="#fff" opacity=".24"/></g><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="none" stroke="rgba(108,100,87,0.40)" stroke-width=".7"/></svg></div><h3>[Centro de mesa con flores]</h3><p class="meta">Tela y cerámica · Hecho en China</p><p class="precio"><strong>$129.900</strong></p></a></li>
-    <li class="tarjeta"><a href="ficha-producto.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz61-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(120,119,116,1.00)"/><stop offset="0.08" stop-color="rgba(193,190,186,1.00)"/><stop offset="0.18" stop-color="rgba(246,244,241,1.00)"/><stop offset="0.34" stop-color="rgba(241,238,232,1.00)"/><stop offset="0.6" stop-color="rgba(217,214,209,1.00)"/><stop offset="0.82" stop-color="rgba(164,162,158,1.00)"/><stop offset="0.94" stop-color="rgba(209,206,202,1.00)"/><stop offset="1" stop-color="rgba(125,124,121,1.00)"/></linearGradient><linearGradient id="pz61-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz61-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz61-k"><path d="M84 60 H116 Q120 60 119 66 L116 92 Q150 112 152 170 Q154 236 124 282 Q122 286 116 286 H84 Q78 286 76 282 Q46 236 48 170 Q50 112 84 92 L81 66 Q80 60 84 60 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="52.0" ry="6" fill="url(#pz61-s)"/><ellipse cx="100" cy="286.4" rx="31.2" ry="1.3" fill="#000" opacity=".3"/><path d="M86 84 Q52 82 58 126" fill="none" stroke="rgba(193,190,186,1.00)" stroke-width="7" stroke-linecap="round"/><path d="M114 84 Q148 82 142 126" fill="none" stroke="rgba(149,148,144,1.00)" stroke-width="7" stroke-linecap="round"/><path d="M84 82 Q56 82 59 118" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.4" stroke-linecap="round"/><path d="M84 60 H116 Q120 60 119 66 L116 92 Q150 112 152 170 Q154 236 124 282 Q122 286 116 286 H84 Q78 286 76 282 Q46 236 48 170 Q50 112 84 92 L81 66 Q80 60 84 60 Z" fill="url(#pz61-c)"/><g clip-path="url(#pz61-k)"><rect x="48" y="60" width="104" height="226" fill="url(#pz61-v)"/><rect x="62.6" y="60" width="13.5" height="226" fill="#fff" opacity=".26"/><rect x="69.8" y="70" width="3.6" height="202" rx="1.5" fill="#fff" opacity=".7"/><rect x="137.4" y="70" width="2.9" height="202" rx="1" fill="#fff" opacity=".24"/></g><path d="M84 60 H116 Q120 60 119 66 L116 92 Q150 112 152 170 Q154 236 124 282 Q122 286 116 286 H84 Q78 286 76 282 Q46 236 48 170 Q50 112 84 92 L81 66 Q80 60 84 60 Z" fill="none" stroke="rgba(120,119,116,0.40)" stroke-width=".7"/></svg></div><h3>Jarrón de cerámica blanca con asas</h3><p class="meta">Cerámica · Hecho en China</p><p class="precio"><strong>$189.900</strong></p></a></li>
+    <li class="tarjeta"><a href="pieza-ave-de-porcelana-blanca.html"><div class="foto"><span class="sello">Exclusivo</span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz109-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(122,121,119,1.00)"/><stop offset="0.08" stop-color="rgba(195,194,190,1.00)"/><stop offset="0.18" stop-color="rgba(248,247,244,1.00)"/><stop offset="0.34" stop-color="rgba(244,242,238,1.00)"/><stop offset="0.6" stop-color="rgba(220,218,214,1.00)"/><stop offset="0.82" stop-color="rgba(166,165,162,1.00)"/><stop offset="0.94" stop-color="rgba(211,209,206,1.00)"/><stop offset="1" stop-color="rgba(127,126,124,1.00)"/></linearGradient><linearGradient id="pz109-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz109-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz109-k"><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="37.0" ry="6" fill="url(#pz109-s)"/><ellipse cx="100" cy="286.4" rx="22.2" ry="1.3" fill="#000" opacity=".3"/><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z" fill="url(#pz109-c)"/><g clip-path="url(#pz109-k)"><rect x="68" y="158" width="74" height="128" fill="url(#pz109-v)"/><rect x="78.4" y="158" width="9.6" height="128" fill="#fff" opacity=".26"/><rect x="83.5" y="168" width="2.6" height="104" rx="1.5" fill="#fff" opacity=".7"/><rect x="131.6" y="168" width="2.1" height="104" rx="1" fill="#fff" opacity=".24"/></g><path d="M68 286 H132 Q134 270 120 262 Q142 246 140 214 Q138 194 122 188 Q127 174 116 166 Q103 158 93 168 L78 164 L90 179 Q72 196 70 224 Q68 250 84 264 Q66 270 68 286 Z" fill="none" stroke="rgba(122,121,119,0.40)" stroke-width=".7"/></svg></div><h3>[Ave de porcelana blanca]</h3><p class="meta">Porcelana</p><p class="precio"><strong>$89.900</strong></p></a><button type="button" class="fav" data-fav="pieza-ave-de-porcelana-blanca.html" data-nombre="Ave de porcelana blanca" aria-pressed="false" aria-label="Guardar Ave de porcelana blanca en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta"><a href="pieza-juego-de-6-copas-de-vino.html"><div class="foto"><span class="chips"><span class="chip-estado chip-pocas" aria-hidden="true">Quedan pocas</span></span><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz110-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(110,115,116,0.62)"/><stop offset="0.08" stop-color="rgba(177,184,186,0.62)"/><stop offset="0.18" stop-color="rgba(234,240,241,0.62)"/><stop offset="0.34" stop-color="rgba(221,230,232,0.62)"/><stop offset="0.6" stop-color="rgba(199,207,209,0.62)"/><stop offset="0.82" stop-color="rgba(150,156,158,0.62)"/><stop offset="0.94" stop-color="rgba(194,200,202,0.62)"/><stop offset="1" stop-color="rgba(115,120,121,0.62)"/></linearGradient><linearGradient id="pz110-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz110-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz110-k"><path d="M74 118 H126 Q130 166 106 186 Q103 188 103 192 V266 Q122 270 130 286 H70 Q78 270 97 266 V192 Q97 188 94 186 Q70 166 74 118 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="30.0" ry="6" fill="url(#pz110-s)"/><ellipse cx="100" cy="286.4" rx="18.0" ry="1.3" fill="#000" opacity=".3"/><path d="M74 118 H126 Q130 166 106 186 Q103 188 103 192 V266 Q122 270 130 286 H70 Q78 270 97 266 V192 Q97 188 94 186 Q70 166 74 118 Z" fill="url(#pz110-c)"/><g clip-path="url(#pz110-k)"><rect x="70" y="272" width="60" height="14" fill="rgba(122,127,128,0.50)"/><path d="M78 273 H122" stroke="#fff" stroke-opacity=".55"/><rect x="70" y="118" width="60" height="168" fill="url(#pz110-v)"/><rect x="78.4" y="118" width="7.8" height="168" fill="#fff" opacity=".26"/><rect x="82.6" y="128" width="2.1" height="144" rx="1.5" fill="#fff" opacity=".7"/><rect x="121.6" y="128" width="1.7" height="144" rx="1" fill="#fff" opacity=".24"/></g><path d="M74 118 H126 Q130 166 106 186 Q103 188 103 192 V266 Q122 270 130 286 H70 Q78 270 97 266 V192 Q97 188 94 186 Q70 166 74 118 Z" fill="none" stroke="rgba(110,115,116,0.40)" stroke-width=".7"/></svg></div><h3>[Juego de 6 copas de vino]</h3><p class="meta">Vidrio</p><p class="precio"><strong>$149.900</strong></p><p class="pocas-txt">Quedan 2 unidades</p></a><button type="button" class="fav" data-fav="pieza-juego-de-6-copas-de-vino.html" data-nombre="Juego de 6 copas de vino" aria-pressed="false" aria-label="Guardar Juego de 6 copas de vino en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta"><a href="pieza-centro-de-mesa-con-flores.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz111-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(108,100,87,1.00)"/><stop offset="0.08" stop-color="rgba(174,159,139,1.00)"/><stop offset="0.18" stop-color="rgba(231,220,205,1.00)"/><stop offset="0.34" stop-color="rgba(217,199,174,1.00)"/><stop offset="0.6" stop-color="rgba(195,179,157,1.00)"/><stop offset="0.82" stop-color="rgba(148,135,118,1.00)"/><stop offset="0.94" stop-color="rgba(191,177,158,1.00)"/><stop offset="1" stop-color="rgba(113,103,90,1.00)"/></linearGradient><linearGradient id="pz111-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz111-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz111-k"><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="54.0" ry="6" fill="url(#pz111-s)"/><ellipse cx="100" cy="286.4" rx="32.4" ry="1.3" fill="#000" opacity=".3"/><path d="M100 246 Q96 206 78 168" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 V150" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q106 206 124 162" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q90 226 66 196" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M100 246 Q112 222 136 190" fill="none" stroke="#6E7F68" stroke-width="2.2" stroke-linecap="round"/><path d="M94 216 q-16 -6 -20 -18 q14 0 20 18z" fill="#7C8C74"/><path d="M106 206 q16 -6 20 -18 q-14 0 -20 18z" fill="#7C8C74"/><circle cx="78" cy="168" r="13" fill="#E7C3BB"/><circle cx="74" cy="164" r="4" fill="#fff" opacity=".35"/><circle cx="100" cy="150" r="15" fill="#F4D9A0"/><circle cx="95" cy="145" r="5" fill="#fff" opacity=".35"/><circle cx="124" cy="162" r="13" fill="#E7C3BB"/><circle cx="120" cy="158" r="4" fill="#fff" opacity=".35"/><circle cx="66" cy="196" r="10" fill="#F1EEE8"/><circle cx="63" cy="193" r="3" fill="#fff" opacity=".35"/><circle cx="136" cy="190" r="11" fill="#F4D9A0"/><circle cx="133" cy="187" r="3" fill="#fff" opacity=".35"/><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="url(#pz111-c)"/><g clip-path="url(#pz111-k)"><rect x="46" y="236" width="108" height="50" fill="url(#pz111-v)"/><rect x="61.1" y="236" width="14.0" height="50" fill="#fff" opacity=".26"/><rect x="68.7" y="246" width="3.8" height="26" rx="1.5" fill="#fff" opacity=".7"/><rect x="138.9" y="246" width="3.0" height="26" rx="1" fill="#fff" opacity=".24"/></g><path d="M50 236 H150 Q154 236 153 242 Q148 274 122 284 Q119 286 114 286 H86 Q81 286 78 284 Q52 274 47 242 Q46 236 50 236 Z" fill="none" stroke="rgba(108,100,87,0.40)" stroke-width=".7"/></svg></div><h3>[Centro de mesa con flores]</h3><p class="meta">Tela y cerámica</p><p class="precio"><strong>$129.900</strong></p></a><button type="button" class="fav" data-fav="pieza-centro-de-mesa-con-flores.html" data-nombre="Centro de mesa con flores" aria-pressed="false" aria-label="Guardar Centro de mesa con flores en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
+    <li class="tarjeta"><a href="ficha-producto.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz112-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(120,119,116,1.00)"/><stop offset="0.08" stop-color="rgba(193,190,186,1.00)"/><stop offset="0.18" stop-color="rgba(246,244,241,1.00)"/><stop offset="0.34" stop-color="rgba(241,238,232,1.00)"/><stop offset="0.6" stop-color="rgba(217,214,209,1.00)"/><stop offset="0.82" stop-color="rgba(164,162,158,1.00)"/><stop offset="0.94" stop-color="rgba(209,206,202,1.00)"/><stop offset="1" stop-color="rgba(125,124,121,1.00)"/></linearGradient><linearGradient id="pz112-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz112-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz112-k"><path d="M84 60 H116 Q120 60 119 66 L116 92 Q150 112 152 170 Q154 236 124 282 Q122 286 116 286 H84 Q78 286 76 282 Q46 236 48 170 Q50 112 84 92 L81 66 Q80 60 84 60 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="52.0" ry="6" fill="url(#pz112-s)"/><ellipse cx="100" cy="286.4" rx="31.2" ry="1.3" fill="#000" opacity=".3"/><path d="M86 84 Q52 82 58 126" fill="none" stroke="rgba(193,190,186,1.00)" stroke-width="7" stroke-linecap="round"/><path d="M114 84 Q148 82 142 126" fill="none" stroke="rgba(149,148,144,1.00)" stroke-width="7" stroke-linecap="round"/><path d="M84 82 Q56 82 59 118" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.4" stroke-linecap="round"/><path d="M84 60 H116 Q120 60 119 66 L116 92 Q150 112 152 170 Q154 236 124 282 Q122 286 116 286 H84 Q78 286 76 282 Q46 236 48 170 Q50 112 84 92 L81 66 Q80 60 84 60 Z" fill="url(#pz112-c)"/><g clip-path="url(#pz112-k)"><rect x="48" y="60" width="104" height="226" fill="url(#pz112-v)"/><rect x="62.6" y="60" width="13.5" height="226" fill="#fff" opacity=".26"/><rect x="69.8" y="70" width="3.6" height="202" rx="1.5" fill="#fff" opacity=".7"/><rect x="137.4" y="70" width="2.9" height="202" rx="1" fill="#fff" opacity=".24"/></g><path d="M84 60 H116 Q120 60 119 66 L116 92 Q150 112 152 170 Q154 236 124 282 Q122 286 116 286 H84 Q78 286 76 282 Q46 236 48 170 Q50 112 84 92 L81 66 Q80 60 84 60 Z" fill="none" stroke="rgba(120,119,116,0.40)" stroke-width=".7"/></svg></div><h3>Jarrón de cerámica blanca con asas</h3><p class="meta">Cerámica</p><p class="precio"><strong>$189.900</strong></p></a><button type="button" class="fav" data-fav="ficha-producto.html" data-nombre="Jarrón de cerámica blanca con asas" aria-pressed="false" aria-label="Guardar Jarrón de cerámica blanca con asas en favoritos"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg></button></li>
   </ul>
   <div class="texto-cat">
     <section aria-labelledby="t-guia">
@@ -366,18 +532,48 @@ fieldset.grupo{border:0;padding:0;margin:0 0 var(--s5);min-width:0}
 </main>
 
 <footer class="pie">
+  <section class="pie-boletin" aria-labelledby="pie-t">
+    <div class="ancho">
+      <div>
+        <h2 class="pie-titulo" id="pie-t">Nuevas piezas y nuevas ofertas</h2>
+        <p class="pie-linea"><strong>Suscríbase y entérese de todo.</strong> Le avisamos sobre ofertas exclusivas y nuestros nuevos productos.</p>
+      </div>
+      <div>
+        <form class="pie-form" novalidate data-boletin>
+          <div class="pf-dos">
+            <div class="pf-campo"><label for="pf-nombre">Nombre y apellido</label>
+              <input id="pf-nombre" name="nombre" type="text" autocomplete="name" aria-describedby="pf-e-nombre"><div id="pf-e-nombre" role="alert"></div></div>
+            <div class="pf-campo"><label for="pf-correo">Correo electrónico</label>
+              <input id="pf-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="pf-e-correo"><div id="pf-e-correo" role="alert"></div></div>
+          </div>
+          <div class="pf-dos">
+            <div class="pf-campo"><label for="pf-celular">Celular</label>
+              <input id="pf-celular" name="celular" type="tel" autocomplete="tel-national" inputmode="tel" aria-describedby="pf-a-celular pf-e-celular"><span class="pf-ayuda" id="pf-a-celular">Diez dígitos. Por ahí le avisamos por WhatsApp.</span><div id="pf-e-celular" role="alert"></div></div>
+            <div class="pf-campo"><label for="pf-empresa">Empresa <small>(opcional)</small></label>
+              <input id="pf-empresa" name="empresa" type="text" autocomplete="organization" aria-describedby="pf-a-empresa"><span class="pf-ayuda" id="pf-a-empresa">Si compra para un negocio, le contamos también sobre los precios al por mayor.</span></div>
+          </div>
+          <label class="pf-casilla"><input type="checkbox" id="pf-datos" name="datos" aria-describedby="pf-e-datos"><span>Autorizo el tratamiento de mis datos para recibir novedades y ofertas por correo y WhatsApp, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+          <div id="pf-e-datos" role="alert"></div>
+          <button type="submit" class="pf-boton">Sí, quiero suscribirme</button>
+          <p class="pf-chica">Puede darse de baja cuando quiera, desde cualquier correo.</p>
+        </form>
+        <div class="pf-ok" tabindex="-1" hidden><p class="pf-ok-t">Listo, le avisaremos</p><p class="pf-ok-d"></p></div>
+      </div>
+    </div>
+  </section>
   <div class="ancho">
-    <ul>
-      <li><a href="envios.html">Envíos</a></li><li><a href="cambios-y-garantia.html">Cambios y garantía</a></li>
-      <li><a href="pieza-rota.html">Reportar una pieza rota</a></li><li><a href="seguimiento.html">Seguir mi pedido</a></li>
-      <li><a href="nosotros.html">Nosotros</a></li><li><a href="por-mayor.html">Por mayor</a></li>
-      <li><a href="politica-de-datos.html">Tratamiento de datos</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
-    </ul>
-    <p>Historias que Habitan · Decoración y objetos para el hogar · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
-    <p>Superintendencia de Industria y Comercio: <a href="https://www.sic.gov.co" rel="noopener" style="min-height:0;display:inline">www.sic.gov.co</a></p>
+    <div class="pie-cols">
+      <div><h2 class="pie-h">Tienda</h2><ul><li><a href="tienda.html">Toda la tienda</a></li><li><a href="lo-nuevo.html">Lo nuevo</a></li><li><a href="descuentos.html">Descuentos</a></li><li><a href="colecciones.html">Colecciones</a></li><li><a href="lamparas.html">Lámparas</a></li><li><a href="por-mayor.html">Por mayor</a></li></ul></div>
+      <div><h2 class="pie-h">Ayuda</h2><ul><li><a href="envios.html">Envíos</a></li><li><a href="cambios-y-garantia.html">Cambios y garantía</a></li><li><a href="pieza-rota.html">Reportar una pieza rota</a></li><li><a href="seguimiento.html">Seguir mi pedido</a></li><li><a href="preguntas.html">Preguntas frecuentes</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li></ul></div>
+      <div><h2 class="pie-h">Su cuenta</h2><ul><li><a href="cuenta.html">Mi cuenta</a></li><li><a href="favoritos.html">Mis favoritos</a></li><li><a href="favoritos.html#avisos">Avisos de llegada</a></li></ul></div>
+      <div><h2 class="pie-h">La marca</h2><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="historias.html">Historias</a></li><li><a href="terminos.html">Términos y condiciones</a></li><li><a href="politica-de-datos.html">Tratamiento de datos</a></li><li><a href="politica-de-cookies.html">Política de cookies</a></li></ul></div>
+    </div>
+    <div class="pie-legal">
+      <p>Historias que Habitan · Decoración y objetos para el hogar · Bogotá, con envíos a todo Colombia · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
+      <p>Superintendencia de Industria y Comercio: <a href="https://www.sic.gov.co" rel="noopener">www.sic.gov.co</a></p>
+    </div>
   </div>
 </footer>
-
 <div class="cookies" id="cookies" role="region" aria-label="Aviso de cookies" hidden>
   <p>Usamos cookies necesarias para que la tienda funcione y, si usted acepta, otras para medir las visitas. <a href="politica-de-cookies.html">Política de cookies</a> <span class="pendiente">[POR CONFIRMAR: texto legal]</span></p>
   <div><button class="boton secundario" type="button" data-cookies="necesarias">Solo las necesarias</button><button class="boton secundario" type="button" data-cookies="todas">Aceptar todas</button></div>
@@ -412,11 +608,7 @@ document.addEventListener('click', e => {
   const arte = a.querySelector('.arte'); if (arte) arte.style.viewTransitionName = 'pieza';
 });
 
-/* El ícono del carrito muestra cuántas piezas hay guardadas */
-try {
-  const guardado = JSON.parse(localStorage.getItem('hqh-carrito')) || [], n = guardado.reduce((t, x) => t + x.cantidad, 0), icono = document.querySelector('[data-contador]');
-  if (icono && n) { icono.setAttribute('aria-label', `Carrito, ${n} ${n === 1 ? 'pieza' : 'piezas'}`); const b = document.createElement('span'); b.className = 'contador'; b.textContent = n; icono.append(b); }
-} catch (e) {}
+/* El contador del carrito, la cuenta y los favoritos de la cabecera: ver SITIO_JS en herramientas/sitio.py */
 
 /* Aviso de cookies: no bloquea la página, las dos opciones pesan lo mismo y nada viene aceptado */
 try {
@@ -424,6 +616,113 @@ try {
   if (aviso && !localStorage.getItem('hqh-cookies')) aviso.hidden = false;
   aviso?.addEventListener('click', e => { const b = e.target.closest('[data-cookies]'); if (!b) return; localStorage.setItem('hqh-cookies', b.dataset.cookies); aviso.hidden = true; anunciar(b.dataset.cookies === 'todas' ? 'Cookies aceptadas' : 'Solo cookies necesarias'); });
 } catch (e) {}
+
+/* Sitio: cuenta, carrito, favoritos, avisos de llegada y boletín del pie (herramientas/sitio.py) */
+(() => {
+  const leer = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const decir = t => { if (window.anunciar) window.anunciar(t); };
+  const evento = (e, x) => (window.dataLayer = window.dataLayer || []).push({ event: e, ...x });
+  const archivo = () => location.pathname.split('/').pop() || 'inicio-estructura.html';
+
+  /* Cuenta: con sesión saluda por el nombre; sin sesión invita a ingresar. Se repinta al ingresar o salir */
+  function pintarCuenta() {
+    const ses = leer('hqh-sesion', null), nombre = ses ? (ses.nombre || '').trim().split(' ')[0] : '';
+    document.querySelectorAll('[data-cuenta]').forEach(a => {
+      a.classList.toggle('con-sesion', !!ses);
+      a.querySelector('.u-corto').textContent = ses ? 'Mi cuenta' : 'Ingresar';
+      a.querySelector('.u-largo').textContent = ses ? (nombre ? 'Hola, ' + nombre : 'Mi cuenta') : 'Ingresar';
+    });
+    document.querySelectorAll('[data-cuenta-menu]').forEach(a => { a.textContent = ses ? (nombre ? `Mi cuenta (${nombre})` : 'Mi cuenta') : 'Ingresar a mi cuenta'; });
+  }
+  pintarCuenta();
+
+  /* Buscar: abre el menú con el buscador listo para escribir */
+  document.addEventListener('click', e => { if (e.target.closest('[data-buscar]')) setTimeout(() => document.getElementById('q')?.focus(), 60); });
+
+  /* Carrito: el número de piezas guardadas, en la cabecera de todas las páginas */
+  function pintarCarrito() {
+    const n = leer('hqh-carrito', []).reduce((t, x) => t + (x.cantidad || 0), 0);
+    document.querySelectorAll('[data-contador]').forEach(a => {
+      a.setAttribute('aria-label', `Carrito, ${n} ${n === 1 ? 'pieza' : 'piezas'}`);
+      let c = a.querySelector('.contador');
+      if (!c) { c = document.createElement('span'); c.className = 'contador'; c.setAttribute('aria-hidden', 'true'); a.append(c); }
+      c.hidden = !n; c.textContent = n;
+    });
+  }
+
+  /* Favoritos y avisos de llegada: el corazón guarda la pieza; las agotadas con aviso también cuentan como guardadas */
+  const FAV = 'hqh-favoritos';
+  const favs = () => leer(FAV, []), avisos = () => leer('hqh-avisos', []);
+  const urlDe = b => (b.dataset.fav === 'auto' ? archivo() : b.dataset.fav);
+  const nombreDe = b => (b.dataset.nombre || document.querySelector('h1')?.textContent.trim() || 'La pieza').replace(/^\[|\]$/g, '');   // sin los corchetes de los nombres de ejemplo
+  function pintarFavoritos() {
+    const urls = favs().map(x => x.url);
+    document.querySelectorAll('[data-fav]').forEach(b => {
+      const on = urls.includes(urlDe(b)), nombre = nombreDe(b), txt = b.querySelector('.fav-txt');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (txt) txt.textContent = on ? 'Guardada en favoritos' : 'Guardar en favoritos';
+      else b.setAttribute('aria-label', `Guardar ${nombre} en favoritos`);
+    });
+    const n = favs().length + avisos().length;
+    document.querySelectorAll('[data-favoritos]').forEach(a => {
+      a.setAttribute('aria-label', n ? `Favoritos, ${n} ${n === 1 ? 'guardada' : 'guardadas'}` : 'Favoritos');
+      let c = a.querySelector('.contador');
+      if (!c) { c = document.createElement('span'); c.className = 'contador'; c.setAttribute('aria-hidden', 'true'); a.append(c); }
+      c.hidden = !n; c.textContent = n;
+    });
+    document.dispatchEvent(new CustomEvent('hqh:favoritos'));
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-fav]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const url = urlDe(b), nombre = nombreDe(b), ya = favs().some(x => x.url === url);
+    guardar(FAV, ya ? favs().filter(x => x.url !== url) : favs().concat({ url, nombre, fecha: Date.now() }));
+    pintarFavoritos();
+    decir(ya ? `${nombre} salió de sus favoritos.` : `${nombre} quedó guardada en sus favoritos.`);
+    evento(ya ? 'favorito_quitar' : 'favorito_agregar', { pieza: nombre });
+  });
+  window.hqhSitio = { favs, avisos, guardarAvisos: v => guardar('hqh-avisos', v), pintarFavoritos, pintarCarrito, pintarCuenta };
+  document.addEventListener('hqh:carrito', pintarCarrito);
+  document.addEventListener('hqh:sesion', pintarCuenta);
+  addEventListener('storage', e => { if (e.key === 'hqh-carrito') pintarCarrito(); if (e.key === FAV || e.key === 'hqh-avisos') pintarFavoritos(); if (e.key === 'hqh-sesion') pintarCuenta(); });
+  pintarCarrito(); pintarFavoritos();
+
+  /* Boletín del pie: los mismos campos y reglas del modal de bienvenida. Quien ya se suscribió ve el agradecimiento */
+  const f = document.querySelector('form[data-boletin]');
+  if (!f) return;
+  const ok = f.parentElement.querySelector('.pf-ok');
+  if ((leer('hqh-bienvenida', null) || {}).suscrito) {
+    f.hidden = true; ok.hidden = false; ok.querySelector('.pf-ok-t').textContent = 'Ya está suscrito';
+    ok.querySelector('.pf-ok-d').textContent = 'Le avisamos sobre ofertas exclusivas y nuestros nuevos productos. Gracias.';
+  }
+  const $ = id => document.getElementById(id);
+  function marcar(id, m) {
+    const caja = $('pf-e-' + id), campo = $('pf-' + id);
+    caja.replaceChildren();
+    if (m) { const p = document.createElement('p'); p.className = 'pf-error'; p.textContent = m; caja.append(p); }
+    if (campo.type !== 'checkbox') campo.setAttribute('aria-invalid', m ? 'true' : 'false');
+  }
+  f.addEventListener('change', e => { if (e.target.id === 'pf-datos' && e.target.checked) marcar('datos', ''); });
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const el = f.elements, correo = el.correo.value.trim(), cel = el.celular.value.replace(/\D/g, '').replace(/^57(?=3\d{9}$)/, '');
+    const fallas = [
+      ['nombre', el.nombre.value.trim().includes(' ') ? '' : 'Escriba su nombre y su apellido.'],
+      ['correo', !correo ? 'Escriba su correo para avisarle.' : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo) ? '' : 'Revise el correo: le falta la @ o el dominio.'],
+      ['celular', !cel ? 'Escriba su celular: diez dígitos que empiecen por 3.' : /^3\d{9}$/.test(cel) ? '' : 'Escriba un celular de diez dígitos que empiece por 3. Ejemplo: 300 123 4567.'],
+      ['datos', el.datos.checked ? '' : 'Para avisarle, autorice el tratamiento de sus datos.'],
+    ];
+    fallas.forEach(([id, m]) => marcar(id, m));
+    const primera = fallas.find(([, m]) => m);
+    if (primera) return $('pf-' + primera[0]).focus();
+    guardar('hqh-bienvenida', { suscrito: true, fecha: Date.now() });   // [PROTOTIPO] en producción lo guarda la plataforma; el modal ya no aparece
+    evento('suscripcion_boletin', { lugar: 'pie', negocio: !!el.empresa.value.trim() });
+    f.hidden = true; ok.hidden = false;
+    ok.querySelector('.pf-ok-d').textContent = `Le escribiremos a ${correo} y por WhatsApp al ${cel.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3')} cuando lleguen piezas nuevas o haya ofertas.`;
+    ok.focus();
+  });
+})();
 </script>
 </body>
 </html>
