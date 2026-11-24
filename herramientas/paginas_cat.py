@@ -35,10 +35,15 @@ def piezas_html(piezas):
     return html, valores
 
 
-def categoria_pag(archivo, nombre, intro, piezas, elegir, faqs, migas_medio=(), subnav=None, despues_intro='', descripcion=''):
+TODAS = []  # todas las piezas de las categorías, para «Toda la tienda» y «Descuentos»
+
+
+def categoria_pag(archivo, nombre, intro, piezas, elegir, faqs, migas_medio=(), subnav=None, despues_intro='', descripcion='', tienda=False):
     tarjetas, valores = piezas_html(piezas)
+    if not tienda:
+        TODAS.extend(pz for pz in piezas if pz[0] not in [x[0] for x in TODAS])
     for pz in piezas:
-        if 'pieza-' + slug(pz[0]) + '.html' in REG:
+        if not tienda and 'pieza-' + slug(pz[0]) + '.html' in REG:
             REG['pieza-' + slug(pz[0]) + '.html']['cat'] = (nombre, archivo, 'Mesa' if migas_medio else None)
     n = len(piezas)
     filtros = FILTROS
@@ -134,6 +139,50 @@ categoria_pag('decoracion.html', 'Decoraciones del hogar',
                ('[Esfera decorativa]', 'Resina · ' + CH, '$69.900', ('Resina', 'Arena', 'Pequeño', 'Estudio'), ('esfera', '#D9C7AE'))],
               'Ideas para decorar una entrada', [EMBALAJE, ENVIOS],
               despues_intro='  <section class="destacado" aria-labelledby="t-luz"><div><h2 id="t-luz">Lámparas</h2><p>Véalas apagadas y encendidas, y en luz cálida, neutra o fría.</p></div><a class="boton" href="lamparas.html">Ver lámparas</a></section>')
+
+
+# ---------------------------------------------------------------- Toda la tienda y Descuentos
+# Las piezas de Jarrones y recipientes se escriben en construir_paginas.py con tarjeta(); aquí van como datos para la tienda
+JARRONES = [('Jarrón de cerámica blanca con asas', 'Cerámica · ' + CH, '$189.900', ('Cerámica', 'Blanco', 'Mediano', 'Entrada'), ('anfora', '#F1EEE8'), {'sello': True, 'href': 'ficha-producto.html'}),
+            ('[Jarrón de vidrio ámbar]', 'Vidrio · ' + CH, '$129.900', ('Vidrio', 'Ámbar', 'Mediano', 'Sala'), ('panza', '#B8752A', True)),
+            ('[Recipiente pequeño de cerámica]', 'Cerámica · ' + PA, '$79.900', ('Cerámica', 'Arena', 'Pequeño', 'Mesa'), ('cuenco', '#D9C7AE'), {'antes': '$99.900'}),
+            ('[Jarrón alto de porcelana]', 'Porcelana · ' + CH, '$319.900', ('Porcelana', 'Blanco', 'Grande', 'Sala'), ('alto', '#F4F2EE')),
+            ('[Florero de vidrio transparente]', 'Vidrio · ' + CH, '$69.900', ('Vidrio', 'Transparente', 'Pequeño', 'Mesa'), ('florero', '#DDE6E8', True)),
+            ('[Ánfora decorativa de cerámica]', 'Cerámica · ' + CH, '$259.900', ('Cerámica', 'Arena', 'Grande', 'Entrada'), ('anfora', '#D9C7AE'), {'agotado': True}),
+            ('[Jarrón de porcelana con relieve]', 'Porcelana · ' + PA, '$219.900', ('Porcelana', 'Blanco', 'Mediano', 'Sala'), ('relieve', '#F4F2EE'), {'sello': True}),
+            ('[Recipiente con tapa de cerámica]', 'Cerámica · ' + CH, '$99.900', ('Cerámica', 'Verde', 'Pequeño', 'Mesa'), ('tarro', '#6E7F68'))]
+TODAS[:0] = [pz for pz in JARRONES if pz[0] not in [x[0] for x in TODAS]]
+CATS_TIENDA = ('  <nav class="subcats" aria-label="Categorías de la tienda">'
+               + ''.join('<a href="%s">%s</a>' % (u, t) for t, u in [('Porcelanas y figuras', 'porcelanas.html'), ('Jarrones y recipientes', 'categoria.html'),
+                                                                     ('Flores artificiales', 'flores-artificiales.html'), ('Mesa', 'mesa.html'), ('Centros de mesa', 'centros-de-mesa.html'),
+                                                                     ('Esculturas pequeñas', 'esculturas.html'), ('Decoraciones del hogar', 'decoracion.html'), ('Lámparas', 'lamparas.html'), ('Lo nuevo', 'lo-nuevo.html'), ('Descuentos', 'descuentos.html')])
+               + '</nav>')
+categoria_pag('tienda.html', 'Toda la tienda',
+              'Porcelanas, jarrones, vajillas, flores artificiales, esculturas y lámparas para decorar su casa, con envío a todo Colombia. En cada pieza encuentra el material, las medidas y el origen.',
+              TODAS, 'Cómo combinar piezas en un mismo espacio',
+              [ENVIOS, EMBALAJE, ('¿Tengo que crear una cuenta para comprar?', 'No. Puede comprar como invitado y crear su cuenta al final, si quiere.')],
+              despues_intro=CATS_TIENDA, tienda=True,
+              descripcion='Decoración para el hogar en línea: porcelanas, jarrones, vajillas, flores artificiales, esculturas y lámparas. Envíos a todo Colombia.')
+# Descuentos: lo decide el catálogo único (y una pieza agotada no se anuncia como oferta)
+DESCUENTOS = [pz for pz in TODAS if estado_pieza(pz[0])['antes'] and not estado_pieza(pz[0])['agotada']]
+categoria_pag('descuentos.html', 'Descuentos',
+              'Piezas con el precio rebajado. Al lado de cada precio está el anterior, para que vea cuánto ahorra. ' + P % '[POR CONFIRMAR: fechas y condiciones de cada descuento]',
+              DESCUENTOS, 'Cómo leemos un descuento',
+              [('¿El precio anterior es real?', 'Sí. Es el precio al que se vendió la pieza antes de la rebaja. ' + P % '[POR CONFIRMAR: regla del precio anterior, por ejemplo el de los últimos 30 días]'),
+               ('¿Hasta cuándo dura cada descuento?', P % '[POR CONFIRMAR: fecha de fin de cada descuento]'),
+               ('¿Las piezas con descuento tienen cambio?', 'Sí, con las mismas condiciones de Cambios, garantía y retracto. ' + P % '[POR CONFIRMAR]')],
+              migas_medio=[('Toda la tienda', 'tienda.html')], tienda=True,
+              descripcion='Piezas de decoración con descuento, con el precio anterior a la vista. Envíos a todo Colombia.')
+
+# Lo nuevo: lo decide el catálogo único (catalogo.NUEVAS), en el mismo orden que la sección 3 del inicio
+from catalogo import NUEVAS, clave as clave_cat
+LO_NUEVO = [next(pz for pz in TODAS if clave_cat(pz[0]) == c) for c in NUEVAS]
+categoria_pag('lo-nuevo.html', 'Lo nuevo',
+              'Las piezas que acaban de llegar a la tienda, de la más reciente a la más antigua. ' + P % '[POR CONFIRMAR: cada cuánto llegan piezas nuevas y por cuánto tiempo una pieza se muestra aquí]',
+              LO_NUEVO, 'Cómo combinar piezas en un mismo espacio',
+              [('¿Cada cuánto llegan piezas nuevas?', P % '[POR CONFIRMAR]'), ENVIOS, EMBALAJE],
+              migas_medio=[('Toda la tienda', 'tienda.html')], tienda=True,
+              descripcion='Piezas de decoración recién llegadas: porcelanas, jarrones, centros de mesa y vajilla. Envíos a todo Colombia.')
 
 
 # ---------------------------------------------------------------- Colecciones

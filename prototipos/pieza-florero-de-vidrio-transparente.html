@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500..600;1,500&family=Jost:wght@400..500&display=swap" rel="stylesheet">
 <link rel="expect" blocking="render" href="#fotos">
-<script>addEventListener('pagereveal', e => document.documentElement.dataset.transicion = e.viewTransition ? 'si' : 'no');</script>
+<script>addEventListener('pagereveal', e => { document.documentElement.dataset.transicion = e.viewTransition ? 'si' : 'no'; if (e.viewTransition) { e.viewTransition.ready.catch(() => {}); e.viewTransition.finished.catch(() => {}); } });</script>
 <style>
 :root{
   --tinta:#312620; --cafe-humo:#705C51; --piedra:#BBB2A8; --perla:#CDC9C6; --hueso:#FBFAF9; --oatmeal:#E8DCC6; --suave:#F3F0ED;
@@ -76,6 +76,36 @@ h1{font:600 2rem/1.16 var(--titulo);margin:0;text-wrap:balance}
 .estado{display:inline-flex;align-items:center;gap:var(--s2);margin:var(--s3) 0 0;padding:var(--s1) var(--s3);font-size:.875rem;border-radius:2px;background:var(--exito-fondo);color:var(--exito)}
 .estado svg{width:16px;height:16px}
 .estado.agotado{background:var(--error-fondo);color:var(--error)}
+/* Estados de la pieza: los mismos textos y colores que en las tarjetas de la tienda */
+.estado.pocas{background:#F6E7C6;color:#5B4632}
+.ahorro{font-size:.875rem;font-weight:500;color:var(--borgona)}
+.chip-estado{font:500 .75rem/1.3 var(--texto);padding:2px 7px;border-radius:2px;white-space:nowrap}
+.chip-oferta{background:var(--borgona);color:var(--hueso)}
+.chip-pocas{background:#F6E7C6;color:#5B4632;border:1px solid #C9A46A}
+.chip-agotada{background:#E6E3DF;color:#5F5953;border:1px solid #BBB2A8}
+.aviso-llegada{margin-top:var(--s4);padding:var(--s4);border:1px solid var(--perla);border-left:3px solid var(--tinta);background:var(--suave)}
+.aviso-llegada h2{font-size:1.375rem;line-height:1.2}
+.aviso-llegada p{margin-top:var(--s2);font-size:.9375rem}
+.aviso-llegada form{display:grid;gap:var(--s2);margin-top:var(--s3)}
+.aviso-llegada input[type=email]{min-height:48px;padding:0 var(--s3);border:1px solid var(--cafe-humo);border-radius:2px;font:inherit;background:#fff;color:var(--tinta)}
+.aviso-llegada input[aria-invalid=true]{border-color:var(--error)}
+.aviso-llegada .casilla{display:flex;gap:var(--s2);align-items:flex-start;font-size:.8125rem}
+.aviso-llegada .casilla input{flex:none;margin-top:2px;width:18px;height:18px}
+.aviso-llegada .error-campo{margin:0;min-height:1.2em;color:var(--error);font-size:.875rem}
+.aviso-llegada .boton{width:100%}
+.aviso-ok{margin-top:var(--s3);padding:var(--s3);background:var(--exito-fondo);color:var(--exito)}
+.aviso-ok p{margin:0}
+.aviso-ok:focus{outline:2px solid var(--exito);outline-offset:2px}
+.aviso-wa{font-size:.875rem}
+.parecidas{margin-top:var(--s5)}
+.parecidas h2{font-size:1.25rem;line-height:1.2}
+.parecidas ul{list-style:none;margin:var(--s3) 0 0;padding:0;display:grid;gap:var(--s2)}
+.parecidas a{display:grid;grid-template-columns:64px 1fr;gap:var(--s3);align-items:center;padding:var(--s2);border:1px solid var(--perla);border-radius:2px;text-decoration:none;color:var(--tinta)}
+.parecidas a:hover .n{text-decoration:underline}
+.parecidas .mini{display:block;width:64px;height:64px;background:var(--suave)}
+.parecidas .mini svg{display:block;width:100%;height:100%}
+.parecidas .n{display:block;font-weight:500;font-size:.9375rem;line-height:1.3}
+.parecidas .p{display:block;margin-top:2px;font-size:.875rem;color:var(--cafe-humo)}
 .destacada{margin:var(--s4) 0 0}
 .destacada summary{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;cursor:pointer;list-style:none}
 .destacada summary::-webkit-details-marker{display:none}
@@ -116,12 +146,6 @@ legend span{font-weight:400;color:var(--cafe-humo)}
 .garantias{list-style:none;margin:var(--s5) 0 0;padding:0;border-top:1px solid var(--perla)}
 .garantias li{display:flex;gap:var(--s3);padding:var(--s3) 0;border-bottom:1px solid var(--perla);font-size:.9375rem}
 .garantias svg{flex:none;margin-top:1px;width:20px;height:20px;color:var(--cafe-humo)}
-.envio{margin-top:var(--s5)}
-.envio label{display:block;font-weight:500;margin-bottom:var(--s2)}
-.envio div{display:flex;gap:var(--s2)}
-.envio input{flex:1;min-width:0;min-height:48px;padding:0 var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
-.envio p{margin:var(--s2) 0 0;font-size:.9375rem}
-.envio p:empty{display:none}
 
 .secciones{margin-top:var(--s7)}
 .seccion{border-top:1px solid var(--tinta)}
@@ -351,6 +375,123 @@ legend span{font-weight:400;color:var(--cafe-humo)}
   .barra-compra{display:none}
   .secciones,.bloque{max-width:800px}
 }
+/* sitio:ini */
+/* ===== Sitio: cabecera, atajos, menú, favoritos y pie con boletín (herramientas/sitio.py) ===== */
+[hidden]{display:none!important}
+/* El menú cerrado no se ve nunca, aunque la página use otra clase .panel (la galería del inicio la usa) */
+dialog.panel:not([open]){display:none!important}
+#menu:modal{position:fixed;flex:none}
+.cabecera .ancho{display:flex;align-items:center;gap:0;min-height:64px}
+.marca{margin-right:auto;max-width:10em;line-height:1.3;padding:0 var(--s2)}
+.utiles{display:flex;align-items:center}
+.util{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:52px;min-height:56px;padding:4px 2px;background:none;border:0;border-radius:4px;color:var(--tinta);font:500 .75rem/1.15 var(--texto);text-decoration:none;cursor:pointer}
+.util:hover{background:var(--suave)}
+.util .icono{width:24px;height:24px}
+.util .contador{top:2px;right:calc(50% - 24px)}
+.util.con-sesion .icono{color:var(--borgona)}
+.u-largo{display:none}
+.solo-escritorio{display:none!important}
+.icono.chico{width:18px;height:18px}
+/* Atajos de celular y tableta: Buscar, Lo nuevo y Descuentos siempre a la vista, con texto */
+.atajos{background:var(--hueso);border-bottom:1px solid var(--perla)}
+.atajos .ancho{display:flex;gap:var(--s2);overflow-x:auto;padding-top:var(--s2);padding-bottom:var(--s2);scrollbar-width:none;overscroll-behavior-x:contain}
+.atajos .ancho::-webkit-scrollbar{display:none}
+.atajo{flex:none;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 var(--s4);border:1px solid var(--perla);border-radius:999px;background:#fff;color:var(--tinta);font:500 .9375rem/1 var(--texto);text-decoration:none;white-space:nowrap;cursor:pointer}
+.atajo:hover{background:var(--suave)}
+.atajo[aria-current]{border-color:var(--tinta);box-shadow:inset 0 0 0 1px var(--tinta)}
+.atajo-nuevo::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#B7872F}
+.atajo-desc{background:#F6E9EA;color:var(--borgona);border-color:#E3C3C7}
+.atajo-desc:hover{background:#F0DCDE}
+/* Menú: Lo nuevo y Descuentos como dos tarjetas arriba */
+.menu-destacados{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2);margin:0 0 var(--s5)}
+.menu-dest{display:flex;flex-direction:column;gap:4px;min-height:92px;padding:var(--s3);border-radius:6px;background:var(--suave);color:var(--tinta);text-decoration:none}
+.menu-dest b{font:600 1.375rem/1.15 var(--titulo)}
+.menu-dest span{font-size:.875rem;line-height:1.35;color:var(--cafe-humo)}
+.menu-dest.nuevo b::after{content:"";display:inline-block;width:8px;height:8px;margin-left:6px;border-radius:50%;background:#B7872F;vertical-align:middle}
+.menu-dest.desc{background:#F6E9EA}
+.menu-dest.desc b{color:var(--borgona)}
+.menu-lista a.sub{padding-left:var(--s4);font:400 1rem/1.5 var(--texto)}
+/* Favoritos: el corazón sobre la foto de cada pieza */
+.tarjeta{position:relative}
+.fav{position:absolute;top:var(--s2);right:var(--s2);z-index:3;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:rgba(251,250,249,.94);color:var(--tinta);box-shadow:0 1px 4px rgba(49,38,32,.14);cursor:pointer}
+.fav:hover{background:#fff}
+.fav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fav[aria-pressed=true]{color:var(--borgona)}
+.fav[aria-pressed=true] svg{fill:currentColor}
+.tarjeta:has(.fav) .chips{top:60px}
+/* En la ficha: botón con texto, grande y con borde */
+.fav-ficha{display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);width:100%;min-height:52px;margin-top:var(--s3);padding:0 var(--s5);border:2px solid var(--tinta);border-radius:2px;background:transparent;color:var(--tinta);font:500 1rem/1.2 var(--texto);cursor:pointer}
+.fav-ficha:hover{background:var(--suave)}
+.fav-ficha svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fav-ficha[aria-pressed=true]{border-color:var(--borgona);color:var(--borgona)}
+.fav-ficha[aria-pressed=true] svg{fill:currentColor}
+@media (prefers-reduced-motion:no-preference){
+  .fav[aria-pressed=true] svg,.fav-ficha[aria-pressed=true] svg{animation:latido 320ms var(--curva)}
+  @keyframes latido{50%{transform:scale(1.2)}}
+}
+/* Pie con el boletín */
+.pie{display:block;margin-top:var(--s8);border-top:0;padding:0 0 calc(var(--s8) + var(--s6));font-size:.9375rem;color:var(--cafe-humo)}
+.pie-boletin{background:var(--oatmeal);color:var(--tinta);padding:var(--s7) 0}
+.pie-boletin .ancho{display:grid;gap:var(--s5)}
+.pie .pie-titulo{font-size:2rem;line-height:1.1}
+.pie .pie-linea{margin-top:var(--s2);max-width:44ch;color:var(--mocha)}
+.pie .pie-linea strong{color:var(--tinta);font-weight:500}
+.pf-dos{display:grid;gap:0 var(--s3)}
+@media (min-width:480px){.pf-dos{grid-template-columns:1fr 1fr}}
+.pf-campo{margin-bottom:var(--s3)}
+.pf-campo label{display:block;margin-bottom:var(--s1);font-weight:500;color:var(--tinta)}
+.pf-campo label small{font-weight:400;font-size:.9375rem;color:var(--mocha)}
+.pf-campo input{width:100%;min-height:48px;padding:var(--s3) var(--s4);font:inherit;color:var(--tinta);background:#fff;border:1px solid var(--cafe-humo);border-radius:2px}
+.pf-campo [aria-invalid=true]{border-color:var(--error);box-shadow:inset 0 0 0 1px var(--error)}
+.pf-ayuda{display:block;margin-top:var(--s1);font-size:.9375rem;color:var(--mocha)}
+.pf-casilla{display:flex;gap:var(--s3);align-items:flex-start;min-height:44px;padding:var(--s1) 0;color:var(--tinta);cursor:pointer}
+.pf-casilla input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--tinta)}
+.pf-casilla a,.pie .pf-casilla a{display:inline;min-height:0}
+.pf-error{display:flex;gap:var(--s2);margin:var(--s1) 0 var(--s2);padding:var(--s2) var(--s3);font-size:.9375rem;color:var(--error);background:var(--error-fondo);border-radius:2px}
+.pf-error::before{content:"!";flex:none;width:18px;height:18px;display:grid;place-content:center;font-weight:500;font-size:.75rem;border:1.5px solid currentColor;border-radius:50%}
+.pf-boton{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:var(--s3);padding:0 var(--s6);font:500 .875rem/1.43 var(--texto);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--tinta);border-radius:2px;background:var(--tinta);color:var(--hueso);cursor:pointer}
+.pf-boton:hover{background:#1F1814}
+.pie .pf-chica{margin-top:var(--s2);font-size:.9375rem;color:var(--mocha)}
+.pf-ok{padding:var(--s5);background:var(--hueso);border-radius:6px;color:var(--tinta)}
+.pf-ok:focus{outline:2px solid var(--tinta);outline-offset:3px}
+.pie .pf-ok-t{font:600 1.5rem/1.2 var(--titulo)}
+.pie .pf-ok-d{margin-top:var(--s2)}
+.pie-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s5) var(--s4);padding:var(--s7) 0 var(--s5)}
+.pie-h{margin-bottom:var(--s2);font:500 .8125rem/1.3 var(--texto);letter-spacing:.12em;text-transform:uppercase;color:var(--tinta)}
+.pie .pie-cols ul{display:block;margin:0;padding:0;list-style:none}
+.pie-cols a{display:flex;align-items:center;min-height:44px;color:var(--tinta);text-decoration:none}
+.pie-cols a:hover{text-decoration:underline;text-underline-offset:3px}
+.pie-legal{padding-top:var(--s4);border-top:1px solid var(--perla)}
+.pie-legal p{margin:0 0 var(--s2)}
+.pie-legal a{display:inline;min-height:0}
+@media (min-width:960px){
+  .atajos{display:none}
+  .solo-escritorio{display:inline-flex!important}
+  .solo-movil{display:none!important}
+  .cabecera .ancho{min-height:72px}
+  .marca{max-width:none;margin-right:var(--s5)}
+  .u-corto{display:none}.u-largo{display:inline}
+  .nav-escritorio{display:flex;align-items:center;gap:var(--s4);margin-right:auto}
+  .nav-escritorio a,.nav-escritorio button{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;font:inherit;color:inherit;background:none;border:0;text-decoration:none;cursor:pointer}
+  .nav-escritorio a:hover,.nav-escritorio button:hover{text-decoration:underline;text-underline-offset:4px}
+  .nav-escritorio a[aria-current]{text-decoration:underline;text-underline-offset:6px;text-decoration-thickness:2px}
+  .nav-escritorio .nav-nuevo::after{content:"";align-self:flex-start;width:7px;height:7px;margin-top:10px;border-radius:50%;background:#B7872F}
+  .nav-escritorio .nav-desc{min-height:38px;padding:0 var(--s4);border:1px solid #E3C3C7;border-radius:999px;background:#F6E9EA;color:var(--borgona);font-weight:500}
+  .nav-escritorio .nav-desc:hover{background:#F0DCDE;text-decoration:none}
+  .util{min-width:66px}
+  .pie-boletin .ancho{grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start;gap:var(--s7)}
+  .pf-boton{width:auto}
+  .pie-cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (min-width:960px) and (max-width:1199px){
+  .nav-escritorio .nav-opcional{display:none}
+  .nav-escritorio{gap:var(--s3)}
+  .util .u-txt{display:none}
+  .util{min-width:48px;min-height:48px}
+  .util .contador{right:2px}
+}
+@media (max-width:359px){.util .u-txt{display:none}.util{min-width:44px}}
+/* sitio:fin */
 </style>
 </head>
 <body>
@@ -358,38 +499,59 @@ legend span{font-weight:400;color:var(--cafe-humo)}
 
 <div class="proto" role="region" aria-label="Controles del prototipo">
   <span>Prototipo: el nombre, el precio, las medidas y los textos de esta pieza son de ejemplo.</span>
-  <label>Ver estado <select id="ver-estado"><option value="disponible">Disponible</option><option value="oferta">En oferta</option><option value="agotado">Sin existencias</option><option value="cargando">Cargando</option></select></label>
+  <label>Ver estado <select id="ver-estado"><option value="disponible">Disponible</option><option value="oferta">En oferta</option><option value="pocas">Quedan pocas</option><option value="oferta-pocas">Oferta y quedan pocas</option><option value="agotado">Agotada</option><option value="cargando">Cargando</option></select></label>
   <label><input type="checkbox" id="ver-resenas" checked> Con reseñas de ejemplo</label>
+  <label><input type="checkbox" id="ver-sesion"> Con sesión iniciada</label>
 </div>
 
+<a class="salto" href="#contenido">Saltar al contenido</a>
 <header class="cabecera">
   <div class="ancho">
-    <button class="boton-icono solo-movil" type="button" aria-label="Abrir el menú" data-abrir-menu><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="util solo-movil" type="button" data-abrir-menu aria-label="Abrir el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="u-txt" aria-hidden="true">Menú</span></button>
     <!-- [LOGO SVG PENDIENTE] -->
-    <a class="marca" href="inicio.html" translate="no">Historias que Habitan</a>
+    <a class="marca" href="inicio-estructura.html" translate="no">Historias que Habitan</a>
     <nav class="nav-escritorio" aria-label="Principal">
       <button type="button" data-abrir-menu>Tienda</button>
+      <a class="nav-nuevo" href="lo-nuevo.html">Lo nuevo</a>
+      <a class="nav-desc" href="descuentos.html">Descuentos</a>
       <a href="colecciones.html">Colecciones</a>
-      <a href="historias.html">Historias</a>
-      <a href="quiz-orientacion.html">Orientación</a>
+      <a class="nav-opcional" href="historias.html">Historias</a>
       <a href="por-mayor.html">Por mayor</a>
     </nav>
-    <a class="boton-icono" href="buscar.html" aria-label="Buscar"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></a>
-    <a class="boton-icono" href="/carrito" id="carrito" aria-label="Carrito, 0 piezas" data-carrito><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="contador" id="contador" hidden>0</span></a>
+    <div class="utiles">
+      <button class="util solo-escritorio" type="button" data-abrir-menu data-buscar aria-label="Buscar en la tienda"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span class="u-txt" aria-hidden="true">Buscar</span></button>
+      <a class="util" href="cuenta.html" data-cuenta><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.8 20.2c1.2-3.5 3.9-5.4 7.2-5.4s6 1.9 7.2 5.4"/></svg><span class="u-txt"><span class="u-corto">Ingresar</span><span class="u-largo">Ingresar</span></span></a>
+      <a class="util" href="favoritos.html" data-favoritos aria-label="Favoritos"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg><span class="u-txt" aria-hidden="true">Favoritos</span></a>
+      <a class="util" href="carrito.html" id="carrito" data-contador data-carrito aria-label="Carrito, 0 piezas"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="u-txt" aria-hidden="true">Carrito</span><span class="contador" id="contador" aria-hidden="true" hidden>0</span></a>
+    </div>
   </div>
 </header>
+<nav class="atajos" aria-label="Atajos de la tienda">
+  <div class="ancho">
+    <button type="button" class="atajo" data-abrir-menu data-buscar><svg class="icono chico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>Buscar</button>
+    <a class="atajo atajo-nuevo" href="lo-nuevo.html">Lo nuevo</a>
+    <a class="atajo atajo-desc" href="descuentos.html">Descuentos</a>
+    <a class="atajo" href="tienda.html">Toda la tienda</a>
+    <a class="atajo" href="colecciones.html">Colecciones</a>
+  </div>
+</nav>
 
 <dialog class="panel" id="menu" aria-labelledby="t-menu">
-  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-cab"><h2 id="t-menu" tabindex="-1">Menú</h2><button class="boton-icono" type="button" data-cerrar aria-label="Cerrar el menú"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
   <div class="panel-cuerpo">
     <form class="buscar" role="search">
       <label class="oculto-visual" for="q">Buscar en la tienda</label>
       <input id="q" name="q" type="search" placeholder="Buscar: jarrón, vajilla…" autocomplete="off" enterkeyhint="search">
       <button class="boton secundario" type="submit">Buscar</button>
     </form>
+    <div class="menu-destacados">
+      <a class="menu-dest nuevo" href="lo-nuevo.html"><b>Lo nuevo</b><span>Las piezas que acaban de llegar</span></a>
+      <a class="menu-dest desc" href="descuentos.html"><b>Descuentos</b><span>Con el precio anterior a la vista</span></a>
+    </div>
     <nav aria-label="Menú de la tienda">
       <p class="menu-titulo" id="m-tienda">Tienda</p>
       <ul class="menu-lista grande" aria-labelledby="m-tienda">
+        <li><a href="tienda.html">Toda la tienda</a></li>
         <li><a href="porcelanas.html">Porcelanas y figuras</a></li>
         <li><a href="categoria.html">Jarrones y recipientes</a></li>
         <li><a href="flores-artificiales.html">Flores artificiales</a></li>
@@ -397,7 +559,7 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         <li><a href="centros-de-mesa.html">Centros de mesa</a></li>
         <li><a href="esculturas.html">Esculturas pequeñas</a></li>
         <li><a href="decoracion.html">Decoraciones del hogar</a></li>
-        <li><a href="lamparas.html" style="padding-left:var(--s4);font:400 1rem/1.5 var(--texto)">Lámparas</a></li>
+        <li><a class="sub" href="lamparas.html">Lámparas</a></li>
       </ul>
       <p class="menu-titulo" id="m-col">Colecciones</p>
       <ul class="menu-lista" aria-labelledby="m-col">
@@ -405,12 +567,16 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         <li><a href="coleccion-primer-hogar.html">Primer hogar</a></li>
         <li><a href="coleccion-regalos.html">Regalos que se guardan</a></li>
       </ul>
+      <p class="menu-titulo" id="m-cuenta">Su cuenta</p>
+      <ul class="menu-lista" aria-labelledby="m-cuenta">
+        <li><a href="cuenta.html" data-cuenta-menu>Ingresar a mi cuenta</a></li>
+        <li><a href="favoritos.html">Mis favoritos y avisos de llegada</a></li>
+        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
+      </ul>
       <ul class="menu-lista">
         <li><a href="historias.html">Historias</a></li>
         <li><a href="quiz-orientacion.html">Orientación: le ayudamos a elegir</a></li>
         <li><a href="por-mayor.html">Por mayor</a></li>
-        <li><a href="seguimiento.html">Seguir mi pedido</a></li>
-        <li><a href="cuenta.html">Mi cuenta</a></li>
         <li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
       </ul>
     </nav>
@@ -419,13 +585,13 @@ legend span{font-weight:400;color:var(--cafe-humo)}
 
 <main id="contenido" class="ancho">
   <nav class="migas" aria-label="Ruta de navegación">
-    <ol><li><a href="inicio.html">Inicio</a></li><li><a href="categoria.html">Jarrones y recipientes</a></li></ol>
+    <ol><li><a href="inicio-estructura.html">Inicio</a></li><li><a href="categoria.html">Jarrones y recipientes</a></li></ol>
   </nav>
 
   <div class="producto" id="producto">
     <section class="galeria" aria-label="Fotos de la pieza">
       <ul class="fotos" id="fotos" tabindex="0" aria-label="Fotos: use las flechas para pasar">
-        <li class="con-arte"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz85-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(110,115,116,0.62)"/><stop offset="0.08" stop-color="rgba(177,184,186,0.62)"/><stop offset="0.18" stop-color="rgba(234,240,241,0.62)"/><stop offset="0.34" stop-color="rgba(221,230,232,0.62)"/><stop offset="0.6" stop-color="rgba(199,207,209,0.62)"/><stop offset="0.82" stop-color="rgba(150,156,158,0.62)"/><stop offset="0.94" stop-color="rgba(194,200,202,0.62)"/><stop offset="1" stop-color="rgba(115,120,121,0.62)"/></linearGradient><linearGradient id="pz85-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz85-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz85-k"><path d="M74 150 H126 Q130 150 129 156 L123 280 Q123 286 117 286 H83 Q77 286 77 280 L71 156 Q70 150 74 150 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="30.0" ry="6" fill="url(#pz85-s)"/><ellipse cx="100" cy="286.4" rx="18.0" ry="1.3" fill="#000" opacity=".3"/><path d="M74 150 H126 Q130 150 129 156 L123 280 Q123 286 117 286 H83 Q77 286 77 280 L71 156 Q70 150 74 150 Z" fill="url(#pz85-c)"/><g clip-path="url(#pz85-k)"><rect x="70" y="272" width="60" height="14" fill="rgba(122,127,128,0.50)"/><path d="M78 273 H122" stroke="#fff" stroke-opacity=".55"/><rect x="70" y="150" width="60" height="136" fill="url(#pz85-v)"/><rect x="78.4" y="150" width="7.8" height="136" fill="#fff" opacity=".26"/><rect x="82.6" y="160" width="2.1" height="112" rx="1.5" fill="#fff" opacity=".7"/><rect x="121.6" y="160" width="1.7" height="112" rx="1" fill="#fff" opacity=".24"/></g><path d="M74 150 H126 Q130 150 129 156 L123 280 Q123 286 117 286 H83 Q77 286 77 280 L71 156 Q70 150 74 150 Z" fill="none" stroke="rgba(110,115,116,0.40)" stroke-width=".7"/></svg><div class="repisa"></div><small>[ILUSTRACIÓN DE EJEMPLO] Aquí va la foto recortada, sobre fondo limpio</small></li>
+        <li class="con-arte"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz171-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(110,115,116,0.62)"/><stop offset="0.08" stop-color="rgba(177,184,186,0.62)"/><stop offset="0.18" stop-color="rgba(234,240,241,0.62)"/><stop offset="0.34" stop-color="rgba(221,230,232,0.62)"/><stop offset="0.6" stop-color="rgba(199,207,209,0.62)"/><stop offset="0.82" stop-color="rgba(150,156,158,0.62)"/><stop offset="0.94" stop-color="rgba(194,200,202,0.62)"/><stop offset="1" stop-color="rgba(115,120,121,0.62)"/></linearGradient><linearGradient id="pz171-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz171-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz171-k"><path d="M74 150 H126 Q130 150 129 156 L123 280 Q123 286 117 286 H83 Q77 286 77 280 L71 156 Q70 150 74 150 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="30.0" ry="6" fill="url(#pz171-s)"/><ellipse cx="100" cy="286.4" rx="18.0" ry="1.3" fill="#000" opacity=".3"/><path d="M74 150 H126 Q130 150 129 156 L123 280 Q123 286 117 286 H83 Q77 286 77 280 L71 156 Q70 150 74 150 Z" fill="url(#pz171-c)"/><g clip-path="url(#pz171-k)"><rect x="70" y="272" width="60" height="14" fill="rgba(122,127,128,0.50)"/><path d="M78 273 H122" stroke="#fff" stroke-opacity=".55"/><rect x="70" y="150" width="60" height="136" fill="url(#pz171-v)"/><rect x="78.4" y="150" width="7.8" height="136" fill="#fff" opacity=".26"/><rect x="82.6" y="160" width="2.1" height="112" rx="1.5" fill="#fff" opacity=".7"/><rect x="121.6" y="160" width="1.7" height="112" rx="1" fill="#fff" opacity=".24"/></g><path d="M74 150 H126 Q130 150 129 156 L123 280 Q123 286 117 286 H83 Q77 286 77 280 L71 156 Q70 150 74 150 Z" fill="none" stroke="rgba(110,115,116,0.40)" stroke-width=".7"/></svg><div class="repisa"></div><small>[ILUSTRACIÓN DE EJEMPLO] Aquí va la foto recortada, sobre fondo limpio</small></li>
         <li>[FOTO DEL PRODUCTO]<br>En un ambiente</li>
         <li>[FOTO DEL PRODUCTO]<br>Detalle del acabado</li>
         <li>[FOTO DEL PRODUCTO]<br>Escala, junto a un objeto conocido</li>
@@ -447,7 +613,7 @@ legend span{font-weight:400;color:var(--cafe-humo)}
       <h1>[Florero de vidrio transparente]</h1>
       <p class="respuesta"><span class="pendiente">[RESPUESTA BREVE PENDIENTE: qué es, para qué espacio y por qué elegirla]</span></p>
 
-      <p class="precio"><span class="oculto-visual" id="pre-ahora" hidden>Ahora </span><strong id="precio">$69.900</strong><span id="oferta-antes" hidden><span class="oculto-visual">. Antes </span><s id="precio-antes">$69.900</s></span><span class="sello-oferta" id="oferta-pct" hidden><span class="oculto-visual">. Descuento del 20 %. </span><span aria-hidden="true">−20 %</span></span><span>IVA incluido · El envío se calcula con su ciudad</span></p>
+      <p class="precio"><span class="oculto-visual" id="pre-ahora" hidden>Ahora </span><strong id="precio">$69.900</strong><span id="oferta-antes" hidden><span class="oculto-visual">. Antes </span><s id="precio-antes">$69.900</s></span><span class="sello-oferta" id="oferta-pct" hidden><span class="oculto-visual">. Descuento del 20 %. </span><span aria-hidden="true">−20 %</span></span><span class="ahorro" id="oferta-ahorro" hidden></span><span>IVA incluido · El envío se suma al pagar, según su ciudad</span></p>
       <p class="vigencia" id="oferta-vigencia" hidden>Oferta del [fecha de inicio] al [fecha de fin]. <span class="pendiente">[POR CONFIRMAR: solo con una rebaja real y sus fechas]</span></p>
       <p class="estado" id="estado"><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Disponible para despacho</span></p>
 
@@ -477,6 +643,34 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         </div>
         <p class="confirmacion" id="confirmacion" role="status"></p>
       </form>
+      <button type="button" class="fav-ficha" data-fav="auto" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20.3 4.8 13.4a4.7 4.7 0 0 1 0-6.6 4.6 4.6 0 0 1 6.5 0l.7.7.7-.7a4.6 4.6 0 0 1 6.5 0 4.7 4.7 0 0 1 0 6.6Z"/></svg><span class="fav-txt">Guardar en favoritos</span></button>
+
+      <section class="aviso-llegada" id="aviso-llegada" aria-labelledby="t-aviso" hidden>
+        <h2 id="t-aviso">Avísenme cuando llegue</h2>
+        <div id="aviso-invitado">
+          <p>Le escribimos una sola vez, cuando la pieza vuelva. Este aviso no lo suscribe a otros correos.</p>
+          <form id="form-aviso" novalidate>
+            <label for="aviso-correo">Correo electrónico</label>
+            <input id="aviso-correo" type="email" autocomplete="email" required aria-describedby="aviso-error">
+            <label class="casilla"><input type="checkbox" id="aviso-acepto"><span>Autorizo a Historias que Habitan a escribirme para avisarme de esta pieza, según la <a href="politica-de-datos.html">Política de tratamiento de datos</a>.</span></label>
+            <p class="error-campo" id="aviso-error" role="alert"></p>
+            <button class="boton principal" type="submit">Avisarme cuando llegue</button>
+          </form>
+        </div>
+        <div id="aviso-sesion" hidden>
+          <p>Le avisamos a <strong id="aviso-mi-correo"></strong> apenas vuelva. Este aviso no lo suscribe a otros correos.</p>
+          <button class="boton principal" type="button" id="aviso-un-toque">Avisarme cuando llegue</button>
+          <p><a href="cuenta.html">Usar otro correo desde Mi cuenta</a></p>
+        </div>
+        <div class="aviso-ok" id="aviso-ok" tabindex="-1" hidden><p id="aviso-ok-texto" role="status"></p><button class="enlace" type="button" id="aviso-cancelar">Cancelar el aviso</button></div>
+        <p class="aviso-wa">¿Tiene una pregunta? <a href="#" data-wa>Escríbanos por WhatsApp</a></p>
+      </section>
+
+      <section class="parecidas" id="parecidas" aria-labelledby="t-parecidas" hidden>
+        <h2 id="t-parecidas">Parecidas y disponibles</h2>
+        <ul class="parecidas-lista">
+        </ul>
+      </section>
 
       <section class="opiniones" id="opiniones" aria-labelledby="t-opiniones">
         <div class="opiniones-cab"><h2 id="t-opiniones">Lo que dicen quienes compraron</h2><a href="#resenas">Ver todas</a></div>
@@ -487,15 +681,6 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         </ul>
         <p class="regla">Mostramos las dos reseñas más recientes de 5 estrellas y la más reciente de 3 o 4. Todas están al final de la página.</p>
       </section>
-
-      <form class="envio" id="form-envio" novalidate>
-        <label for="ciudad">Calcule el costo y el tiempo de envío</label>
-        <div>
-          <input id="ciudad" name="ciudad" type="text" autocomplete="address-level2" placeholder="Ejemplo: Medellín…" aria-describedby="resultado-envio">
-          <button class="boton secundario" type="submit">Calcular</button>
-        </div>
-        <p id="resultado-envio" role="status"></p>
-      </form>
 
       <ul class="garantias">
         <li><svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg><span>Envíos a todo el país. <a href="#llegada">Cómo llega embalada</a></span></li>
@@ -589,7 +774,7 @@ legend span{font-weight:400;color:var(--cafe-humo)}
         <details class="faq"><summary>¿Cómo se limpia?</summary><p><span class="pendiente">[POR CONFIRMAR con el proveedor]</span></p></details>
         <details class="faq"><summary>¿Cómo llega embalada?</summary><p>En caja, con papel de seda y protección. <span class="pendiente">[POR CONFIRMAR]</span></p></details>
         <details class="faq"><summary>¿Hacen envíos fuera de Bogotá?</summary><p>Sí. Hacemos envíos a todo el país. El costo y el tiempo se calculan con su ciudad antes de pagar.</p></details>
-        <details class="faq"><summary>¿De dónde viene esta pieza?</summary><p>Hecho en China. Lo decimos en la ficha técnica, junto al material.</p></details>
+        <details class="faq"><summary>¿De dónde viene esta pieza?</summary><p>Está en la ficha técnica, junto al material y las medidas.</p></details>
       </div>
     </details>
   </div>
@@ -598,9 +783,9 @@ legend span{font-weight:400;color:var(--cafe-humo)}
     <h2 id="t-combinan">Piezas que combinan</h2>
     <!-- Espacio previsto para recomendaciones con IA en una fase posterior; hoy se elige a mano. -->
     <ul class="combinan">
-      <li><a href="pieza-jarron-alto-de-porcelana.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz82-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(122,121,119,1.00)"/><stop offset="0.08" stop-color="rgba(195,194,190,1.00)"/><stop offset="0.18" stop-color="rgba(248,247,244,1.00)"/><stop offset="0.34" stop-color="rgba(244,242,238,1.00)"/><stop offset="0.6" stop-color="rgba(220,218,214,1.00)"/><stop offset="0.82" stop-color="rgba(166,165,162,1.00)"/><stop offset="0.94" stop-color="rgba(211,209,206,1.00)"/><stop offset="1" stop-color="rgba(127,126,124,1.00)"/></linearGradient><linearGradient id="pz82-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz82-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz82-k"><path d="M86 30 H114 Q118 30 117 36 L114 70 Q136 110 136 180 Q136 250 122 284 Q121 286 116 286 H84 Q79 286 78 284 Q64 250 64 180 Q64 110 86 70 L83 36 Q82 30 86 30 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="36.0" ry="6" fill="url(#pz82-s)"/><ellipse cx="100" cy="286.4" rx="21.6" ry="1.3" fill="#000" opacity=".3"/><path d="M86 30 H114 Q118 30 117 36 L114 70 Q136 110 136 180 Q136 250 122 284 Q121 286 116 286 H84 Q79 286 78 284 Q64 250 64 180 Q64 110 86 70 L83 36 Q82 30 86 30 Z" fill="url(#pz82-c)"/><g clip-path="url(#pz82-k)"><rect x="64" y="30" width="72" height="256" fill="url(#pz82-v)"/><rect x="74.1" y="30" width="9.4" height="256" fill="#fff" opacity=".26"/><rect x="79.1" y="40" width="2.5" height="232" rx="1.5" fill="#fff" opacity=".7"/><rect x="125.9" y="40" width="2.0" height="232" rx="1" fill="#fff" opacity=".24"/></g><path d="M86 30 H114 Q118 30 117 36 L114 70 Q136 110 136 180 Q136 250 122 284 Q121 286 116 286 H84 Q79 286 78 284 Q64 250 64 180 Q64 110 86 70 L83 36 Q82 30 86 30 Z" fill="none" stroke="rgba(122,121,119,0.40)" stroke-width=".7"/></svg></div><h3>[Jarrón alto de porcelana]</h3><p>$319.900</p></a></li>
-      <li><a href="pieza-recipiente-pequeno-de-ceramica.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz83-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(108,100,87,1.00)"/><stop offset="0.08" stop-color="rgba(174,159,139,1.00)"/><stop offset="0.18" stop-color="rgba(231,220,205,1.00)"/><stop offset="0.34" stop-color="rgba(217,199,174,1.00)"/><stop offset="0.6" stop-color="rgba(195,179,157,1.00)"/><stop offset="0.82" stop-color="rgba(148,135,118,1.00)"/><stop offset="0.94" stop-color="rgba(191,177,158,1.00)"/><stop offset="1" stop-color="rgba(113,103,90,1.00)"/></linearGradient><linearGradient id="pz83-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz83-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz83-k"><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="48.0" ry="6" fill="url(#pz83-s)"/><ellipse cx="100" cy="286.4" rx="28.8" ry="1.3" fill="#000" opacity=".3"/><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z" fill="url(#pz83-c)"/><g clip-path="url(#pz83-k)"><rect x="52" y="214" width="96" height="72" fill="url(#pz83-v)"/><rect x="65.4" y="214" width="12.5" height="72" fill="#fff" opacity=".26"/><rect x="72.2" y="224" width="3.4" height="48" rx="1.5" fill="#fff" opacity=".7"/><rect x="134.6" y="224" width="2.7" height="48" rx="1" fill="#fff" opacity=".24"/></g><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z" fill="none" stroke="rgba(108,100,87,0.40)" stroke-width=".7"/></svg></div><h3>[Recipiente pequeño de cerámica]</h3><p>$79.900</p></a></li>
-      <li><a href="pieza-jarron-de-vidrio-ambar.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz84-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(92,58,21,0.62)"/><stop offset="0.08" stop-color="rgba(147,94,34,0.62)"/><stop offset="0.18" stop-color="rgba(211,169,123,0.62)"/><stop offset="0.34" stop-color="rgba(184,117,42,0.62)"/><stop offset="0.6" stop-color="rgba(166,105,38,0.62)"/><stop offset="0.82" stop-color="rgba(125,80,29,0.62)"/><stop offset="0.94" stop-color="rgba(166,115,58,0.62)"/><stop offset="1" stop-color="rgba(96,61,22,0.62)"/></linearGradient><linearGradient id="pz84-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz84-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz84-k"><path d="M88 96 H112 Q116 96 115 102 L113 124 Q152 144 152 200 Q152 262 120 284 Q118 286 114 286 H86 Q82 286 80 284 Q48 262 48 200 Q48 144 87 124 L85 102 Q84 96 88 96 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="52.0" ry="6" fill="url(#pz84-s)"/><ellipse cx="100" cy="286.4" rx="31.2" ry="1.3" fill="#000" opacity=".3"/><path d="M88 96 H112 Q116 96 115 102 L113 124 Q152 144 152 200 Q152 262 120 284 Q118 286 114 286 H86 Q82 286 80 284 Q48 262 48 200 Q48 144 87 124 L85 102 Q84 96 88 96 Z" fill="url(#pz84-c)"/><g clip-path="url(#pz84-k)"><rect x="48" y="272" width="104" height="14" fill="rgba(101,64,23,0.50)"/><path d="M56 273 H144" stroke="#fff" stroke-opacity=".55"/><rect x="48" y="96" width="104" height="190" fill="url(#pz84-v)"/><rect x="62.6" y="96" width="13.5" height="190" fill="#fff" opacity=".26"/><rect x="69.8" y="106" width="3.6" height="166" rx="1.5" fill="#fff" opacity=".7"/><rect x="137.4" y="106" width="2.9" height="166" rx="1" fill="#fff" opacity=".24"/></g><path d="M88 96 H112 Q116 96 115 102 L113 124 Q152 144 152 200 Q152 262 120 284 Q118 286 114 286 H86 Q82 286 80 284 Q48 262 48 200 Q48 144 87 124 L85 102 Q84 96 88 96 Z" fill="none" stroke="rgba(92,58,21,0.40)" stroke-width=".7"/></svg></div><h3>[Jarrón de vidrio ámbar]</h3><p>$129.900</p></a></li>
+      <li><a href="pieza-jarron-alto-de-porcelana.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz168-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(122,121,119,1.00)"/><stop offset="0.08" stop-color="rgba(195,194,190,1.00)"/><stop offset="0.18" stop-color="rgba(248,247,244,1.00)"/><stop offset="0.34" stop-color="rgba(244,242,238,1.00)"/><stop offset="0.6" stop-color="rgba(220,218,214,1.00)"/><stop offset="0.82" stop-color="rgba(166,165,162,1.00)"/><stop offset="0.94" stop-color="rgba(211,209,206,1.00)"/><stop offset="1" stop-color="rgba(127,126,124,1.00)"/></linearGradient><linearGradient id="pz168-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz168-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz168-k"><path d="M86 30 H114 Q118 30 117 36 L114 70 Q136 110 136 180 Q136 250 122 284 Q121 286 116 286 H84 Q79 286 78 284 Q64 250 64 180 Q64 110 86 70 L83 36 Q82 30 86 30 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="36.0" ry="6" fill="url(#pz168-s)"/><ellipse cx="100" cy="286.4" rx="21.6" ry="1.3" fill="#000" opacity=".3"/><path d="M86 30 H114 Q118 30 117 36 L114 70 Q136 110 136 180 Q136 250 122 284 Q121 286 116 286 H84 Q79 286 78 284 Q64 250 64 180 Q64 110 86 70 L83 36 Q82 30 86 30 Z" fill="url(#pz168-c)"/><g clip-path="url(#pz168-k)"><rect x="64" y="30" width="72" height="256" fill="url(#pz168-v)"/><rect x="74.1" y="30" width="9.4" height="256" fill="#fff" opacity=".26"/><rect x="79.1" y="40" width="2.5" height="232" rx="1.5" fill="#fff" opacity=".7"/><rect x="125.9" y="40" width="2.0" height="232" rx="1" fill="#fff" opacity=".24"/></g><path d="M86 30 H114 Q118 30 117 36 L114 70 Q136 110 136 180 Q136 250 122 284 Q121 286 116 286 H84 Q79 286 78 284 Q64 250 64 180 Q64 110 86 70 L83 36 Q82 30 86 30 Z" fill="none" stroke="rgba(122,121,119,0.40)" stroke-width=".7"/></svg></div><h3>[Jarrón alto de porcelana]</h3><p>$319.900</p></a></li>
+      <li><a href="pieza-recipiente-pequeno-de-ceramica.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz169-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(108,100,87,1.00)"/><stop offset="0.08" stop-color="rgba(174,159,139,1.00)"/><stop offset="0.18" stop-color="rgba(231,220,205,1.00)"/><stop offset="0.34" stop-color="rgba(217,199,174,1.00)"/><stop offset="0.6" stop-color="rgba(195,179,157,1.00)"/><stop offset="0.82" stop-color="rgba(148,135,118,1.00)"/><stop offset="0.94" stop-color="rgba(191,177,158,1.00)"/><stop offset="1" stop-color="rgba(113,103,90,1.00)"/></linearGradient><linearGradient id="pz169-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz169-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz169-k"><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="48.0" ry="6" fill="url(#pz169-s)"/><ellipse cx="100" cy="286.4" rx="28.8" ry="1.3" fill="#000" opacity=".3"/><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z" fill="url(#pz169-c)"/><g clip-path="url(#pz169-k)"><rect x="52" y="214" width="96" height="72" fill="url(#pz169-v)"/><rect x="65.4" y="214" width="12.5" height="72" fill="#fff" opacity=".26"/><rect x="72.2" y="224" width="3.4" height="48" rx="1.5" fill="#fff" opacity=".7"/><rect x="134.6" y="224" width="2.7" height="48" rx="1" fill="#fff" opacity=".24"/></g><path d="M56 214 H144 Q148 214 147 220 Q142 270 118 284 Q116 286 112 286 H88 Q84 286 82 284 Q58 270 53 220 Q52 214 56 214 Z" fill="none" stroke="rgba(108,100,87,0.40)" stroke-width=".7"/></svg></div><h3>[Recipiente pequeño de cerámica]</h3><p>$79.900 <s>$99.900</s> <span class="chip-estado chip-oferta">−20 %</span></p></a></li>
+      <li><a href="pieza-jarron-de-vidrio-ambar.html"><div class="foto"><svg class="arte" viewBox="0 0 200 300" aria-hidden="true" focusable="false"><defs><linearGradient id="pz170-c" x1="0" x2="1"><stop offset="0" stop-color="rgba(92,58,21,0.62)"/><stop offset="0.08" stop-color="rgba(147,94,34,0.62)"/><stop offset="0.18" stop-color="rgba(211,169,123,0.62)"/><stop offset="0.34" stop-color="rgba(184,117,42,0.62)"/><stop offset="0.6" stop-color="rgba(166,105,38,0.62)"/><stop offset="0.82" stop-color="rgba(125,80,29,0.62)"/><stop offset="0.94" stop-color="rgba(166,115,58,0.62)"/><stop offset="1" stop-color="rgba(96,61,22,0.62)"/></linearGradient><linearGradient id="pz170-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".14"/><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset=".84" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient><radialGradient id="pz170-s"><stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient><clipPath id="pz170-k"><path d="M88 96 H112 Q116 96 115 102 L113 124 Q152 144 152 200 Q152 262 120 284 Q118 286 114 286 H86 Q82 286 80 284 Q48 262 48 200 Q48 144 87 124 L85 102 Q84 96 88 96 Z"/></clipPath></defs><ellipse cx="100" cy="287" rx="52.0" ry="6" fill="url(#pz170-s)"/><ellipse cx="100" cy="286.4" rx="31.2" ry="1.3" fill="#000" opacity=".3"/><path d="M88 96 H112 Q116 96 115 102 L113 124 Q152 144 152 200 Q152 262 120 284 Q118 286 114 286 H86 Q82 286 80 284 Q48 262 48 200 Q48 144 87 124 L85 102 Q84 96 88 96 Z" fill="url(#pz170-c)"/><g clip-path="url(#pz170-k)"><rect x="48" y="272" width="104" height="14" fill="rgba(101,64,23,0.50)"/><path d="M56 273 H144" stroke="#fff" stroke-opacity=".55"/><rect x="48" y="96" width="104" height="190" fill="url(#pz170-v)"/><rect x="62.6" y="96" width="13.5" height="190" fill="#fff" opacity=".26"/><rect x="69.8" y="106" width="3.6" height="166" rx="1.5" fill="#fff" opacity=".7"/><rect x="137.4" y="106" width="2.9" height="166" rx="1" fill="#fff" opacity=".24"/></g><path d="M88 96 H112 Q116 96 115 102 L113 124 Q152 144 152 200 Q152 262 120 284 Q118 286 114 286 H86 Q82 286 80 284 Q48 262 48 200 Q48 144 87 124 L85 102 Q84 96 88 96 Z" fill="none" stroke="rgba(92,58,21,0.40)" stroke-width=".7"/></svg></div><h3>[Jarrón de vidrio ámbar]</h3><p>$129.900 <span class="chip-estado chip-pocas">Quedan 2</span></p></a></li>
     </ul>
   </section>
 
@@ -620,14 +805,48 @@ legend span{font-weight:400;color:var(--cafe-humo)}
   </section>
 
   <footer class="pie">
-    <ul>
-      <li><a href="envios.html">Envíos</a></li><li><a href="cambios-y-garantia.html">Cambios y garantía</a></li>
-      <li><a href="seguimiento.html">Seguir mi pedido</a></li><li><a href="por-mayor.html">Por mayor</a></li>
-      <li><a href="politica-de-datos.html">Tratamiento de datos</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li>
-    </ul>
-    <p>Historias que Habitan · Decoración y objetos para el hogar · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
-    <p>Superintendencia de Industria y Comercio: <a href="https://www.sic.gov.co" rel="noopener">www.sic.gov.co</a></p>
-  </footer>
+  <section class="pie-boletin" aria-labelledby="pie-t">
+    <div class="ancho">
+      <div>
+        <h2 class="pie-titulo" id="pie-t">Nuevas piezas y nuevas ofertas</h2>
+        <p class="pie-linea"><strong>Suscríbase y entérese de todo.</strong> Le avisamos sobre ofertas exclusivas y nuestros nuevos productos.</p>
+      </div>
+      <div>
+        <form class="pie-form" novalidate data-boletin>
+          <div class="pf-dos">
+            <div class="pf-campo"><label for="pf-nombre">Nombre y apellido</label>
+              <input id="pf-nombre" name="nombre" type="text" autocomplete="name" aria-describedby="pf-e-nombre"><div id="pf-e-nombre" role="alert"></div></div>
+            <div class="pf-campo"><label for="pf-correo">Correo electrónico</label>
+              <input id="pf-correo" name="correo" type="email" autocomplete="email" inputmode="email" spellcheck="false" autocapitalize="off" aria-describedby="pf-e-correo"><div id="pf-e-correo" role="alert"></div></div>
+          </div>
+          <div class="pf-dos">
+            <div class="pf-campo"><label for="pf-celular">Celular</label>
+              <input id="pf-celular" name="celular" type="tel" autocomplete="tel-national" inputmode="tel" aria-describedby="pf-a-celular pf-e-celular"><span class="pf-ayuda" id="pf-a-celular">Diez dígitos. Por ahí le avisamos por WhatsApp.</span><div id="pf-e-celular" role="alert"></div></div>
+            <div class="pf-campo"><label for="pf-empresa">Empresa <small>(opcional)</small></label>
+              <input id="pf-empresa" name="empresa" type="text" autocomplete="organization" aria-describedby="pf-a-empresa"><span class="pf-ayuda" id="pf-a-empresa">Si compra para un negocio, le contamos también sobre los precios al por mayor.</span></div>
+          </div>
+          <label class="pf-casilla"><input type="checkbox" id="pf-datos" name="datos" aria-describedby="pf-e-datos"><span>Autorizo el tratamiento de mis datos para recibir novedades y ofertas por correo y WhatsApp, según la <a href="politica-de-datos.html">política de privacidad</a>.</span></label>
+          <div id="pf-e-datos" role="alert"></div>
+          <button type="submit" class="pf-boton">Sí, quiero suscribirme</button>
+          <p class="pf-chica">Puede darse de baja cuando quiera, desde cualquier correo.</p>
+        </form>
+        <div class="pf-ok" tabindex="-1" hidden><p class="pf-ok-t">Listo, le avisaremos</p><p class="pf-ok-d"></p></div>
+      </div>
+    </div>
+  </section>
+  <div class="ancho">
+    <div class="pie-cols">
+      <div><h2 class="pie-h">Tienda</h2><ul><li><a href="tienda.html">Toda la tienda</a></li><li><a href="lo-nuevo.html">Lo nuevo</a></li><li><a href="descuentos.html">Descuentos</a></li><li><a href="colecciones.html">Colecciones</a></li><li><a href="lamparas.html">Lámparas</a></li><li><a href="por-mayor.html">Por mayor</a></li></ul></div>
+      <div><h2 class="pie-h">Ayuda</h2><ul><li><a href="envios.html">Envíos</a></li><li><a href="cambios-y-garantia.html">Cambios y garantía</a></li><li><a href="pieza-rota.html">Reportar una pieza rota</a></li><li><a href="seguimiento.html">Seguir mi pedido</a></li><li><a href="preguntas.html">Preguntas frecuentes</a></li><li><a href="#" data-wa>Ayuda por WhatsApp</a></li></ul></div>
+      <div><h2 class="pie-h">Su cuenta</h2><ul><li><a href="cuenta.html">Mi cuenta</a></li><li><a href="favoritos.html">Mis favoritos</a></li><li><a href="favoritos.html#avisos">Avisos de llegada</a></li></ul></div>
+      <div><h2 class="pie-h">La marca</h2><ul><li><a href="nosotros.html">Nosotros</a></li><li><a href="historias.html">Historias</a></li><li><a href="terminos.html">Términos y condiciones</a></li><li><a href="politica-de-datos.html">Tratamiento de datos</a></li><li><a href="politica-de-cookies.html">Política de cookies</a></li></ul></div>
+    </div>
+    <div class="pie-legal">
+      <p>Historias que Habitan · Decoración y objetos para el hogar · Bogotá, con envíos a todo Colombia · <span class="pendiente">[POR CONFIRMAR: razón social, NIT y correo]</span></p>
+      <p>Superintendencia de Industria y Comercio: <a href="https://www.sic.gov.co" rel="noopener">www.sic.gov.co</a></p>
+    </div>
+  </div>
+</footer>
 </main>
 
 <a class="wa-flotante" id="wa-flotante" href="#" aria-label="Preguntar por esta pieza en WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 0 0-7.3 12.85L3.5 20.5l4.3-1.1A8.5 8.5 0 1 0 12 3.5Z"/><path d="M9.2 8.6c-.3 2.9 2.3 5.8 5.3 6.2l1-1.3-1.7-1-.7.7c-.9-.4-1.7-1.2-2.1-2.1l.7-.7-1-1.7z"/></svg></a>
@@ -716,7 +935,8 @@ function pintarPrecio(decir) {
   const p = pesos(precioActual());
   $('precio').textContent = $('precio-barra').textContent = p;
   $('precio-antes').textContent = pesos(precioBase());
-  ['pre-ahora', 'oferta-antes', 'oferta-pct', 'oferta-vigencia'].forEach(id => $(id).hidden = !oferta);
+  ['pre-ahora', 'oferta-antes', 'oferta-pct', 'oferta-vigencia', 'oferta-ahorro'].forEach(id => $(id).hidden = !oferta);
+  $('oferta-ahorro').textContent = 'Ahorra ' + pesos(precioBase() - precioActual());
   if (decir) anunciar(oferta ? `Tamaño ${form.tamano.value}. Antes ${pesos(precioBase())}, ahora ${p}, IVA incluido.` : `Tamaño ${form.tamano.value}. Precio ${p}, IVA incluido.`);
 }
 form.addEventListener('change', e => {
@@ -729,13 +949,17 @@ form.addEventListener('change', e => {
   $('confirmacion').textContent = '';
 });
 const cantidad = $('cantidad');
-const ajustar = d => { cantidad.value = Math.min(20, Math.max(1, (+cantidad.value || 1) + d)); anunciar(`Cantidad: ${cantidad.value}`); };
+const ajustar = d => {
+  const tope = +cantidad.max || 20, pedido = (+cantidad.value || 1) + d;
+  cantidad.value = Math.min(tope, Math.max(1, pedido));
+  anunciar(pedido > tope && tope < 20 ? (tope === 1 ? 'Solo queda 1 unidad' : `Solo quedan ${tope} unidades`) : `Cantidad: ${cantidad.value}`);
+};
 $('menos').onclick = () => ajustar(-1); $('mas').onclick = () => ajustar(1);
 cantidad.addEventListener('blur', () => ajustar(0));
 
 form.addEventListener('submit', e => {
   e.preventDefault();
-  if (agotado) return window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Buen día. Quiero saber cuándo vuelve el ' + document.querySelector('h1').textContent + '.')}`, '_blank', 'noopener');
+  if (agotado) { $('aviso-llegada').scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); focoAviso().focus({ preventScroll: true }); return; }
   const n = +cantidad.value || 1;
   sumar({ nombre: document.querySelector('h1').textContent, variante: `${form.color.value} · ${form.tamano.value.split(',')[0]}`, precio: precioActual(), cantidad: n });
   const c = $('confirmacion');
@@ -885,14 +1109,6 @@ $('abrir-3d').addEventListener('click', async () => {
 });
 $('controles-3d').addEventListener('click', e => { const b = e.target.closest('[data-3d]'); if (b && visor3d) visor3d[b.dataset['3d']](); });
 
-/* Envío */
-$('form-envio').addEventListener('submit', e => {
-  e.preventDefault();
-  const ciudad = $('ciudad').value.trim(), r = $('resultado-envio');
-  r.textContent = ciudad ? `Envío a ${ciudad}: [POR CONFIRMAR: tarifa y días del operador]. El valor final aparece antes de pagar.` : 'Escriba su ciudad para calcular el envío.';
-  if (!ciudad) $('ciudad').focus();
-});
-
 /* Barra de compra: solo cuando el botón principal no está a la vista */
 new IntersectionObserver(([z]) => $('barra-compra').classList.toggle('visible', !z.isIntersecting))
   .observe($('zona-compra'));
@@ -900,19 +1116,63 @@ new IntersectionObserver(([z]) => $('barra-compra').classList.toggle('visible', 
 /* Apertura de la historia, para medir su relación con la compra */
 $('historia').addEventListener('toggle', e => e.target.open && track('abrir_historia'));
 
-/* Estados del prototipo */
-$('ver-estado').addEventListener('change', e => {
-  const v = e.target.value; agotado = v === 'agotado'; oferta = v === 'oferta'; pintarPrecio();
-  $('producto').classList.toggle('cargando', v === 'cargando');
-  $('producto').setAttribute('aria-busy', v === 'cargando');
-  $('estado').className = 'estado' + (agotado ? ' agotado' : '');
-  $('estado').lastElementChild.textContent = agotado ? 'Sin existencias por ahora' : 'Disponible para despacho';
-  $('estado').firstElementChild.innerHTML = agotado ? '<path d="M6 6l12 12M18 6 6 18"/>' : '<path d="m5 12.5 4.5 4.5L19 7.5"/>';
-  $('agregar').textContent = $('agregar-barra').textContent = agotado ? 'Avisarme por WhatsApp' : 'Agregar al carrito';
-  document.querySelector('.cantidad').hidden = agotado;
+/* Estados de la pieza: oferta, quedan pocas y agotada. Vienen del catálogo único (atributos del body);
+   el selector del prototipo los simula. Una pieza agotada no se anuncia como oferta. */
+let quedan = 0;
+function aplicarEstado(e, decir = true) {
+  agotado = !!e.agotado; oferta = !!e.oferta && !agotado; quedan = agotado ? 0 : (e.quedan || 0);
+  pintarPrecio();
+  $('producto').classList.toggle('cargando', !!e.cargando);
+  $('producto').setAttribute('aria-busy', !!e.cargando);
+  const est = $('estado');
+  est.className = 'estado' + (agotado ? ' agotado' : quedan ? ' pocas' : '');
+  est.lastElementChild.textContent = agotado ? 'Agotada por ahora' : quedan ? (quedan === 1 ? 'Queda 1 unidad' : `Quedan ${quedan} unidades`) : 'Disponible para despacho';
+  est.firstElementChild.innerHTML = agotado ? '<path d="M6 6l12 12M18 6 6 18"/>' : quedan ? '<circle cx="12" cy="12" r="8.5"/><path d="M12 8v5M12 16v.5"/>' : '<path d="m5 12.5 4.5 4.5L19 7.5"/>';
+  $('zona-compra').hidden = agotado;
+  $('aviso-llegada').hidden = !agotado;
+  $('parecidas').hidden = !agotado || !$('parecidas').querySelector('li');
+  $('agregar').textContent = 'Agregar al carrito';
+  $('agregar-barra').textContent = agotado ? 'Avisarme cuando llegue' : 'Agregar al carrito';
+  cantidad.max = quedan || 20;
+  if (+cantidad.value > +cantidad.max) cantidad.value = cantidad.max;
   $('confirmacion').textContent = '';
-  anunciar(v === 'cargando' ? 'Cargando la pieza' : oferta ? `En oferta. Antes ${pesos(precioBase())}, ahora ${pesos(precioActual())}.` : $('estado').textContent);
+  if (agotado) pintarAviso();
+  if (decir) anunciar(e.cargando ? 'Cargando la pieza' : oferta ? `En oferta. Antes ${pesos(precioBase())}, ahora ${pesos(precioActual())}.` : est.textContent);
+}
+const desdeSelector = v => ({ oferta: v === 'oferta' || v === 'oferta-pocas', agotado: v === 'agotado', quedan: v === 'pocas' || v === 'oferta-pocas' ? 2 : 0, cargando: v === 'cargando' });
+$('ver-estado').addEventListener('change', e => aplicarEstado(desdeSelector(e.target.value)));
+
+/* Aviso de llegada. Con sesión: un toque con el correo de la cuenta. Sin sesión: correo y autorización, que empieza sin marcar.
+   [PROTOTIPO] Se guarda en el navegador; en producción lo guarda la plataforma y envía un solo correo cuando hay existencias. */
+const PIEZA = document.querySelector('h1').textContent;
+// El foco va a lo que esté a la vista: la confirmación, el botón de un toque o el campo de correo
+const focoAviso = () => !$('aviso-ok').hidden ? $('aviso-ok') : !$('aviso-sesion').hidden ? $('aviso-un-toque') : $('aviso-correo');
+const leerSesion = () => { if ($('ver-sesion').checked) return { correo: 'cliente@ejemplo.co' }; try { return JSON.parse(localStorage.getItem('hqh-sesion')); } catch (e) { return null; } };
+const leerAvisos = () => { try { return JSON.parse(localStorage.getItem('hqh-avisos')) || []; } catch (e) { return []; } };
+const escribirAvisos = a => { try { localStorage.setItem('hqh-avisos', JSON.stringify(a)); } catch (e) {} };
+function guardarAviso(correo) {
+  escribirAvisos(leerAvisos().filter(x => x.pieza !== PIEZA).concat({ pieza: PIEZA, correo, url: location.pathname.split('/').pop(), fecha: new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()) }));
+}
+function pintarAviso() {
+  const ses = leerSesion(), ya = leerAvisos().find(x => x.pieza === PIEZA);
+  $('aviso-invitado').hidden = !!ses || !!ya;
+  $('aviso-sesion').hidden = !ses || !!ya;
+  if (ses) $('aviso-mi-correo').textContent = ses.correo;
+  $('aviso-ok').hidden = !ya;
+  $('aviso-ok-texto').textContent = ya ? `Listo. Le avisaremos a ${ya.correo} cuando la pieza vuelva.` : '';
+}
+$('form-aviso').addEventListener('submit', e => {
+  e.preventDefault();
+  const c = $('aviso-correo'), err = $('aviso-error');
+  if (!c.value.trim() || !c.checkValidity()) { err.textContent = 'Revise el correo: le falta la @ o el dominio.'; c.setAttribute('aria-invalid', 'true'); c.focus(); return; }
+  c.removeAttribute('aria-invalid');
+  if (!$('aviso-acepto').checked) { err.textContent = 'Para avisarle, marque la autorización de datos.'; $('aviso-acepto').focus(); return; }
+  err.textContent = ''; guardarAviso(c.value.trim()); pintarAviso(); $('aviso-ok').focus();
+  track('aviso_llegada', { sesion: false });
 });
+$('aviso-un-toque').addEventListener('click', () => { guardarAviso(leerSesion().correo); pintarAviso(); $('aviso-ok').focus(); track('aviso_llegada', { sesion: true }); });
+$('aviso-cancelar').addEventListener('click', () => { escribirAvisos(leerAvisos().filter(x => x.pieza !== PIEZA)); pintarAviso(); anunciar('Aviso cancelado'); (leerSesion() ? $('aviso-un-toque') : $('aviso-correo')).focus(); });
+$('ver-sesion').addEventListener('change', () => { if (agotado) pintarAviso(); });
 
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-proto],[data-wa],#whatsapp,#wa-flotante');
@@ -932,7 +1192,120 @@ document.addEventListener('click', e => {
   menu.querySelector('.buscar').addEventListener('submit', e => { e.preventDefault(); const q = e.target.elements.q.value.trim(); location.href = 'buscar.html' + (q ? '?q=' + encodeURIComponent(q) : ''); });
 }
 /* Estado inicial de la pieza (oferta o agotada) cuando la ficha lo trae */
-if (document.body.dataset.estado) { $('ver-estado').value = document.body.dataset.estado; $('ver-estado').dispatchEvent(new Event('change')); }
+{ const d = document.body.dataset, of = 'oferta' in d, ag = 'agotada' in d, u = +d.unidades || 0;
+  if (of || ag || u) { aplicarEstado({ oferta: of, agotado: ag, quedan: u }, false); $('ver-estado').value = ag ? 'agotado' : of && u ? 'oferta-pocas' : of ? 'oferta' : 'pocas'; }
+  // Desde «Avisarme cuando llegue» de otras páginas: el aviso queda a la vista y con el foco
+  if (ag && location.hash === '#aviso-llegada') { $('aviso-llegada').scrollIntoView({ block: 'center' }); focoAviso().focus({ preventScroll: true }); } }
 </script>
+<!-- sitio-js:ini -->
+<script>
+/* Sitio: cuenta, carrito, favoritos, avisos de llegada y boletín del pie (herramientas/sitio.py) */
+(() => {
+  const leer = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const decir = t => { if (window.anunciar) window.anunciar(t); };
+  const evento = (e, x) => (window.dataLayer = window.dataLayer || []).push({ event: e, ...x });
+  const archivo = () => location.pathname.split('/').pop() || 'inicio-estructura.html';
+
+  /* Cuenta: con sesión saluda por el nombre; sin sesión invita a ingresar. Se repinta al ingresar o salir */
+  function pintarCuenta() {
+    const ses = leer('hqh-sesion', null), nombre = ses ? (ses.nombre || '').trim().split(' ')[0] : '';
+    document.querySelectorAll('[data-cuenta]').forEach(a => {
+      a.classList.toggle('con-sesion', !!ses);
+      a.querySelector('.u-corto').textContent = ses ? 'Mi cuenta' : 'Ingresar';
+      a.querySelector('.u-largo').textContent = ses ? (nombre ? 'Hola, ' + nombre : 'Mi cuenta') : 'Ingresar';
+    });
+    document.querySelectorAll('[data-cuenta-menu]').forEach(a => { a.textContent = ses ? (nombre ? `Mi cuenta (${nombre})` : 'Mi cuenta') : 'Ingresar a mi cuenta'; });
+  }
+  pintarCuenta();
+
+  /* Buscar: abre el menú con el buscador listo para escribir */
+  document.addEventListener('click', e => { if (e.target.closest('[data-buscar]')) setTimeout(() => document.getElementById('q')?.focus(), 60); });
+
+  /* Carrito: el número de piezas guardadas, en la cabecera de todas las páginas */
+  function pintarCarrito() {
+    const n = leer('hqh-carrito', []).reduce((t, x) => t + (x.cantidad || 0), 0);
+    document.querySelectorAll('[data-contador]').forEach(a => {
+      a.setAttribute('aria-label', `Carrito, ${n} ${n === 1 ? 'pieza' : 'piezas'}`);
+      let c = a.querySelector('.contador');
+      if (!c) { c = document.createElement('span'); c.className = 'contador'; c.setAttribute('aria-hidden', 'true'); a.append(c); }
+      c.hidden = !n; c.textContent = n;
+    });
+  }
+
+  /* Favoritos y avisos de llegada: el corazón guarda la pieza; las agotadas con aviso también cuentan como guardadas */
+  const FAV = 'hqh-favoritos';
+  const favs = () => leer(FAV, []), avisos = () => leer('hqh-avisos', []);
+  const urlDe = b => (b.dataset.fav === 'auto' ? archivo() : b.dataset.fav);
+  const nombreDe = b => (b.dataset.nombre || document.querySelector('h1')?.textContent.trim() || 'La pieza').replace(/^\[|\]$/g, '');   // sin los corchetes de los nombres de ejemplo
+  function pintarFavoritos() {
+    const urls = favs().map(x => x.url);
+    document.querySelectorAll('[data-fav]').forEach(b => {
+      const on = urls.includes(urlDe(b)), nombre = nombreDe(b), txt = b.querySelector('.fav-txt');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if (txt) txt.textContent = on ? 'Guardada en favoritos' : 'Guardar en favoritos';
+      else b.setAttribute('aria-label', `Guardar ${nombre} en favoritos`);
+    });
+    const n = favs().length + avisos().length;
+    document.querySelectorAll('[data-favoritos]').forEach(a => {
+      a.setAttribute('aria-label', n ? `Favoritos, ${n} ${n === 1 ? 'guardada' : 'guardadas'}` : 'Favoritos');
+      let c = a.querySelector('.contador');
+      if (!c) { c = document.createElement('span'); c.className = 'contador'; c.setAttribute('aria-hidden', 'true'); a.append(c); }
+      c.hidden = !n; c.textContent = n;
+    });
+    document.dispatchEvent(new CustomEvent('hqh:favoritos'));
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-fav]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const url = urlDe(b), nombre = nombreDe(b), ya = favs().some(x => x.url === url);
+    guardar(FAV, ya ? favs().filter(x => x.url !== url) : favs().concat({ url, nombre, fecha: Date.now() }));
+    pintarFavoritos();
+    decir(ya ? `${nombre} salió de sus favoritos.` : `${nombre} quedó guardada en sus favoritos.`);
+    evento(ya ? 'favorito_quitar' : 'favorito_agregar', { pieza: nombre });
+  });
+  window.hqhSitio = { favs, avisos, guardarAvisos: v => guardar('hqh-avisos', v), pintarFavoritos, pintarCarrito, pintarCuenta };
+  document.addEventListener('hqh:carrito', pintarCarrito);
+  document.addEventListener('hqh:sesion', pintarCuenta);
+  addEventListener('storage', e => { if (e.key === 'hqh-carrito') pintarCarrito(); if (e.key === FAV || e.key === 'hqh-avisos') pintarFavoritos(); if (e.key === 'hqh-sesion') pintarCuenta(); });
+  pintarCarrito(); pintarFavoritos();
+
+  /* Boletín del pie: los mismos campos y reglas del modal de bienvenida. Quien ya se suscribió ve el agradecimiento */
+  const f = document.querySelector('form[data-boletin]');
+  if (!f) return;
+  const ok = f.parentElement.querySelector('.pf-ok');
+  if ((leer('hqh-bienvenida', null) || {}).suscrito) {
+    f.hidden = true; ok.hidden = false; ok.querySelector('.pf-ok-t').textContent = 'Ya está suscrito';
+    ok.querySelector('.pf-ok-d').textContent = 'Le avisamos sobre ofertas exclusivas y nuestros nuevos productos. Gracias.';
+  }
+  const $ = id => document.getElementById(id);
+  function marcar(id, m) {
+    const caja = $('pf-e-' + id), campo = $('pf-' + id);
+    caja.replaceChildren();
+    if (m) { const p = document.createElement('p'); p.className = 'pf-error'; p.textContent = m; caja.append(p); }
+    if (campo.type !== 'checkbox') campo.setAttribute('aria-invalid', m ? 'true' : 'false');
+  }
+  f.addEventListener('change', e => { if (e.target.id === 'pf-datos' && e.target.checked) marcar('datos', ''); });
+  f.addEventListener('submit', e => {
+    e.preventDefault();
+    const el = f.elements, correo = el.correo.value.trim(), cel = el.celular.value.replace(/\D/g, '').replace(/^57(?=3\d{9}$)/, '');
+    const fallas = [
+      ['nombre', el.nombre.value.trim().includes(' ') ? '' : 'Escriba su nombre y su apellido.'],
+      ['correo', !correo ? 'Escriba su correo para avisarle.' : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo) ? '' : 'Revise el correo: le falta la @ o el dominio.'],
+      ['celular', !cel ? 'Escriba su celular: diez dígitos que empiecen por 3.' : /^3\d{9}$/.test(cel) ? '' : 'Escriba un celular de diez dígitos que empiece por 3. Ejemplo: 300 123 4567.'],
+      ['datos', el.datos.checked ? '' : 'Para avisarle, autorice el tratamiento de sus datos.'],
+    ];
+    fallas.forEach(([id, m]) => marcar(id, m));
+    const primera = fallas.find(([, m]) => m);
+    if (primera) return $('pf-' + primera[0]).focus();
+    guardar('hqh-bienvenida', { suscrito: true, fecha: Date.now() });   // [PROTOTIPO] en producción lo guarda la plataforma; el modal ya no aparece
+    evento('suscripcion_boletin', { lugar: 'pie', negocio: !!el.empresa.value.trim() });
+    f.hidden = true; ok.hidden = false;
+    ok.querySelector('.pf-ok-d').textContent = `Le escribiremos a ${correo} y por WhatsApp al ${cel.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3')} cuando lleguen piezas nuevas o haya ofertas.`;
+    ok.focus();
+  });
+})();
+</script>
+<!-- sitio-js:fin -->
 </body>
 </html>

@@ -33,7 +33,7 @@ def cat_por_nombre(nombre):
 def migas_html(cat):
     nombre, archivo, madre = cat
     medio = '<li><a href="%s">%s</a></li>' % (CATEGORIAS_ARCH[madre], madre) if madre else ''
-    return '<li><a href="inicio.html">Inicio</a></li>%s<li><a href="%s">%s</a></li>' % (medio, archivo, nombre)
+    return '<li><a href="inicio-estructura.html">Inicio</a></li>%s<li><a href="%s">%s</a></li>' % (medio, archivo, nombre)
 
 
 def variantes(color, tamano, precio, antes):
@@ -58,6 +58,18 @@ def variantes(color, tamano, precio, antes):
 VIEJAS_VARIANTES = None
 
 
+def precio_mini(h):
+    """Precio de una pieza en listas cortas (combinan, parecidas), con los mismos estados que en la tienda."""
+    if h.get('agotado'):
+        return '%s · <span class="chip-estado chip-agotada">Agotada</span>' % pesos(h['precio'])
+    txt = pesos(h['precio'])
+    if h.get('antes'):
+        txt += ' <s>%s</s> <span class="chip-estado chip-oferta">−%d %%</span>' % (pesos(h['antes']), round((1 - h['precio'] / h['antes']) * 100))
+    if h.get('pocas'):
+        txt += ' <span class="chip-estado chip-pocas">%s</span>' % texto_pocas(h['unidades'])
+    return txt
+
+
 def personalizar(t, info, hermanos):
     """Cambia en la plantilla todo lo que depende de la pieza."""
     global VIEJAS_VARIANTES
@@ -79,10 +91,20 @@ def personalizar(t, info, hermanos):
         t = t.replace('const DESCUENTO = 20;', 'const DESCUENTO = %d;' % pct)
     if not info.get('sello'):
         t = re.sub(r'\n      <details class="destacada">.*?</details>\n', '\n', t, count=1, flags=re.S)
-    t = re.sub(r'(<ol><li><a href="inicio.html">Inicio</a></li>)<li><a href="[^"]*">[^<]*</a></li>(</ol>)', lambda m: '<ol>' + migas_html(info['cat']) + '</ol>', t, count=1)
-    estado = 'oferta' if antes else 'agotado' if info.get('agotado') else ''
-    if estado:
-        t = t.replace('<body>', '<body data-estado="%s">' % estado, 1)
+    t = re.sub(r'(<ol><li><a href="inicio-estructura.html">Inicio</a></li>)<li><a href="[^"]*">[^<]*</a></li>(</ol>)', lambda m: '<ol>' + migas_html(info['cat']) + '</ol>', t, count=1)
+    # Estado del catálogo único: la ficha lo lee al cargar
+    attrs = (' data-oferta' if antes and not info.get('agotado') else '') + (' data-agotada' if info.get('agotado') else '') \
+        + (' data-unidades="%d"' % info['unidades'] if info.get('pocas') else '')
+    if attrs:
+        t = t.replace('<body>', '<body%s>' % attrs, 1)
+    # Agotada: piezas parecidas que sí están disponibles (misma categoría y precio cercano)
+    if info.get('agotado'):
+        libres = [h for h in REG.values() if h is not info and not h.get('agotado') and h.get('cat')]
+        cand = sorted([h for h in libres if h['cat'][1] == info['cat'][1]], key=lambda h: abs(h['precio'] - precio))
+        cand += sorted([h for h in libres if h not in cand], key=lambda h: abs(h['precio'] - precio))[:max(0, 3 - len(cand))]
+        lis = ''.join('          <li><a href="%s"><span class="mini">%s</span><span><span class="n">%s</span><span class="p">%s</span></span></a></li>\n'
+                      % (h['archivo'], arte(*h['dibujo']) if h.get('dibujo') else '', h['nombre'], precio_mini(h)) for h in cand[:3])
+        t = t.replace('<ul class="parecidas-lista">\n        </ul>', '<ul class="parecidas-lista">\n' + lis + '        </ul>', 1)
     # Ficha técnica, relato y preguntas
     t = re.sub(r'<dt>Medidas</dt><dd>.*?</dd>', '<dt>Medidas</dt><dd>%s</dd>' % (P % '[POR CONFIRMAR]'), t, count=1)
     t = re.sub(r'<dt>Peso</dt><dd>.*?</dd>', '<dt>Peso</dt><dd>%s</dd>' % (P % '[POR CONFIRMAR]'), t, count=1)
@@ -97,14 +119,14 @@ def personalizar(t, info, hermanos):
     t = re.sub(r'<details class="faq"><summary>¿Se puede usar con agua y flores naturales\?</summary>.*?</details>',
                '<details class="faq"><summary>¿Cómo se limpia?</summary><p>%s</p></details>' % (P % '[POR CONFIRMAR con el proveedor]'), t, flags=re.S)
     t = re.sub(r'<details class="faq"><summary>¿Incluye las flores de la foto\?</summary>.*?</details>',
-               '<details class="faq"><summary>¿De dónde viene esta pieza?</summary><p>%s. Lo decimos en la ficha técnica, junto al material.</p></details>' % info['origen'], t, flags=re.S)
+               '<details class="faq"><summary>¿De dónde viene esta pieza?</summary><p>Está en la ficha técnica, junto al material y las medidas.</p></details>', t, flags=re.S)
     t = t.replace('<section class="bloque" id="tres-d" aria-labelledby="t-3d">', '<section class="bloque" id="tres-d" aria-labelledby="t-3d" hidden>')
     t = re.sub(r'<a class="enlace-boton" href="coleccion-primer-hogar.html">Ver la colección Primer hogar</a>',
                '<a class="enlace-boton" href="%s">Ver más en %s</a>' % (info['cat'][1], info['cat'][0]), t, count=1)
     # Piezas que combinan: otras de la misma categoría
     if hermanos:
         lis = ''.join('      <li><a href="%s"><div class="foto">%s</div><h3>%s</h3><p>%s</p></a></li>\n'
-                      % (h['archivo'], arte(*h['dibujo']) if h.get('dibujo') else '[FOTO DEL PRODUCTO]', h['nombre'], pesos(h['precio'])) for h in hermanos)
+                      % (h['archivo'], arte(*h['dibujo']) if h.get('dibujo') else '[FOTO DEL PRODUCTO]', h['nombre'], precio_mini(h)) for h in hermanos)
         t = re.sub(r'(<ul class="combinan">\n).*?(    </ul>)', lambda m: m.group(1) + lis + m.group(2), t, count=1, flags=re.S)
     return t
 
@@ -141,22 +163,28 @@ plantilla_luz = io.open(os.path.join(dest, 'ficha-lampara.html'), encoding='utf-
 LUZ = []
 for k, (nombre, precio, tonos, lx, ly, dibujo) in enumerate(LAMPARAS):
     LUZ.append(dict(nombre=nombre, precio=int(precio.replace('$', '').replace('.', '')), tonos=tonos, lx=lx, ly=ly, dibujo_svg=dibujo,
-                    archivo='ficha-lampara.html' if k == 0 else 'lampara-%d.html' % (k + 1), material='[Material]', origen='[Origen]',
+                    archivo='ficha-lampara.html' if k == 0 else 'lampara-%d.html' % (k + 1), material='[Material]', origen=P % '[POR CONFIRMAR]',
                     color=SIN_COLOR, tamano=SIN_TAMANO, cat=('Lámparas', 'lamparas.html', 'Decoraciones del hogar')))
 for info in LUZ:
     t = personalizar(plantilla_luz, info, [l2 for l2 in LUZ if l2 is not info][:0])
-    t = re.sub(r'<li class="luz-foto" data-tonos="\d"><div class="escena" style="[^"]*"><span class="halo"></span><svg viewBox="0 0 200 250" aria-hidden="true" focusable="false">.*?</svg>',
-               lambda m: '<li class="luz-foto" data-tonos="%d"><div class="escena" style="--lx:%d%%;--ly:%d%%"><span class="halo"></span><svg viewBox="0 0 200 250" aria-hidden="true" focusable="false">%s</svg>'
-               % (info['tonos'], info['lx'], info['ly'], info['dibujo_svg']), t, count=1, flags=re.S)
-    if info['tonos'] == 1:
-        t = r1(t, '<fieldset class="tonos">', '<fieldset class="tonos" hidden>')
-        t = re.sub(r'<dt>Luz</dt><dd>.*?</dd>', '<dt>Luz</dt><dd>Solo luz cálida. %s</dd>' % (P % '[POR CONFIRMAR: bombillo, potencia y voltaje]'), t, count=1)
+    t = re.sub(r'<li class="luz-foto" data-tonos="[^"]*"><div class="escena" style="[^"]*"><span class="halo"></span><svg viewBox="0 0 200 250" aria-hidden="true" focusable="false">.*?</svg>',
+               lambda m: '<li class="luz-foto" data-tonos="%s"><div class="escena" style="--lx:%d%%;--ly:%d%%"><span class="halo"></span><svg viewBox="0 0 200 250" aria-hidden="true" focusable="false">%s</svg>'
+               % (' '.join(info['tonos']), info['lx'], info['ly'], info['dibujo_svg']), t, count=1, flags=re.S)
+    # El selector muestra solo los tonos de esta lámpara; el primero queda elegido
+    tonos = info['tonos']
+    t = r1(t, 'name="tono-luz" value="calida" checked>', 'name="tono-luz" value="calida">')
+    t = r1(t, 'name="tono-luz" value="%s">' % tonos[0], 'name="tono-luz" value="%s" checked>' % tonos[0])
+    for v in ('calida', 'neutra', 'fria'):
+        if v not in tonos:
+            t = r1(t, '<label><input type="radio" name="tono-luz" value="%s"' % v, '<label hidden><input type="radio" name="tono-luz" value="%s"' % v)
+    t = r1(t, '<ul class="fotos luces" data-luz="off" data-tono="calida"', '<ul class="fotos luces" data-luz="off" data-tono="%s"' % tonos[0])
+    nombres = [NOMBRE_TONO[v] for v in tonos]
+    texto_luz = 'Tres tonos: cálida, neutra y fría.' if len(tonos) == 3 else 'Dos tonos: %s y %s.' % tuple(nombres) if len(tonos) == 2 else 'Solo luz %s.' % nombres[0]
+    t = re.sub(r'<dt>Luz</dt><dd>.*?</dd>', '<dt>Luz</dt><dd>%s %s</dd>' % (texto_luz, P % '[POR CONFIRMAR: bombillo, potencia y voltaje]'), t, count=1)
+    if len(tonos) == 1:
         t = re.sub(r'<details class="faq"><summary>¿Cómo se cambia el tono de la luz\?</summary>.*?</details>',
-                   '<details class="faq"><summary>¿Se puede cambiar el tono de la luz?</summary><p>No. Esta lámpara tiene solo luz cálida.</p></details>', t, flags=re.S)
-        t = t.replace('Tiene tres tonos de luz: cálida, neutra y fría.', 'Tiene solo luz cálida.')
-    else:
-        t = re.sub(r'<dt>Luz</dt><dd>.*?</dd>', '<dt>Luz</dt><dd>Tres tonos: cálida, neutra y fría. %s</dd>' % (P % '[POR CONFIRMAR: bombillo, potencia y voltaje]'), t, count=1)
-    t = re.sub(r'<small>\[ILUSTRACIÓN DE EJEMPLO\][^<]*</small>', '<small>[ILUSTRACIÓN DE EJEMPLO] Aquí van las fotos reales: apagada y encendida%s</small>' % (' en cada tono' if info['tonos'] == 3 else ''), t, count=1)
+                   '<details class="faq"><summary>¿Se puede cambiar el tono de la luz?</summary><p>No. Esta lámpara tiene solo luz %s.</p></details>' % nombres[0], t, flags=re.S)
+    t = re.sub(r'<small>\[ILUSTRACIÓN DE EJEMPLO\][^<]*</small>', '<small>[ILUSTRACIÓN DE EJEMPLO] Aquí van las fotos reales: apagada y encendida%s</small>' % (' en cada tono' if len(info['tonos']) > 1 else ''), t, count=1)
     io.open(os.path.join(dest, info['archivo']), 'w', encoding='utf-8', newline='\n').write(t)
 # La lista de lámparas enlaza cada tarjeta con su ficha
 h = io.open(os.path.join(dest, 'lamparas.html'), encoding='utf-8').read()

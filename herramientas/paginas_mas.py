@@ -74,9 +74,12 @@ CUENTA = migas(INI, ('Mi cuenta', '')) + '''
       </ul>
       <p class="firma">''' + P % '[EJEMPLO: en producción vienen de la plataforma]' + '''</p>
       <h3>Mis datos de envío</h3>
-      <div class="caja"><p>[Nombre] · [Celular]<br>[Dirección, datos complementarios, barrio o conjunto]<br>[Ciudad], Colombia</p><p><button class="enlace" type="button" data-proto>Cambiar los datos de envío</button></p></div>
+      <div class="caja"><p id="datos-envio">[Nombre] · [Celular]<br>[Dirección, datos complementarios, barrio o conjunto]<br>[Ciudad], Colombia</p><p><button class="enlace" type="button" data-proto>Cambiar los datos de envío</button></p></div>
       <h3>Mis favoritos</h3>
-      <p>Las piezas que guarde aparecen aquí. <a href="categoria.html">Ver jarrones y recipientes</a></p>
+      <p>Las piezas que guarde con el corazón, y las agotadas que le avisaremos, están en <a href="favoritos.html">Mis favoritos</a>.</p>
+      <h3>Avisos de llegada</h3>
+      <p id="sin-avisos">Cuando una pieza esté agotada, toque «Avisarme cuando llegue» en su ficha y aparecerá aquí.</p>
+      <ul class="resultados" id="mis-avisos"></ul>
       <h3>Mis comunicaciones</h3>
       <label class="casilla"><input type="checkbox" id="novedades"><span>Quiero recibir novedades por WhatsApp o correo</span></label>
       <p style="display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);margin-top:var(--s5)"><button class="boton secundario" type="button" id="salir">Cerrar sesión</button><button class="enlace" type="button" data-proto>Eliminar mi cuenta</button></p>
@@ -95,8 +98,25 @@ $('form-ingreso').addEventListener('submit', e => {
 });
 $('reenviar').onclick = () => anunciar('Enviamos otro enlace.');
 $('otro-correo').onclick = () => { $('enviado').hidden = true; $('form-ingreso').hidden = false; $('correo').focus(); };
-$('demo').onclick = () => { $('ingreso').hidden = true; $('panel').hidden = false; $('panel').focus(); };
-$('salir').onclick = () => { $('panel').hidden = true; $('ingreso').hidden = false; $('enviado').hidden = true; $('form-ingreso').hidden = false; anunciar('Cerró la sesión'); };
+/* [PROTOTIPO] La sesión de ejemplo se guarda en el navegador para que la ficha de una pieza agotada ofrezca el aviso en un toque */
+// [EJEMPLO] Datos ficticios de una cuenta; en producción vienen de la plataforma
+const SESION = { correo: 'cliente@ejemplo.co', nombre: 'Cliente Ejemplo', celular: '3001234567', direccion: 'Calle 10 # 43-20', complemento: 'Apto 502', barrio: 'El Poblado', ciudad: 'Medellín' };
+function pintarAvisos() {
+  let a = []; try { a = JSON.parse(localStorage.getItem('hqh-avisos')) || []; } catch (e) {}
+  $('sin-avisos').hidden = a.length > 0;
+  $('mis-avisos').replaceChildren(...a.map(x => { const li = document.createElement('li'), l = document.createElement('a'), n = document.createElement('strong'), d = document.createElement('span');
+    l.href = x.url; n.textContent = x.pieza; d.textContent = `Le avisaremos a ${x.correo} cuando vuelva · desde ${x.fecha}`; l.append(n, d); li.append(l); return li; }));
+}
+function pintarDatos() {
+  let s = null; try { s = JSON.parse(localStorage.getItem('hqh-sesion')); } catch (e) {}
+  if (!s || !s.ciudad) return;
+  const lineas = [`${s.nombre} · ${s.celular.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3')}`, [s.direccion, s.complemento, s.barrio].filter(Boolean).join(', '), `${s.ciudad}, Colombia`];
+  $('datos-envio').replaceChildren(...lineas.flatMap((t, i) => i ? [document.createElement('br'), t] : [t]));
+}
+function abrirPanel() { $('ingreso').hidden = true; $('panel').hidden = false; pintarAvisos(); pintarDatos(); }
+$('demo').onclick = () => { try { localStorage.setItem('hqh-sesion', JSON.stringify(SESION)); } catch (e) {} document.dispatchEvent(new Event('hqh:sesion')); abrirPanel(); $('panel').focus(); };
+try { if (localStorage.getItem('hqh-sesion')) abrirPanel(); } catch (e) {}
+$('salir').onclick = () => { try { localStorage.removeItem('hqh-sesion'); } catch (e) {} document.dispatchEvent(new Event('hqh:sesion')); $('panel').hidden = true; $('ingreso').hidden = false; $('enviado').hidden = true; $('form-ingreso').hidden = false; anunciar('Cerró la sesión'); };
 $('novedades').onchange = e => anunciar(e.target.checked ? 'Recibirá novedades' : 'No recibirá novedades');
 </script>
 '''
@@ -111,5 +131,9 @@ nueva('404.html', 'Página no encontrada', 'La página que busca no existe o cam
       <input id="b404" name="q" type="search" autocomplete="off" enterkeyhint="search" placeholder="Jarrón, vajilla, lámpara…">
       <button class="boton" type="submit">Buscar</button>
     </form>
-    <p style="margin-top:var(--s5)"><a class="enlace" href="inicio.html">Ir al inicio</a> · <a class="enlace" href="colecciones.html">Ver las colecciones</a> · <a class="enlace" href="#" data-wa>Escribirnos por WhatsApp</a></p>
+    <p style="margin-top:var(--s5)"><a class="enlace" href="inicio-estructura.html">Ir al inicio</a> · <a class="enlace" href="colecciones.html">Ver las colecciones</a> · <a class="enlace" href="#" data-wa>Escribirnos por WhatsApp</a></p>
   </article>''')
+
+
+# Mis favoritos y avisos de llegada: página propia
+exec(io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else '.', 'favoritos_pagina.py'), encoding='utf-8').read())

@@ -81,7 +81,18 @@ dialog.panel::backdrop{background:rgba(49,38,32,.45)}
 .tarjeta .precio s{font-size:.875rem;color:var(--cafe-humo)}
 .oferta{font-size:.8125rem;font-weight:500;color:var(--hueso);background:var(--borgona);padding:3px 8px;border-radius:2px}
 .sello{position:absolute;left:var(--s2);top:var(--s2);font:500 .6875rem/1.4 var(--texto);letter-spacing:.12em;text-transform:uppercase;background:var(--hueso);border:1px solid var(--tinta);padding:2px 6px;border-radius:2px}
-.agotado-txt{font-size:.875rem;color:var(--error)}
+/* Estados de la pieza (catálogo único): oferta, quedan pocas, agotada. Mismos textos y colores en todo el sitio */
+.chips{position:absolute;right:var(--s2);top:var(--s2);z-index:2;display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.chip-estado{font:500 .75rem/1.3 var(--texto);padding:3px 8px;border-radius:2px;white-space:nowrap}
+.chip-oferta{background:var(--borgona);color:var(--hueso)}
+.chip-pocas{background:#F6E7C6;color:#5B4632;border:1px solid #C9A46A}
+.chip-agotada{background:#E6E3DF;color:#5F5953;border:1px solid #BBB2A8}
+.agotado-txt{font-size:.875rem;color:var(--error);margin-top:2px}
+.agotado-txt b{font-weight:600}
+.pocas-txt{font-size:.875rem;color:#7A5A1E;margin-top:2px}
+.tarjeta.agotada .arte,.tarjeta.agotada .recorte{opacity:.5;filter:grayscale(.6)}
+.tarjeta.agotada .precio strong{color:var(--cafe-humo);font-weight:400}
+.estanteria .chips{top:0;right:0}
 
 /* Estantería: las piezas se apoyan en una repisa flotante. Cada tarjeta dibuja su tramo y los tramos se unen por fila,
    así funciona con cualquier número de columnas y con los filtros. Necesita fotos recortadas, sin fondo. */
